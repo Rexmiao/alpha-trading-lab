@@ -1,0 +1,36 @@
+{
+  "universe": ["AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "JPM", "XOM", "JNJ", "PG", "WMT", "KO", "AMD", "AVGO", "TSM", "ARM", "MRVL", "QCOM", "INTC", "TXN", "ADI", "NXPI", "MCHP", "ON", "ASX", "MU", "SNDK", "WDC", "STX", "SIMO", "AMAT", "LRCX", "KLAC", "ASML", "TER", "CRWV", "NBIS", "IREN", "APLD", "CORZ", "VRT", "ANET", "DELL", "SMCI", "HPE"],
+  "benchmark": "SPY",
+  "universe_confirmed": false,
+  "universe_kind": "thematic_research",
+  "symbol_start_dates": {"SNDK":"2025-02-24", "CRWV":"2025-03-28", "NBIS":"2024-10-21"},
+  "history_notes": [
+    {"symbol":"SNDK","date":"2025-02-24","note":"Current separated Sandisk regular-way listing; exclude the old reused SNDK ticker history.","source":"https://investor.sandisk.com/news-releases/news-release-details/sandisk-celebrates-nasdaq-listing-after-completing-separation"},
+    {"symbol":"CRWV","date":"2025-03-28","note":"CoreWeave IPO first trading date; do not fill pre-IPO history.","source":"https://www.sec.gov/Archives/edgar/data/1769628/000176962826000104/crwv-20251231.htm"},
+    {"symbol":"NBIS","date":"2024-10-21","note":"Start after Nasdaq trading resumed following business restructuring; exclude old Yandex observations.","source":"https://www.sec.gov/Archives/edgar/data/1513845/000155837025005991/nbis-20241231x20f.htm"},
+    {"symbol":"WDC","date":"2025-02-24","note":"Business mix changed after Sandisk separation; research group labels are current thematic labels, not historical classifications."},
+    {"symbol":"IREN","note":"Mixed AI infrastructure and bitcoin mining history; not a pure AI-cloud time series."},
+    {"symbol":"APLD","note":"Data-center hosting and changing cloud business mix; not a pure AI-cloud time series."},
+    {"symbol":"CORZ","note":"Colocation plus historical digital asset mining; restructuring and business changes require review."}
+  ],
+  "research_groups": [
+    {"id":"semiconductors","label_zh":"半导体与封测","label_en":"Semiconductors and packaging","symbols":["NVDA","AMD","AVGO","TSM","ARM","MRVL","QCOM","INTC","TXN","ADI","NXPI","MCHP","ON","ASX"]},
+    {"id":"memory_storage","label_zh":"存储与控制器","label_en":"Memory, storage and controllers","symbols":["MU","SNDK","WDC","STX","SIMO"]},
+    {"id":"semi_equipment","label_zh":"半导体设备","label_en":"Semiconductor equipment","symbols":["AMAT","LRCX","KLAC","ASML","TER"]},
+    {"id":"ai_cloud","label_zh":"AI云服务","label_en":"AI cloud services","symbols":["CRWV","NBIS"]},
+    {"id":"cloud_infrastructure","label_zh":"AI机房与混合业务","label_en":"AI infrastructure and mixed businesses","symbols":["IREN","APLD","CORZ"]},
+    {"id":"servers_network_power","label_zh":"服务器 网络与供电配套","label_en":"Servers, networking and power","symbols":["VRT","ANET","DELL","SMCI","HPE"]},
+    {"id":"cross_industry_controls","label_zh":"大型平台与跨行业对照","label_en":"Large platforms and cross-industry controls","symbols":["AAPL","MSFT","AMZN","GOOGL","META","JPM","XOM","JNJ","PG","WMT","KO"]}
+  ],
+  "bars": 1000,
+  "rehab_type": 1,
+  "lookback": 30,
+  "horizon": 5,
+  "validation_days": 50,
+  "test_days": 100,
+  "minimum_train_days": 120,
+  "seed": 42,
+  "decision_model": "mlp",
+  "models": {"mlp_max_iter": 160, "diffusion_steps": 32, "diffusion_train_steps": 450, "synthetic_ratio": 0.25},
+  "portfolio": {"capital": 100000, "top_k": 4, "max_weight": 0.2, "min_cash_weight": 0.2, "target_annual_vol": 0.15, "ewma_decay": 0.94, "cost_bps": 10, "rebalance_days": 5, "min_trade_value": 100, "risk_lookback": 60, "min_expected_excess": 0.002}
+}
