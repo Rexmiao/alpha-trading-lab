@@ -26,7 +26,15 @@
 
 ## 与公开教学网站的关系
 
-GitHub 保存研究代码、复现资料和 README 动图；当前[公开教学页](https://alpha-training-lab-guide.totalbluebell3.chatgpt.site)使用独立网站托管。上传 GitHub 并不会自动部署 GitHub Pages。
+GitHub 保存研究代码、复现资料和 README 动图。量化教学页现采用 GitHub Pages 发布方案；原有[教学页链接](https://alpha-training-lab-guide.totalbluebell3.chatgpt.site)保留，待新站点部署与交互检查成功后，再将新地址标为主入口。上传源码本身不代表 Pages 已经启用或部署成功。
+
+首次启用：在[本仓库 Pages 设置](https://github.com/Rexmiao/alpha-trading-lab/settings/pages)中将 Source 设为 **GitHub Actions**。使用现有 GitHub 登录，不新建 OAuth 流程，也不提供令牌。当前连接器只有源码与工作流相关操作，没有 Pages 管理设置接口。
+
+[部署工作流](../.github/workflows/pages.yml)在 main 的 web/、校验脚本或工作流变化后自动运行，并提供 workflow_dispatch 手动入口。发布前运行 `python scripts/validate_public_site.py`，只将 `web/` 上传为静态产物；不上传整个仓库。部署所用临时 GITHUB_TOKEN 权限为 contents:read、pages:write、id-token:write，不能用它代替首次启用 Pages 的管理操作。
+
+在 Actions 的 **Deploy teaching site to GitHub Pages** 中查看执行结果。工作流先检查首次设置：Pages未启用时给出notice并跳过发布，这种绿色检查不代表网站已上线；启用后重新运行任务。其他HTTP错误必须失败，不静默忽略。以实际部署步骤返回的page_url、成功状态和HTTP检查为准，不能仅按域名规则推断已经上线。
+
+维护方式：网页源码以 main 的 web/ 为准，修改后提交触发发布。语言切换、五个滑块、GIF 播放/暂停和下载均由浏览器 JavaScript 执行，Pages 上保留这些交互；Python 训练及 moomoo 采集继续在本机运行。
 
 网页导出文件位于 `web/`。在仓库根目录运行：
 

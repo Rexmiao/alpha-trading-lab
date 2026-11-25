@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.2；更新日期：2026-11-25。第一版为美股股票日频研究，数据优先来自本机moomoo历史日K。目标是打通数据、因子、组合决策和模拟订单草稿，包含结果与数学原理界面、公开教学网页和可重生成的动画。没有券商订单提交功能。
+版本：0.3；更新日期：2026-11-25。第一版为美股股票日频研究，数据优先来自本机moomoo历史日K。目标是打通数据、因子、组合决策和模拟订单草稿，包含结果与数学原理界面、公开教学网页和可重生成的动画。没有券商订单提交功能。
 
 ## 数据与时点
 
@@ -51,6 +51,8 @@ web/是可独立托管的静态教学网页源码和素材。运行python -m htt
 动画由scripts/export_training_gif.py绘制，只使用固定教学形状和假设配置，不读取data、runs、账户、凭据或券商接口。默认命令生成docs/media/alpha-training-flow.gif与poster.png；加--language en生成docs/media/en/中的纯英文版本。当前成品为1200×600、48帧、约11.16秒无限循环，README分别链接两种语言。更新动画后需同步web/assets对应文件，并检查英文关键帧不出现中文或裁剪。
 
 网页源码、动画脚本、依赖版本与生成命令均进入GitHub；托管服务的身份配置和发布凭据不进入项目仓库。公开网址是教学展示入口，不能替代本机研究程序或当作策略有效性证明。
+
+GitHub Pages使用.github/workflows/pages.yml部署main分支的web/目录，发布前运行scripts/validate_public_site.py核对七个静态文件及本机信息隔离；禁止以仓库根目录作为上传产物。工作流只使用contents:read、pages:write和id-token:write，保留现有GitHub App，不索取PAT或组织范围授权。首次启用需仓库Settings→Pages选择GitHub Actions；未启用时工作流给出notice并跳过发布，校验成功不等于网站已上线；当前连接器不提供该管理设置，不能用普通GITHUB_TOKEN自动启用。后续web/、发布校验脚本或工作流变更触发部署，也可手动运行工作流。
 
 ## 论文核心机制实验
 
