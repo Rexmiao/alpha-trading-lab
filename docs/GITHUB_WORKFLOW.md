@@ -26,7 +26,9 @@
 
 ## 与公开教学网站的关系
 
-GitHub 保存研究代码、复现资料和 README 动图。量化教学页现采用 GitHub Pages 发布方案；原有[教学页链接](https://alpha-training-lab-guide.totalbluebell3.chatgpt.site)保留，待新站点部署与交互检查成功后，再将新地址标为主入口。上传源码本身不代表 Pages 已经启用或部署成功。
+GitHub 保存研究代码、复现资料和 README 动图。量化教学页已发布到[GitHub Pages主入口](https://rexmiao.github.io/alpha-trading-lab/)；原有[教学页链接](https://alpha-training-lab-guide.totalbluebell3.chatgpt.site)保留。上传源码本身不代表Pages已经启用或部署成功，仍须核对实际发布步骤。
+
+2026-11-25的[首次实际部署](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45602225285/job/139165760420)已成功。七个公开文件均返回HTTP 200且哈希与web/一致；浏览器验证五个滑块、语言与GIF切换、播放/暂停和390px手机布局通过，无脚本异常。
 
 首次启用：在[本仓库 Pages 设置](https://github.com/Rexmiao/alpha-trading-lab/settings/pages)中将 Source 设为 **GitHub Actions**。使用现有 GitHub 登录，不新建 OAuth 流程，也不提供令牌。当前连接器只有源码与工作流相关操作，没有 Pages 管理设置接口。
 

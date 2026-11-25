@@ -44,6 +44,8 @@ MLP当前是48及24单元的两层ReLU网络，训练目标为标准化超额收
 
 ## 公开教学网页与动画
 
+主教学入口为https://rexmiao.github.io/alpha-trading-lab/，原chatgpt.site教学链接保留。2026-11-25已完成实际Pages部署，七个静态文件经HTTP状态与内容哈希核对；五个滑块、中英文媒体切换、播放/暂停和手机布局经浏览器验证。工作流检查通过与实际发布成功须分别记录。
+
 web/是可独立托管的静态教学网页源码和素材。运行python -m http.server 8512 --bind 127.0.0.1 --directory web即可本地预览；不依赖Streamlit运行、moomoo在线、账户或本机研究结果。公开网页中的数值和资产A/B/C均为假设示例，不展示真实回测收益或可发送订单。EWMA演示的混合系数不能标成方差贡献比例；组合风险缩放只能减少风险预算外的仓位。
 
 页面语言切换必须同时更新说明、公式解释、GIF、暂停封面、下载文件和README嵌入路径。English模式使用纯英文动画web/assets/training-flow-en.gif及封面poster-en.png；中文模式使用现有双语training-flow.gif及poster.png。切换语言保留播放/暂停状态，遵循prefers-reduced-motion时默认显示相应语言封面；电脑及手机视口均可操作。

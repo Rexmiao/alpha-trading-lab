@@ -21,9 +21,9 @@
 
 [English GIF](docs/media/en/alpha-training-flow.gif) 使用全英文文字。运行 `python scripts/export_training_gif.py --language en` 可重新生成英文动画和暂停封面。公开网页切换语言时，会同步切换动画、封面、下载文件和 README 示例路径。
 
-[打开公开教学页](https://alpha-training-lab-guide.totalbluebell3.chatgpt.site)：中英文切换、训练阶段说明、EWMA与仓位交互及数学解释。网页独立运行，不需要本机研究程序保持在线；其中的数值均为假设教学示例。
+[打开公开教学页（GitHub Pages）](https://rexmiao.github.io/alpha-trading-lab/)：中英文切换、训练阶段说明、EWMA与仓位交互及数学解释。网页独立运行，不需要本机研究程序保持在线；其中的数值均为假设教学示例。[原教学页链接](https://alpha-training-lab-guide.totalbluebell3.chatgpt.site)继续保留。
 
-GitHub Pages部署配置见[操作说明](docs/GITHUB_WORKFLOW.md)及[工作流](.github/workflows/pages.yml)；首次启用后，由main的web/变更自动发布。滑块、语言切换与GIF交互均保留。
+GitHub Pages已启用并发布，部署配置见[操作说明](docs/GITHUB_WORKFLOW.md)及[工作流](.github/workflows/pages.yml)。后续由main的web/变更自动发布。滑块、语言切换与GIF交互均已在Pages地址验证。
 
 网页源码与素材保存在 `web/`；本地预览可运行 `python -m http.server 8512 --bind 127.0.0.1 --directory web`，再打开 http://127.0.0.1:8512/ 。无需安装 Node 依赖或连接 moomoo。
 
