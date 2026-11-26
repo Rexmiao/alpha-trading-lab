@@ -159,6 +159,14 @@ GitHub包含代码、SPEC、README、依赖清单、论文原文入口与阅读�
 
 本机`collect-moomoo-intraday.mjs`独立于旧日K脚本，使用已安装桌面CLI的`request-history-kl`、kl_type=6、RTH及next_req_key分页；无账户或交易方法，默认不复权、仅以前的美东日期。帮助版本16.40.27608.11182326已核；真实首SPY页请求超时，0页／0根，NVDA未发出。本地TCP可达，超时原因未定，不能报告已取得真实分钟数据或所有账户均免费。时间标签未确认时仅保留原始响应和来源清单；不会静默平移成bar-start。所有行情、凭据与结果仍留本机，不进入发布包。
 
-公开5分钟入口支持访客CSV和明确的合成教学数据，参数与结果仅会话保存，中英及页面往返不重算既有JSON。包清单从16增为18个文件（17源码及MANIFEST），不带collector或真实数据。新增固定依赖`exchange-calendars==4.11.2`、`pyluach==2.3.0`、`toolz==1.0.0`、`korean-lunar-calendar==0.3.1`，并显式固定`python-dateutil==2.9.0.post0`、`pytz==2025.2`、`six==1.17.0`。使用独立环境安装验证，未升级原研究环境。部署与浏览器验收记录完成后单独更新，不能将源码改动或单元测试当成公网已发布。
+公开5分钟入口支持访客CSV和明确的合成教学数据，参数与结果仅会话保存，中英及页面往返不重算既有JSON。包清单从16增为18个文件（17源码及MANIFEST），不带collector或真实数据。新增固定依赖`exchange-calendars==4.11.2`、`pyluach==2.3.0`、`toolz==1.0.0`、`korean-lunar-calendar==0.3.1`，并显式固定`python-dateutil==2.9.0.post0`、`pytz==2025.2`、`six==1.17.0`。使用独立环境安装验证，未升级原研究环境。
 
 执行框架补充见[选型研究第9节](docs/FRAMEWORK_COMPARISON.md)及[系统SPEC第13.7节](specs/DAILY_SIGNAL_SYSTEM.md)。保留moomoo时优先技术验证VeighNa组合执行适配，采用已支持美股券商时优先比较LEAN；本轮没有引入交易框架依赖或实现M1–M4运行系统。公开HF继续是研究入口。
+
+### 0.7.0 实际验收与发布
+
+原95项Python回归、新48项分钟引擎测试、4项分钟AppTest和17项Node采集器离线测试通过。独立复核发现的“半日市长窗口仍报success”问题已修正并复验。手机长数学式已拆成15条短式，实际宽度102–264px，小于390px手机页面的358px内容区；页面无横向溢出，截图已人工核对。
+
+应用源码commit为`369d3208e82b63af86d05df35309aa802e7250df`，同步工作流`45813206990`成功；HF仓库与实际runtime均为`6a73f09770868ef0ac645452a9b4dc832a6b6866`、RUNNING、CPU Basic。17源码逐字节／SHA一致；MANIFEST仅创建时间不同，其余语义一致。公网默认CSV入口已核；主动选择合成数据后只运行一次三策略，三者均success、5个有效日、4条权益曲线（含基准）、3条回撤，逐日记录、信号、目标与成交可见。中英中三份JSON逐字节相同，SHA256为`50b56f5bfebbcc6cd5c7a53d8a708a51c9e5e7a6b25920ce8629378118daf095`；JS异常0。该演示不是市场业绩。
+
+实际HF报告Python3.12.16，本机QA为3.12.7；已核NumPy1.26.4、pandas2.2.2、日历4.11.2、Streamlit1.67.0、Plotly5.24.1、PyArrow25.0.1。保留真实运行依赖，不宣称两个Python环境完全相同。版本、输入hash、参数与执行代理约定均写入JSON，严格复现应使用同一快照及所记录环境。证据仅留本机`state/intraday-qa/`；公开发布包没有测试行情或结果。Cloud备用入口本轮未重新验收，不阻塞HF交付。

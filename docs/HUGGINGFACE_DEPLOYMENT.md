@@ -1,6 +1,6 @@
 # Hugging Face Docker 发布准备
 
-这是云端 Python 模拟教学界面的发布说明。GitHub Pages 继续提供纯静态主教学站，两者相互独立。本项目已使用用户的GitHub Secret发布到其个人Space；发布记录见下一节。容器启动、页面交互和源码上传分别核对，应用本身不包含发布凭据。
+这是云端 Python 研究界面的发布说明。Hugging Face是主要交互入口，GitHub Pages保留静态教学页，Streamlit Cloud是可选备用。最新0.7.0验收见文末；前面的初次发布记录属于历史里程碑。容器启动、页面交互和源码上传分别核对，应用本身不包含发布凭据。
 
 ## 本次个人部署目标
 
@@ -136,3 +136,15 @@ Streamlit Community Cloud同样使用用户自己的账号，在GitHub仓库部�
 HF获取时间2026-11-26T07:28:49.292490+00:00；CSV SHA256 `450ddcf459441d4f17ec8164b4b444d2950bfe2284917b9ce94959a0459ef4ff`，实际依赖PyArrow25.0.1、Streamlit1.67.0、NumPy1.26.4。源码包14文件已按固定Space commit逐项核对长度、字节与SHA。
 
 Cloud独立请求的CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d2f23288edb46270c72`，两次请求不是同一冻结输入；精确比较请在两站上传同一下载CSV。完整价格、截图及测试报告只留本机，不纳入公开源码。
+
+## 0.7.0：独立5分钟模式实际发布
+
+2026-11-26已用现有GitHub App发布应用源码`369d3208e82b63af86d05df35309aa802e7250df`，[同步工作流45813206990](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45813206990)成功。HF仓库与runtime均为`6a73f09770868ef0ac645452a9b4dc832a6b6866`，RUNNING，当前与请求硬件均CPU Basic；没有调整账号或硬件。
+
+包为18文件，其中17源码与本机逐字节／SHA一致；MANIFEST仅`created_at`不同，其余一致。默认访客CSV／上传控件经实际浏览器核对；侧栏第三项是独立5分钟模式，原AI和日频规则入口保留。CSV时间为UTC开盘标签，XNYS日历处理半日与DST；未来bar、缺日、长窗口无可执行日和输入限制按[策略契约](MOMENTUM_TREND.md)处理。
+
+公网显式选择合成教学后运行一次，三策略success、5个有效日，权益4条／回撤3条，逐日汇总及信号、权重、成交可见。中英中三次JSON下载SHA相同：`50b56f5bfebbcc6cd5c7a53d8a708a51c9e5e7a6b25920ce8629378118daf095`。390px手机数学页15条短式全部可读、最大264px小于358px内容区，页面无横溢出，人工截图核对通过，JS异常0。这不是实际行情收益验证。
+
+实际依赖来自下载JSON：Python3.12.16、NumPy1.26.4、pandas2.2.2、exchange-calendars4.11.2、Streamlit1.67.0、Plotly5.24.1、PyArrow25.0.1。独立本机QA Python3.12.7，不能据requirements宣称所有环境完全相同。原95回归、48分钟引擎、4页面测试和17采集器离线测试通过；本轮Cloud备用未重新验收。
+
+私有证据在`state/intraday-qa/hf-package-verification.json`和`hf-20261126T064615/summary.json`，不推入公开仓库。本机moomoo分钟请求尚未取得行情；TCP能连接、历史请求超时、日K探针未返回结构化业务结果，原因未定。保持已登录桌面状态即可，不凭此错误要求用户重设密钥或开通付费行情。

@@ -43,6 +43,8 @@ GitHub Pages已启用并发布，部署配置见[操作说明](docs/GITHUB_WORKF
 
 真实历史行情使用左侧 **Upload CSV / 上传 CSV**，基准填写CSV中的代码；本机已准备moomoo固定快照，数据与来源记录保留在`data/cloud-inputs/`，不发布到源码仓库。步骤与口径见[真实历史数据说明](docs/HISTORICAL_DATA.md)。
 
+目前以HF为主。0.7.0独立5分钟模式已发布并通过实际浏览器的三策略、双语JSON下载、390px数学页和图表验收；选择侧栏“5分钟动量与趋势”。真实分钟取数目前未成功，默认CSV入口与明确的合成教学分别标记。Cloud是可选备用，本轮未重新验收。应用源码、HF运行版本和实际依赖见[最新发布记录](docs/HUGGINGFACE_DEPLOYMENT.md#070独立5分钟模式实际发布)；这项研究更新尚未提供券商执行服务。
+
 使用单独Python3.12环境安装云端依赖，再启动：
 
 ```powershell
