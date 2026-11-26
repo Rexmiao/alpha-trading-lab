@@ -1,12 +1,14 @@
 # Hugging Face Docker 发布准备
 
-这是云端 Python 模拟教学界面的发布说明。GitHub Pages 继续提供纯静态主教学站，两者相互独立。下列文件只是发布准备，不表示已创建 Space、通过云端构建或上线。本项目没有可代用户发布的 Hugging Face 服务账号，也没有预置 HF 认证。
+这是云端 Python 模拟教学界面的发布说明。GitHub Pages 继续提供纯静态主教学站，两者相互独立。本项目已使用用户的GitHub Secret发布到其个人Space；发布记录见下一节。容器启动、页面交互和源码上传分别核对，应用本身不包含发布凭据。
 
 ## 本次个人部署目标
 
-2026-11-26已通过公开API核实个人账号`Rexymiao`为PRO；当时公开Space列表为空。计划目标为`Rexymiao/alpha-trading-lab`，这是已配置的发布目标，不是已上线地址。用户需先在该账号创建专用Public / Docker / Blank / CPU Basic Space。此账号信息不提供服务操作权限；实际构建与公网交互仍待验证。
+个人PRO账号：`Rexymiao`。公开Docker / CPU Basic Space：[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。用户已创建Space并将细粒度发布令牌保存为GitHub仓库Secret `HF_TOKEN`；代码和聊天均不保存令牌。
 
-自动同步已默认采用此目标，用户只需在GitHub仓库Secret安全配置`HF_TOKEN`；`HF_SPACE_ID`变量保留为可选覆盖。默认目标不会创建Space、购买服务或选择其他硬件。
+2026-11-26首次GitHub同步已完成，HF commit `e554a643d0c446ae18891dca88615cb0dbe44444`完成容器启动。首次浏览器训练后表格渲染暴露PyArrow26与NumPy1.26兼容问题；当前固定PyArrow25.0.1并添加Docker构建时的真实表转换检查，修复后的构建和公网交互仍待验证。Streamlit Community Cloud仍未创建应用。
+
+自动同步默认目标为`Rexymiao/alpha-trading-lab`，`HF_SPACE_ID`保留为可选覆盖；不创建Space、购买服务或更改硬件。
 
 ## 账号和费用前提
 
@@ -59,7 +61,7 @@ docker run --rm -p 7860:7860 alpha-lab-simulator
 
 ## 通过 GitHub Actions 同步到现有个人 Space
 
-用户已决定同时准备 Hugging Face 和 Streamlit Community Cloud 两个Python应用入口，GitHub Pages主教学站保持独立。两边的账号与实际发布状态分别核对；本节准备好同步代码，不表示已拥有HF账号、完成套餐购买或创建服务。
+用户已决定同时准备 Hugging Face 和 Streamlit Community Cloud 两个Python应用入口，GitHub Pages主教学站保持独立。两边的账号与实际发布状态分别核对；本节保留新机器部署步骤；本次账号、Space和GitHub Secret已由用户完成。
 
 此同步流程只上传到用户已经亲自创建的 **公开、个人所有、Docker、CPU Basic** Space。不创建Space、不切换硬件、不设置计费、不修改公开范围，也不支持组织名下的Space。请创建专用的新Blank Docker Space，不复用含其他项目文件的仓库。
 
@@ -93,7 +95,7 @@ python scripts/package_hf_space.py
 python scripts/upload_hf_space.py --bundle ../outputs/hf-space-bundle --space-id owner/name
 ```
 
-这里的`owner/name`仅是参数格式示例，不是已创建的服务地址。本说明没有执行上述上传。官方依据：[Space 管理接口](https://huggingface.co/docs/huggingface_hub/guides/manage-spaces)、[runtime硬件字段](https://huggingface.co/docs/huggingface_hub/package_reference/space_runtime)、[仓库提交API](https://huggingface.co/docs/huggingface_hub/package_reference/hf_api#huggingface_hub.HfApi.create_commit)。
+这里的`owner/name`仅是参数格式示例，不是已创建的服务地址。本次已通过GitHub Actions执行上传，实际记录见本文开头；下列接口链接用于说明同步实现。官方依据：[Space 管理接口](https://huggingface.co/docs/huggingface_hub/guides/manage-spaces)、[runtime硬件字段](https://huggingface.co/docs/huggingface_hub/package_reference/space_runtime)、[仓库提交API](https://huggingface.co/docs/huggingface_hub/package_reference/hf_api#huggingface_hub.HfApi.create_commit)。
 
 ## 会话、休眠和数据边界
 
@@ -106,3 +108,7 @@ CPU Basic 按官方当前规则闲置约48小时会休眠，访问时重新唤�
 ## 并行的 Streamlit Community Cloud 入口
 
 Streamlit Community Cloud同样使用用户自己的账号，在GitHub仓库部署表单中选择入口 `hf_space/streamlit_app.py`，而不是本机结果查看入口 `app.py`；入口目录的`hf_space/requirements.txt`用于其依赖发现。它不使用HF令牌，也不受本HF同步工作流控制。仍须单独完成平台连接、实际构建与页面验证；两边都准备不能表述为两边都已上线。
+
+## 依赖兼容与构建检查
+
+云端两份requirements固定`pyarrow==25.0.1`与`numpy==1.26.4`、`pandas==2.2.2`。Docker安装后实际执行NumPy数组→pandas DataFrame→PyArrow Table；导入或转换失败会使构建失败。还需通过浏览器训练后表格、图表与JSON下载验收。版本依据：[Arrow v25依赖](https://arrow.apache.org/docs/25.0/python/install.html#dependencies)、[Arrow26的NumPy要求](https://arrow.apache.org/docs/python/install.html#dependencies)。

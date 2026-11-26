@@ -19,6 +19,7 @@ WORKDIR /home/user/app
 
 COPY --chown=user:user requirements.txt ./requirements.txt
 RUN python -m pip install --user --no-cache-dir -r requirements.txt
+RUN python -c "import numpy as np, pandas as pd, pyarrow as pa; table = pa.Table.from_pandas(pd.DataFrame({'value': np.array([1.0])})); assert table.num_rows == 1"
 
 COPY --chown=user:user hf_space/ ./hf_space/
 COPY --chown=user:user research/ ./research/

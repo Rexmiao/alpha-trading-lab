@@ -52,7 +52,8 @@ _CODE_SHA256 = {name: hashlib.sha256((_PROJECT_ROOT / name).read_bytes()).hexdig
                 for name in ("hf_space/engine.py", "research/data.py",
                              "research/models.py", "research/portfolio.py")}
 _DEPENDENCIES = {name: version(name) for name in
-                 ("numpy", "pandas", "scipy", "scikit-learn", "joblib", "threadpoolctl")}
+                 ("numpy", "pandas", "scipy", "scikit-learn", "joblib", "threadpoolctl",
+                  "pyarrow", "streamlit", "plotly")}
 
 
 def _integer(value, name, low, high):

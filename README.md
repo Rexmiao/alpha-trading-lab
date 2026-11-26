@@ -31,7 +31,7 @@ GitHub Pages已启用并发布，部署配置见[操作说明](docs/GITHUB_WORKF
 
 新增[模拟界面](hf_space/streamlit_app.py)可按参数实际训练四组小模型，查看留出期Rank IC、含成本净值、回撤和参考权重。可明确选择合成教学数据或上传标准OHLCV CSV；合成结果不是市场业绩，云端版本不接moomoo账户。
 
-[Hugging Face部署说明](docs/HUGGINGFACE_DEPLOYMENT.md)、[Docker发布模板](deploy/huggingface/README.md)和[Streamlit Community Cloud部署说明](docs/STREAMLIT_CLOUD_DEPLOYMENT.md)已准备，两个平台尚无已验证的公网实例。GitHub Pages主教学站独立运行，不因本地模拟或发布包存在而成为Python后台。
+[Hugging Face部署说明](docs/HUGGINGFACE_DEPLOYMENT.md)、[Docker发布模板](deploy/huggingface/README.md)和[Streamlit Community Cloud部署说明](docs/STREAMLIT_CLOUD_DEPLOYMENT.md)已准备；[Hugging Face Space](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)已创建并上传，当前正在验收兼容性修复；Streamlit Community Cloud仍待创建应用。GitHub Pages主教学站独立运行，不因本地模拟或发布包存在而成为Python后台。
 
 使用单独Python3.12环境安装云端依赖，再启动：
 

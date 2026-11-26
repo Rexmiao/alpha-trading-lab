@@ -17,8 +17,11 @@ and future-return labels to model training, held-out evaluation and constrained
 portfolio weights. Synthetic teaching observations are explicitly labeled.
 Users can optionally supply a bounded OHLCV CSV for the current session.
 
-This package is prepared for deployment. Its presence does not mean that a Space
-has been created, a build has succeeded or a public service is running.
+Deployment status and verified public entrypoints are recorded in the
+[project deployment guide](https://github.com/Rexmiao/alpha-trading-lab/blob/main/docs/HUGGINGFACE_DEPLOYMENT.md).
+The package manifest verifies source integrity; container startup and successful
+page interactions are checked separately. The container build checks NumPy,
+pandas and PyArrow table conversion before publishing the image.
 
 ## Scope
 
