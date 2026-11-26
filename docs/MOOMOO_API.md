@@ -1,6 +1,6 @@
 # moomoo 官方文档入口与本项目接入手册
 
-核对日期：2026-11-25。本文帮助新机器配置 Alpha Lab 的只读日 K 采集，并说明官方接口与项目已实现范围。当前链路是 Windows moomoo 桌面端 CLI 加本机 HTTP Host；官网 OpenD 手册和新 REST 手册的认证方式不能直接套到这条链路上。
+核对日期：2026-11-26。本文说明只读日K与独立5分钟采集适配。当前链路是 Windows moomoo 桌面端 CLI 加本机 HTTP Host；官网 OpenD 手册和新 REST 手册的认证方式不能直接套到这条链路上。
 
 ## 官方 manual book 从哪里看
 
@@ -19,13 +19,21 @@
 
 | 方式 | 连接与认证 | 本项目状态 |
 | --- | --- | --- |
-| 当前桌面 CLI | Node 子进程调用 `moomooapp-cli.exe`，连接本机 `http://127.0.0.1:22222`；通过 `OPENAPI_HOST_APPKEY` 提供本机 Host 的 AppKey | 已实现的采集入口，只允许 `subscribe` 和 `get-kline` |
+| 当前桌面 CLI | Node 子进程调用 `moomooapp-cli.exe`，连接本机 `http://127.0.0.1:22222`；通过 `OPENAPI_HOST_APPKEY` 提供本机 Host 的 AppKey | 日K仅`subscribe`／`get-kline`；独立分钟脚本仅`request-history-kl`，实际取数待通过 |
 | 传统 OpenD 加 SDK | 独立 OpenD 网关加 Python 等语言 SDK；官方示例常用 `OpenQuoteContext` 连接本机 `11111` | 可参考接口语义，当前代码没有此适配器。[官方架构](https://openapi.moomoo.com/moomoo-api-doc/en/intro/intro.html)、[SDK K 线示例](https://openapi.moomoo.com/moomoo-api-doc/quote/get-kl.html) |
 | 新 REST API | 公网 HTTP 接口；官方快速开始区分 OAuth 与带签名的 API Key 认证 | 当前代码没有接入。其 OAuth Token、签名私钥和 AppKey ID 不等于本机 Host AppKey。[官方认证说明](https://open.moomoo.com/zh-cn/api/overview/getting-started) |
 
 当前实际链路为：`python run.py collect → Node 采集脚本 → 桌面 CLI → 本机 Host → moomoo 行情服务`。本项目只接受 loopback 地址，不把 Host 改成公网服务。账户登录与行情授权由桌面端负责；Python 训练代码读取已保存的快照。
 
 桌面 CLI 的文件名、默认目录、HTTP 端口和参数来自本项目当前适配实现，不能仅凭 OpenD 或 REST 文档认定所有客户端版本都相同。配置时应查看本机已安装 CLI 的帮助和桌面端设置。实现依据见 [collect-moomoo.mjs](../scripts/collect-moomoo.mjs)。
+
+### 已安装CLI的5分钟历史分页
+
+本机`openapi-cli 16.40.27608.11182326`帮助确认`request-history-kl`支持`--kl-type 6`、`--begin-time`／`--end-time`、`--session rth`、`--no-extended-time`、`--max-ack-kl-num`及`--next-req-key`。这些是当前桌面命令，不是OpenD Python参数。[独立只读采集器](../scripts/collect-moomoo-intraday.mjs)默认不复权，原始响应与来源保存在新的`data/intraday/`目录；不改旧日K manifest，不查询账户、持仓或订单。
+
+2026-11-26最小SPY／NVDA两日验证尚未成功：首个SPY历史页30秒超时，未返回行情，NVDA未继续。后续直接TCP检查证明22222可连接，不能用沙箱内`Get-NetTCPConnection`空输出推定服务未开启。保持桌面登录，诊断须区分TCP连通、CLI进程返回、鉴权、行情业务与账户额度；当前没有足够证据把超时定位为其中一项，也不应要求用户随意重设密钥或开通付费订阅。
+
+分钟UI要求带时区的bar-start时间；供方标签尚未实测时采集器只留raw，不默认将其当作bar-start或整体平移。声明口径、首次／末次时间和分页记录须与CSV一起复查。即使取到两天分钟数据，也不足以评价策略稳定性。详见[5分钟契约](MOMENTUM_TREND.md)。
 
 ## Windows 新机器配置
 

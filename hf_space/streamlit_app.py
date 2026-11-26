@@ -268,9 +268,15 @@ def main() -> None:
     st.session_state["hf_study"] = st.session_state[memory]
     def remember_study():
         st.session_state[memory] = st.session_state["hf_study"]
-    study_labels = {"ai": tr("AI 模型对照", "AI model comparison"), "strategies": tr("动量与趋势", "Momentum & trend")}
-    study = st.sidebar.radio(tr("研究页面", "Study page"), ("ai", "strategies"), index=None,
+    study_labels = {"ai": tr("AI 模型对照", "AI model comparison"),
+                    "strategies": tr("日频动量与趋势", "Daily momentum & trend"),
+                    "intraday": tr("5 分钟动量与趋势", "5-minute momentum & trend")}
+    study = st.sidebar.radio(tr("研究页面", "Study page"), ("ai", "strategies", "intraday"), index=None,
                              format_func=study_labels.__getitem__, key="hf_study", on_change=remember_study)
+    if study == "intraday":
+        from hf_space.intraday_ui import render_intraday_page
+        render_intraday_page(tr)
+        return
     if study == "strategies":
         from hf_space.strategy_ui import render_strategy_page
         render_strategy_page(tr, render_data_source, input_coverage, render_online_downloads)

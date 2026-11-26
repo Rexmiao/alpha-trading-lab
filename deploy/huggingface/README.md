@@ -30,13 +30,17 @@ pandas and PyArrow table conversion before publishing the image.
 - Run bounded simulations and public history requests only after an explicit user action.
 - Download a session-only online price CSV snapshot and source JSON for repeatability; provider errors are explicit and never replaced with synthetic data.
 - Compare Ridge, MLP, resampling and conditional-DDPM augmentation.
+- Explore four daily rules or a separate 5-minute momentum/trend page with
+  UTC bar-start CSV inputs, exchange-calendar RTH validation, daily aggregation
+  and bilingual mathematical explanations. Intraday fills are OHLC proxies;
+  synthetic and uploaded data remain explicitly separated.
 - Keep uploaded CSV and results in the current session; the package contains no
   saved market data, local research results, models, credentials or account data.
 - No connection to a desktop broker, no account access and no order submission.
   A cloud container cannot reach a user's desktop loopback service.
 
 Uploading a CSV sends it to the Space's Python process for analysis. It is not
-browser-only computation. Supply only standard daily OHLCV content that you
+browser-only computation. Supply only standard daily or 5-minute OHLCV content that you
 intend the service to process; do not include accounts or credentials.
 
 ## Hugging Face setup

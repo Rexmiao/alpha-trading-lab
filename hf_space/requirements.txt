@@ -1,4 +1,4 @@
-# Runtime generation: daily-rules-v1. Refresh the Cloud process after the shared portfolio interface update.
+# Runtime generation: intraday-rules-v1. Daily and intraday time contracts stay separate.
 # Cloud simulation only. Local desktop collection and deployment SDKs are excluded.
 # Public history uses Python urllib; no provider credential or SDK is installed.
 streamlit==1.67.0
@@ -11,3 +11,10 @@ plotly==5.24.1
 joblib==1.4.2
 threadpoolctl==3.5.0
 tzdata==2025.2
+exchange-calendars==4.11.2
+pyluach==2.3.0
+toolz==1.0.0
+korean-lunar-calendar==0.3.1
+python-dateutil==2.9.0.post0
+pytz==2025.2
+six==1.17.0

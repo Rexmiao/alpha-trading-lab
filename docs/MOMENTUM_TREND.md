@@ -1,6 +1,6 @@
 # 动量与趋势：日频基线和分钟研究边界
 
-更新：2026-11-26。**四种日频规则、双语界面与回测代码已实现；发布和验收状态见主SPEC。分钟行情与分钟策略尚未接入，没有本项目分钟结果。** 本文定义研究对照，不提供收益保证。最终实现和验收状态以 [SPEC](../SPEC.md) 为准；每日采集与实盘阶段见 [每日系统规格](../specs/DAILY_SIGNAL_SYSTEM.md)。
+更新：2026-11-26。**四种日频规则与独立5分钟研究，发布和验收状态见主SPEC；真实分钟采集目前超时，没有真实分钟业绩结论。** 本文定义研究对照，不提供收益保证。最终实现和验收状态以 [SPEC](../SPEC.md) 为准；每日采集与实盘阶段见 [每日系统规格](../specs/DAILY_SIGNAL_SYSTEM.md)。
 
 ## 四种日频基线
 
@@ -48,9 +48,44 @@
 
 原文：[发表DOI](https://doi.org/10.1109/ACCESS.2019.2899177)、[作者上传稿](https://www.researchgate.net/profile/Jia-Hao-Syu/publication/331076454_Assessing_the_Profitability_of_Timely_Opening_Range_Breakout_on_Index_Futures_Markets/links/6285e8a6247e622c2efb5839/Assessing-the-Profitability-of-Timely-Opening-Range-Breakout-on-Index-Futures-Markets.pdf)。
 
-## 分钟数据候选，尚未接入
+## 5分钟研究入口与时间契约
 
-- **moomoo传统OpenD／SDK**：官方提供K_1M、K_5M、K_15M及历史K线分页；当前本机22222桌面CLI仍只采日K，不能套用另一接口的认证或参数。实际历史长度、订阅和权限需按账户核实。[历史K线](https://openapi.moomoo.com/moomoo-api-doc/quote/request-history-kline.html)、[K线类型](https://openapi.moomoo.com/moomoo-api-doc/quote/quote.html)、[本项目接口边界](MOOMOO_API.md)。
+HF主站侧栏增加独立的“5分钟动量与趋势”，与四种日频规则及AI模型对照分开。上传UTC开盘时间标记的5分钟CSV，或明确选择合成教学数据；不在公开服务连接本机moomoo。固定输入七列：
+
+```text
+timestamp,symbol,open,high,low,close,volume
+2026-11-24T14:30:00Z,SPY,100,101,99,100.5,10000
+```
+
+此行是格式示例，不是真实SPY行情。`timestamp`表示bar开始；信号可用时间是开始后5分钟。输入使用UTC并以`Z`或`+00:00`结尾；不将日期字符串、无时区时间、本地时间或结束时间标签自动改成开盘时间。价格、时间格点、重复、OHLC关系、行数和大小均需校验；未来或尚未完成的bar拒绝，未收市的交易日排除。
+
+只做美股RTH、多头与现金，首版三条规则如下；参数是工程基线，不是论文完整复现或验证过的最优值：
+
+| 规则 | 资格／状态 | 初始参数 |
+| --- | --- | --- |
+| 时间序列动量 | 同日`close[t]/close[t-L]-1>0`才参与 | L=6根，即30分钟 |
+| 均线趋势 | `close>SMA12`且`SMA3>SMA12` | 3／12根，即15／60分钟 |
+| 开盘区间突破 | 前6根完成后冻结高低区间；其后收盘突破上沿进入候选，跌破下沿退出 | 观察30分钟；日终清零 |
+
+三条策略共用输入、完整交易日、初始资金和费用；每个交易日窗口从头预热，不跨隔夜。XNYS日历由固定`exchange-calendars==4.11.2`提供，处理DST、休市与提前收市，不能固定假设每天78根。股票与基准必须在某日都有全部预期bar，该日才进入共同评价；缺失日逐股列入覆盖报告，不填价、不补假数据。共同预热和额外延迟后也须留有执行窗口；例如半日市42根配慢均线60根不算有效日。少于两个完整且可执行的共同日不造净值；少于20个有效日不展示夏普或年化波动。完整日筛选利用事后覆盖信息，可能引入样本选择偏差，不能直接当作实盘实时筛选。
+
+目标仓位先采用等权，`w_i=min((1-cash_floor)/N,max_weight)`，余下现金保留；仓位与现金约束作用于调仓目标，实际权重会随价格漂移。此次不把日频EWMA或252直接套到5分钟bar，也不加入未经验证的日内年化风险预算。信号为规则资格及排序值，不冒充未来收益预测或Rank IC。
+
+执行价使用下一根K线开盘的OHLC代理：默认延迟0时，上一根结束与下一根开盘共享边界，必须标明零延迟假设；可额外延迟一根完整K线作敏感性对照。日历预先确定最后一根bar开盘强制平仓，取消待执行目标并禁止再入，无隔夜头寸。整数股、买卖方向各扣实际成交费用；佣金类bps、半点差和滑点分别记录，不重复计费。基准为SPY每日首bar开盘全额买入、最后bar开盘退出，并扣同样费用；它与单股仓位封顶的策略风险暴露不同，不是等风险对照。
+
+权益曲线保留UTC分钟时点，收益及年化统计先聚合到每日末权益，再按252描述；分钟bar数不是独立交易日样本数。结果同时展示每日收益、交易数量、成本分项、信号与成交时间、参考目标和实际现金，并下载JSON来源／版本／数据hash。无历史买卖报价和逐笔顺序，不能验证盘口深度、排队、冲击或真实成交。
+
+真实本机采集入口为独立只读脚本：
+
+```powershell
+node scripts/collect-moomoo-intraday.mjs --symbols SPY,NVDA --start 2026-11-24 --end 2026-11-25
+```
+
+沿用已安装桌面CLI／Host22222、进程内密钥及本机DPAPI方式；不改变既有日K采集器或旧manifest。上述默认命令仅探测并保留raw；取得外部bar-start口径确认后，才可加`--timestamp-label bar-start --verification-source "确认依据"`声明导出，manifest仍区分操作者声明和独立核实。原始响应、分页和来源清单只留`data/intraday/`，不进入GitHub／HF发布包。当前首个SPY历史页请求超时，尚未取得真实分钟CSV；本地端口TCP检查通过，不能把超时归因为端口未监听，也不能推定账户无权限。CLI帮助确认命令和分页能力，不等于真实历史取数或时间标签已验证。[接口边界](MOOMOO_API.md)。
+
+## 其他分钟数据候选，尚未接入
+
+- **moomoo传统OpenD／SDK**：官方提供K_1M、K_5M、K_15M及历史K线分页；本机桌面CLI的独立5分钟采集适配与本路线分开，不能混用认证或参数。实际历史长度、订阅和权限需按账户核实。[历史K线](https://openapi.moomoo.com/moomoo-api-doc/quote/request-history-kline.html)、[K线类型](https://openapi.moomoo.com/moomoo-api-doc/quote/quote.html)、[本项目接口边界](MOOMOO_API.md)。
 - **Alpaca Basic**：实时IEX和历史SIP应分开理解；Basic查询历史SIP时，end需至少早于当前15分钟。它可以作为历史分钟候选，不等于免费实时全市场报价；请求还需遵守feed、分页与权限要求。[官方FAQ](https://docs.alpaca.markets/us/docs/market-data-faq)、[数据服务范围](https://docs.alpaca.markets/us/docs/about-market-data-api)、[Stock Bars](https://docs.alpaca.markets/us/reference/stockbars)。
 - **Massive Basic**：可研究分钟聚合历史；免费Basic取得前一交易日数据需跨过美东午夜，不能当作当日盘中实时服务。窗口、调整方式及当前计划范围应随快照记录。[分钟聚合接口](https://massive.com/docs/rest/stocks/aggregates/custom-bars)、[Basic可用时点](https://massive.com/knowledge-base/article/on-the-free-basic-plan-when-can-i-pull-the-previous-trading-days-data)、[计划范围](https://massive.com/pricing?product=stocks)。
 

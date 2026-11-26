@@ -1,6 +1,6 @@
 # LEAN、Qlib 与 NautilusTrader 选型研究
 
-研究日期：2026-11-26（America/New_York）；报告版本：1.0。适用项目：Windows／Python、美股日频、moomoo、DL／GenAI alpha 研究，后续统一支持提醒、人工确认、自动执行。
+研究日期：2026-11-26（America/New_York）；报告版本：1.1。适用项目：Windows／Python、美股日频与5分钟、moomoo、DL／GenAI alpha 研究，后续统一支持提醒、人工确认、自动执行。第9节补充用户提出的四种执行框架。
 
 本轮核对官方文档、固定版本源码、发布记录、包元信息和维护者说明。没有安装框架、执行性能基准、迁移真实数据、连接交易账户或验证第三方插件。以下“适合度”“成本”和采用顺序是结合本项目的工程判断，不是实测性能排名或收益结论。
 
@@ -122,3 +122,35 @@ Qlib 0.9.7 的 wheel 覆盖 CPython 3.12 Windows，其直接依赖未对现有 N
 前两个离线验证不需要交易账户。第三个在进入 M3、明确接口和模拟账户后才进行。现有仅前复权日 K 不足以单独验收真实货币公司行动账本；离线自建样本验证的是工程语义，真实数据覆盖另行核对。
 
 本次不提供跨框架速度、开发天数、预期收益或自动交易可靠性的数值排名，因为尚无相同任务的可比实测。完整实现顺序与当前状态以[每日系统实施 SPEC](../specs/DAILY_SIGNAL_SYSTEM.md)为准。
+
+## 9. VeighNa、LEAN、Freqtrade 与 PandoraTrader：针对当前券商的选择
+
+**建议复用成熟的事件与订单管理框架，并保留自己的 alpha 研究与决策逻辑。坚持 moomoo 和 Python 时，优先做 VeighNa 适配验证；若愿意改用已支持的美股券商，优先比较 LEAN。** 这是工程候选顺序，不是已采用框架或实盘接入完成的声明。5分钟研究页面可以独立交付，不依赖这项迁移。
+
+| 候选 | 本项目可以复用什么 | 主要阻碍 | 当前判断 |
+| --- | --- | --- | --- |
+| VeighNa / vn.py | Python事件引擎、多标的组合策略、委托／成交事件、录制与风控模块 | Futu插件较旧，走传统OpenD而非现有桌面Host；美股时区、账户实体和依赖均需适配 | 保留moomoo时的首个技术验证候选 |
+| LEAN | 美股公司行动、Alpha→组合→风险→执行分层、多资产账本 | 官方券商目录未列moomoo／Futu；自定义券商适配涉及.NET，不能当成开箱即用 | 若采用IBKR／Alpaca等已有适配，优先级提高 |
+| Freqtrade | Python策略、回测、dry-run与实盘机器人 | 官方主要接加密交易所，不契合当前美股moomoo账户 | 暂不采用 |
+| PandoraTrader | C++事件架构、Tick回放、CTP等期货柜台 | 市场与语言不符；核心代码邀请授权，README还有限制出售条款 | 不作为当前底座 |
+
+证据：[VeighNa功能](https://www.vnpy.com/)、[组合策略](https://www.vnpy.com/docs/cn/community/app/portfolio_strategy.html)、[LEAN券商目录](https://www.quantconnect.com/docs/v2/cloud-platform/live-trading/brokerages)、[LEAN的Python支持](https://www.quantconnect.com/docs/v2/writing-algorithms/key-concepts/python-and-lean)、[Freqtrade官方定位及交易所](https://www.freqtrade.io/en/stable/)、[PandoraTrader原仓库README](https://github.com/pegasusTrader/PandoraTrader/blob/master/README.md)。PandoraTrader的授权不能按MIT式开放复用来推定。
+
+### 9.1 VeighNa的Futu插件需要真实验证
+
+2026-11-26经GitHub API核对，`veighna-global/vnpy_futu`的main为`fa4b185716054036bcb1f9508ff0ef2366259dd2`（2022-11-09）；不是VeighNa核心版本的发布日期。[固定源码](https://github.com/veighna-global/vnpy_futu/blob/fa4b185716054036bcb1f9508ff0ef2366259dd2/vnpy_futu/futu_gateway.py)。代码存在US及REAL／SIMULATE分支，但下列事实限制直接采用：
+
+- 默认端口11111、使用`futu-api`／OpenD；不是本项目正在使用的桌面CLI／22222认证。
+- 只支持限价委托；未显式配置`security_firm`和账户ID，部分查询`acc_id=0`。Futu名义支持不能外推为所有moomoo地区／账户均可交易。[官方账户与所属券商字段](https://openapi.moomoo.com/moomoo-api-doc/en/trade/get-acc-list.html)。
+- 历史查询只取1分钟；分页使用`DataFrame.append`，与本研究环境pandas2.2.2不兼容。
+- 时间统一标为`Asia/Shanghai`，而moomoo官方美股历史`time_key`使用美东时间；必须修改并验收DST与美股交易时段。[官方历史时间字段](https://openapi.moomoo.com/moomoo-api-doc/en/quote/request-history-kline.html)。
+
+`vnpy.alpha`可以参考因子、标签、模型与研究流程，内置MLP不意味着已实现本项目的条件DDPM、训练隔离或五日超额收益标签。多股票共享现金宜评估PortfolioStrategy的目标仓位及统一组合执行，不将每股独立CTA账户相加代替组合账本。[alpha官方入门](https://www.vnpy.com/forum/topic/34625-veighnaduo-yin-zi-ru-men-xi-lie-1-mo-kuai-zong-lan-yu-zhun-bei)。
+
+当前核心源码的NumPy／pandas下限及alpha的scikit-learn／Torch要求与公开实验室锁版本不同，须独立环境，交换有版本的信号和目标仓位，不直接升级HF依赖。[核对的核心依赖快照](https://github.com/vnpy/vnpy/blob/fa5206fe63836f3f8cd1ebd7168fbd19a5e2ff09/pyproject.toml)。本轮没有安装或启动VeighNa、LEAN、Freqtrade或PandoraTrader，没有进行任何账户联调。
+
+### 9.2 应采用的边界与首个验证
+
+公开HF负责解释、回测和比较；本机／私有常驻进程负责后续行情、策略与执行。研究训练冻结模型后输出有时间、单位与版本的预测；组合层生成目标仓位，应用层的提醒／确认／自动策略决定何时允许进入执行层。交易框架管理唯一的在途委托及成交真相，不另建第二个竞争账本。
+
+先离线将一条5分钟趋势策略接成目标仓位并做固定行情重放。进入券商模拟阶段前，明确实际接口、账户实体与模拟权限，再验证部分成交、撤单、未知提交、断线重连和重启恢复。选择框架不跳过既定M1–M4验收，也不代表授权激活真钱交易。最终采用依据是同一数据与恢复场景下的可复现结果，而非宣传性能或模型名称。

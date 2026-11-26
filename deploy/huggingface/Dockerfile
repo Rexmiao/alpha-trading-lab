@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     NUMEXPR_NUM_THREADS=1 \
     VECLIB_MAXIMUM_THREADS=1 \
     STREAMLIT_SERVER_HEADLESS=true \
-    STREAMLIT_SERVER_MAX_UPLOAD_SIZE=3 \
+    STREAMLIT_SERVER_MAX_UPLOAD_SIZE=8 \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
     HOME=/home/user \
     PATH=/home/user/.local/bin:$PATH
@@ -20,6 +20,7 @@ WORKDIR /home/user/app
 COPY --chown=user:user requirements.txt ./requirements.txt
 RUN python -m pip install --user --no-cache-dir -r requirements.txt
 RUN python -c "import numpy as np, pandas as pd, pyarrow as pa; table = pa.Table.from_pandas(pd.DataFrame({'value': np.array([1.0])})); assert table.num_rows == 1"
+RUN python -c "import exchange_calendars as xc; cal = xc.get_calendar('XNYS', start='2024-11-27', end='2024-11-29'); assert cal.session_close('2024-11-29').hour == 18"
 
 COPY --chown=user:user hf_space/ ./hf_space/
 COPY --chown=user:user research/ ./research/

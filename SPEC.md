@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.6.1（研究页语言状态与运行更新）；更新日期：2026-11-26。第一版为美股股票日频研究，数据优先来自本机moomoo历史日K。目标是打通数据、因子、组合决策和模拟订单草稿，包含结果与数学原理界面、公开教学网页和可重生成的动画。没有券商订单提交功能。
+版本：0.7.0（独立5分钟动量／趋势研究）；更新日期：2026-11-26。第一版为美股股票日频研究，新增具有独立时间契约的5分钟规则实验。数据优先来自本机moomoo。目标是打通数据、因子、组合决策和模拟订单草稿，包含结果与数学原理界面、公开教学网页和可重生成的动画。没有券商订单提交功能。
 
 ## 下一阶段实施规格（计划，尚未实现）
 
@@ -89,7 +89,7 @@ JSON记录来源标识、标准化数据哈希、配置、seed、分割边界、
 
 Hugging Face使用deploy/huggingface的Docker模板，Python3.12、非root UID1000、端口7860、数值线程1及3MiB上传限制。scripts/package_hf_space.py按白名单生成父目录outputs/hf-space-bundle及ZIP，只包含共同UI、引擎、三个计算模块、依赖、模板和许可证，保存文件哈希。账号PRO门槛、临时磁盘和实际发布状态写入docs/HUGGINGFACE_DEPLOYMENT.md；不代购套餐，不自动选择计费硬件。Streamlit Community Cloud使用同一入口，步骤见docs/STREAMLIT_CLOUD_DEPLOYMENT.md，并就近读取hf_space/requirements.txt；此文件与Docker依赖清单保持一致，根目录原有研究环境不升级。
 
-HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.py。用户在GitHub仓库Secret中安全设置HF_TOKEN，目标默认Rexymiao/alpha-trading-lab，也可用Variable HF_SPACE_ID指定自己已创建的公开个人Docker Space；凭据不发送到聊天。缺少发布令牌或有效目标时工作流明确跳过，不冒称部署成功。上传前校验16个包文件及哈希、个人所有权、Docker SDK和CPU Basic硬件，拒绝其他项目文件；用已读取的远端提交号作并发保护。流程不创建Space、不改硬件、不设置计费、不授权组织；代码上传与新版本应用运行分别验证。
+HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.py。用户在GitHub仓库Secret中安全设置HF_TOKEN，目标默认Rexymiao/alpha-trading-lab，也可用Variable HF_SPACE_ID指定自己已创建的公开个人Docker Space；凭据不发送到聊天。缺少发布令牌或有效目标时工作流明确跳过，不冒称部署成功。上传前校验18个包文件及哈希、个人所有权、Docker SDK和CPU Basic硬件，拒绝其他项目文件；用已读取的远端提交号作并发保护。流程不创建Space、不改硬件、不设置计费、不授权组织；代码上传与新版本应用运行分别验证。
 
 云端两份依赖清单显式固定pyarrow==25.0.1，与numpy==1.26.4和pandas==2.2.2配套。首次公网运行发现未约束的PyArrow26要求NumPy2，故在Docker构建阶段增加实际NumPy→pandas→Arrow表转换，失败即中止镜像构建；不以容器RUNNING替代表格渲染验收。JSON同时记录PyArrow、Streamlit与Plotly版本。
 
@@ -148,3 +148,17 @@ GitHub包含代码、SPEC、README、依赖清单、论文原文入口与阅读�
 
 
 0.6.1修正：研究页面、规则说明和数据来源选项保存在独立于widget身份的会话状态中，通过显式回调更新，避免中英往返时恢复旧默认页面；结果不重算。公网验收已发现Cloud加载旧portfolio模块导致allocation_fn调用失败，先保留失败JSON证据；hf_space/requirements.txt加入运行代际标记以触发Cloud依赖文件重新部署，不改变依赖版本或在活跃进程中热重载共享模块。HF为主要入口，Cloud为备用，两个平台单独核验，不让Cloud的状态代表HF功能。Cloud成功恢复前不得标成四策略已验证可用。
+
+## 0.7.0：独立5分钟研究
+
+新增`hf_space/intraday.py`、`intraday_ui.py`，主入口保留AI／日频两个模式，并增加独立5分钟页面。CSV字段固定`timestamp,symbol,open,high,low,close,volume`；timestamp为带时区的bar-start并归一到UTC，上限8MiB、50000行、12股票加基准。日频解析仍按原3MiB等限制执行，不将分钟时间截成日期。仅用户显式运行才计算，不用上传文件名或URL读其他路径。
+
+首版为本日正动量、均线趋势、冻结开盘区间收盘确认突破；同日预热、共同最长预热起点、共同完整RTH交易日。固定XNYS日历处理DST与半日市；缺少任一证券／基准bar的日期列入覆盖报告并整日排除，不填补价格。还须在共同预热、调仓锚点和额外延迟后有可执行窗口，无窗口日单独排除；至少两个完整且可执行的共同日才运行，分别报告完整日与有效日数量。时间与公式、逐日聚合及数学推导见[策略说明](docs/MOMENTUM_TREND.md)。这三条是工程基线，不是分钟原文或DL／GenAI论文完整复现。
+
+多头／现金，合格股等权并封顶，默认单股20%、目标现金至少20%，整数股先卖后买且不透支现金。日内本次不采用日频EWMA协方差或分钟直接252年化。上一bar完成后的下一bar开盘仅为零延迟OHLC成交代理，提供额外延迟一根K线对照；日历最后一bar开盘预先清仓并禁止再入，无隔夜。费用、半点差、滑点分别按每实际买卖方向扣除。基准每日首bar开盘全额买入、最后bar开盘退出，整数股及相同费用，但风险暴露与策略不同。每日末权益收益再按252描述，少于20日不展示夏普或年化波动；不以分钟根数当独立样本数或计算规则Rank IC。权重分别展示最后一次实际调仓的目标参考及期末真实模拟全现金状态，附各自时点，不冒称当前账户仓位。
+
+本机`collect-moomoo-intraday.mjs`独立于旧日K脚本，使用已安装桌面CLI的`request-history-kl`、kl_type=6、RTH及next_req_key分页；无账户或交易方法，默认不复权、仅以前的美东日期。帮助版本16.40.27608.11182326已核；真实首SPY页请求超时，0页／0根，NVDA未发出。本地TCP可达，超时原因未定，不能报告已取得真实分钟数据或所有账户均免费。时间标签未确认时仅保留原始响应和来源清单；不会静默平移成bar-start。所有行情、凭据与结果仍留本机，不进入发布包。
+
+公开5分钟入口支持访客CSV和明确的合成教学数据，参数与结果仅会话保存，中英及页面往返不重算既有JSON。包清单从16增为18个文件（17源码及MANIFEST），不带collector或真实数据。新增固定依赖`exchange-calendars==4.11.2`、`pyluach==2.3.0`、`toolz==1.0.0`、`korean-lunar-calendar==0.3.1`，并显式固定`python-dateutil==2.9.0.post0`、`pytz==2025.2`、`six==1.17.0`。使用独立环境安装验证，未升级原研究环境。部署与浏览器验收记录完成后单独更新，不能将源码改动或单元测试当成公网已发布。
+
+执行框架补充见[选型研究第9节](docs/FRAMEWORK_COMPARISON.md)及[系统SPEC第13.7节](specs/DAILY_SIGNAL_SYSTEM.md)。保留moomoo时优先技术验证VeighNa组合执行适配，采用已支持美股券商时优先比较LEAN；本轮没有引入交易框架依赖或实现M1–M4运行系统。公开HF继续是研究入口。
