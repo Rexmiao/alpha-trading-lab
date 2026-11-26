@@ -86,11 +86,11 @@ docker run --rm -p 7860:7860 alpha-lab-simulator
 
 上传前会检查：
 
-- 本地包必须恰好是14个允许文件，`MANIFEST.json`的路径、字节数与所有SHA256一致；符号链接、额外内容、缺失或变动中的包均拒绝。
+- 本地包必须恰好是16个允许文件，`MANIFEST.json`的路径、字节数与所有SHA256一致；符号链接、额外内容、缺失或变动中的包均拒绝。
 - `whoami`确认个人身份与目标owner一致；目标必须已存在、为Docker且公开。
 - 从Space资料和最新runtime核对硬件：所有明确值只能是`cpu-basic`，至少一项明确为`cpu-basic`。首次构建允许current未知但requested为basic；未设置requested时允许current为basic。两项仍全未知或任何一项是其他硬件均停止，不自动改设置。
 - 远端文件只能是同一发布包的白名单文件或平台生成的`.gitattributes`；发现其他项目文件时停止，不删除或覆盖它们。
-- 使用明确的14个`CommitOperationAdd`和已读取的`parent_commit`提交，不使用全目录上传、不删除远端文件。若远端有并发提交，停止并重新核对，不强制覆盖。
+- 使用明确的16个`CommitOperationAdd`和已读取的`parent_commit`提交，不使用全目录上传、不删除远端文件。若远端有并发提交，停止并重新核对，不强制覆盖。
 
 完成后的输出包含 `code_uploaded`、Space仓库网址及commit。只有收到有效commit标识时，`code_uploaded`才为`true`；这仅证明代码上传，即使观察到runtime为RUNNING，也未证明新commit对应的应用已构建完成。实际上线仍须核对该commit的构建日志、App页面和交互功能。上传后读取runtime失败时会分别保留“代码已上传”和状态查询错误，不能误报为没有发生上传。提交请求报错、响应丢失或回应缺少有效commit标识时，`code_uploaded`为`null`，表示结果未确认；应先核对远端commit，不能认定没有写入或盲目重试。
 

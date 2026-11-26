@@ -9,13 +9,13 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="topbar"><a class="brand" href="#top"><span class="brand-mark">α</span> Alpha Training Lab</a><button id="language" type="button" aria-label="Switch language">English</button></header>
+<header class="topbar"><a class="brand" href="#top"><span class="brand-mark">α</span> Alpha Training Lab</a><nav id="topnav" class="topnav" aria-label="页面导航"><a href="#animation" data-i18n="navFlow">训练流程</a><a href="#momentum" data-i18n="navMomentum">动量与趋势</a><a href="#lab" data-i18n="navRisk">风险与仓位</a><a href="#math" data-i18n="navMath">数学原理</a></nav><button id="language" type="button" aria-label="Switch language">English</button></header>
 <main id="top">
   <section class="hero">
     <div class="eyebrow" data-i18n="eyebrow">AI 量化研究 · 原理教学</div>
     <h1 data-i18n="hero">先理解模型怎样学习，<br>再理解分数怎样变成决策。</h1>
     <p class="lead" data-i18n="lead">从日 K、历史特征与未来答案，走到深度学习、生成式增强、未见期检验和受约束仓位。每一步都要能解释、能检查。</p>
-    <div class="hero-actions"><a class="primary" href="#animation" data-i18n="seeFlow">查看训练流程</a><a href="#lab" data-i18n="tryLab">动手理解风险与仓位</a></div>
+    <div class="hero-actions"><a class="primary" href="#animation" data-i18n="seeFlow">查看训练流程</a><a href="#momentum" data-i18n="tryMomentum">探索动量与趋势</a><a href="#lab" data-i18n="tryLab">动手理解风险与仓位</a></div>
     <p class="scope" data-i18n="scope">公开教学演示 · 所有数值均为假设示例 · 不接入账户或交易服务</p>
   </section>
 
@@ -32,6 +32,35 @@
       <button type="button" data-stage="5" aria-pressed="false" data-i18n="step5">因子到决策</button>
     </div>
     <div class="stage-detail" aria-live="polite"><span class="stage-number" id="stageNumber">01</span><div><h3 id="stageTitle"></h3><p id="stageText"></p><div class="formula" id="stageFormula"></div></div></div>
+  </section>
+
+  <section id="momentum" class="section">
+    <div class="section-head"><div><div class="eyebrow" data-i18n="trendTag">四类日频规则</div><h2 data-i18n="trendTitle">动量与趋势：先让简单规则可解释</h2></div><span class="example-tag" data-i18n="toy">教学假设</span></div>
+    <p class="section-intro" data-i18n="trendIntro">相对动量比较股票之间的强弱；趋势规则判断一只股票自身是否进入持有状态。点击一种规则，再改变教学价格，观察信号怎样变化。所有参数都是研究示例。</p>
+    <div id="strategyChoices" class="strategy-cards" role="group" aria-label="选择策略示例">
+      <button type="button" class="strategy-card selected" data-strategy="cs" aria-pressed="true" aria-controls="strategyDetail"><span class="strategy-code">01 · CS</span><span class="strategy-name" data-i18n="csTitle">横截面动量</span><span class="strategy-description" data-i18n="csBrief">比较同一天多只股票的过去60日收益，取相对排名。</span></button>
+      <button type="button" class="strategy-card" data-strategy="ts" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">02 · TS</span><span class="strategy-name" data-i18n="tsTitle">时间序列动量</span><span class="strategy-description" data-i18n="tsBrief">只看自身过去60日收益是否为正，形成持有或现金状态。</span></button>
+      <button type="button" class="strategy-card" data-strategy="ma" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">03 · MA</span><span class="strategy-name" data-i18n="maTitle">双均线趋势过滤</span><span class="strategy-description" data-i18n="maBrief">收盘高于200日均线，且50日均线高于200日均线。</span></button>
+      <button type="button" class="strategy-card" data-strategy="breakout" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">04 · BREAKOUT</span><span class="strategy-name" data-i18n="breakoutTitle">通道突破</span><span class="strategy-description" data-i18n="breakoutBrief">突破前55日高点入场，跌破前20日低点退出；窗口排除当天。</span></button>
+    </div>
+    <article id="strategyDetail" class="trend-lab">
+      <div class="trend-controls">
+        <h3 id="trendRuleTitle"></h3><p id="trendRuleText"></p>
+        <label for="trendPrice"><span data-i18n="trendPriceLabel">资产A当前收盘（教学价）</span><output id="trendPriceOut" for="trendPrice"></output></label><input id="trendPrice" type="range" min="80" max="130" step="1" value="110">
+        <div id="trendMaControl" hidden><label for="trendMaPast"><span data-i18n="trendMaLabel">前49日收盘均价</span><output id="trendMaOut" for="trendMaPast"></output></label><input id="trendMaPast" type="range" min="90" max="115" step="1" value="105"></div>
+        <div id="trendHeldControl" hidden><label class="check-label" for="trendHeld"><input id="trendHeld" type="checkbox"><span data-i18n="trendHeldLabel">假设当前已经持有资产A</span></label></div>
+        <p id="trendAssumptions" class="caption"></p>
+      </div>
+      <div class="trend-explanation" aria-live="polite" aria-atomic="true">
+        <div id="trendFormula" class="formula"></div>
+        <div class="result-line"><span id="trendResultLabel"></span><strong id="trendResult" class="number"></strong></div>
+        <p id="trendOutcome" class="detail"></p>
+        <div id="trendComparison" class="table-wrap"><table><thead><tr><th data-i18n="asset">资产</th><th data-i18n="trendReturn">过去60日收益</th><th data-i18n="trendScore">排名百分位</th></tr></thead><tbody id="trendRows"></tbody></table></div>
+        <p id="trendScoreNote" class="caption"></p>
+      </div>
+    </article>
+    <div class="trend-boundary"><p data-i18n="trendTiming"><strong>收盘确定信号，下一交易日开盘模拟成交。</strong>60日、50/200日和55/20日是示例窗口，不是验证过的最优参数；窗口均指交易日。日频规则可回测，分钟级研究需要独立的分钟行情、成本和成交验证。</p><p data-i18n="trendUnits">排名、0/1状态和通道规则都是交易信号，不是已校准的未来收益率。不要把它们直接与以bps计的成本门槛比较；实际仓位、费用与现金要在统一回测中另行计算。</p></div>
+    <div class="research-links"><div><h3 data-i18n="trendRunTitle">去研究应用运行实际实验</h3><p data-i18n="trendRunText">可选择自己的moomoo CSV、在线历史快照或明确标注的合成示例。本页只演示规则，不获取行情，也不展示真实策略收益。</p></div><div class="actions"><a class="primary" href="https://rexymiao-alpha-trading-lab.hf.space" target="_blank" rel="noopener" data-i18n="openHf">打开 Hugging Face 应用</a><a href="https://alpha-trading-lab-rnb8nqgww7tgbdvgdcysxm.streamlit.app/" target="_blank" rel="noopener" data-i18n="openStreamlit">打开 Streamlit Cloud 应用</a></div></div>
   </section>
 
   <section id="lab" class="section">
@@ -82,6 +111,6 @@
   </section>
 </main>
 <footer><span>Alpha Training Lab</span><span data-i18n="footer">教学示例 · 无真实行情、账户或订单 · 不构成策略有效性证明</span></footer>
-<script src="main.js?v=2"></script>
+<script src="main.js?v=3"></script>
 </body>
 </html>

@@ -261,6 +261,14 @@ def render_data_source(result: dict) -> None:
 def main() -> None:
     st.set_page_config(page_title="AI Alpha Simulation Lab", page_icon="📈", layout="wide")
     st.sidebar.radio("语言 / Language", ("中文", "English"), key="hf_language", horizontal=True)
+    study_index = 1 if st.session_state.get("hf_study") == "strategies" else 0
+    study_labels = {"ai": tr("AI 模型对照", "AI model comparison"), "strategies": tr("动量与趋势", "Momentum & trend")}
+    study = st.sidebar.radio(tr("研究页面", "Study page"), ("ai", "strategies"), index=study_index,
+                             format_func=study_labels.__getitem__, key="hf_study")
+    if study == "strategies":
+        from hf_space.strategy_ui import render_strategy_page
+        render_strategy_page(tr, render_data_source, input_coverage, render_online_downloads)
+        return
     st.title(tr("AI Alpha 模拟实验室", "AI Alpha Simulation Lab"))
     st.write(tr("比较四种预测方法，并观察交易成本、仓位上限与风险预算如何改变模拟结果。",
                 "Compare four prediction methods and see how execution costs, position limits and risk budgets change simulated results."))

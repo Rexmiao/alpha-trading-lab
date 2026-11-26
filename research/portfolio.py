@@ -282,15 +282,22 @@ def _dated(frame, required, name):
     return out.sort_values(keys)
 
 
-def backtest(prices, predictions, benchmark, config=None):
+def backtest(prices, predictions, benchmark, config=None, *, allocation_fn=None):
     """Simulate post-close signals at next session's actual open, offline only.
 
     Benchmark dates are the trading calendar. Positions drift daily. The
     benchmark buys and holds at the first eligible execution open without
     benchmark fees; strategy costs are deducted from cash exactly once.
     The final session is marked at close, without inventing a next open.
+    An optional allocation_fn(scores, historical_returns, config) returns
+    (weights, diagnostics). It receives history only through the signal close;
+    rule-based allocators can use explicit eligibility instead of interpreting
+    historical factors as expected excess returns. The default is unchanged.
     """
     cfg = _config(config)
+    if allocation_fn is not None and not callable(allocation_fn):
+        raise TypeError("allocation_fn must be callable.")
+    allocate = target_weights if allocation_fn is None else allocation_fn
     px = _dated(prices, ["date", "symbol", "open", "close"], "prices")
     pred = _dated(predictions, ["date", "symbol", "score"], "predictions")
     bench = _dated(benchmark, ["date", "open", "close"], "benchmark")
@@ -323,7 +330,11 @@ def backtest(prices, predictions, benchmark, config=None):
         if i in executions:
             signal_date = dates[executions[i]]
             scores = grouped.get(signal_date, pd.Series(dtype=float))
-            weights, diagnostic = target_weights(scores, history_returns.loc[:signal_date], cfg)
+            weights, diagnostic = allocate(scores, history_returns.loc[:signal_date], cfg)
+            weights = _weights(weights)
+            if (any(w > cfg.max_weight + 1e-10 for w in weights.values()) or
+                    sum(weights.values()) > 1 - cfg.min_cash_weight + 1e-10):
+                raise ValueError("Allocator exceeded the configured position cap or cash floor.")
             needed = set(quantities) | set(weights)
             execution_prices = {s: float(opens.at[date, s]) for s in needed}
             if any(not math.isfinite(v) or v <= 0 for v in execution_prices.values()):

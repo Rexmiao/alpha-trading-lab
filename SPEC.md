@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.5.4（文档更新）；更新日期：2026-11-26。第一版为美股股票日频研究，数据优先来自本机moomoo历史日K。目标是打通数据、因子、组合决策和模拟订单草稿，包含结果与数学原理界面、公开教学网页和可重生成的动画。没有券商订单提交功能。
+版本：0.6.0（动量／趋势研究功能）；更新日期：2026-11-26。第一版为美股股票日频研究，数据优先来自本机moomoo历史日K。目标是打通数据、因子、组合决策和模拟订单草稿，包含结果与数学原理界面、公开教学网页和可重生成的动画。没有券商订单提交功能。
 
 ## 下一阶段实施规格（计划，尚未实现）
 
@@ -89,7 +89,7 @@ JSON记录来源标识、标准化数据哈希、配置、seed、分割边界、
 
 Hugging Face使用deploy/huggingface的Docker模板，Python3.12、非root UID1000、端口7860、数值线程1及3MiB上传限制。scripts/package_hf_space.py按白名单生成父目录outputs/hf-space-bundle及ZIP，只包含共同UI、引擎、三个计算模块、依赖、模板和许可证，保存文件哈希。账号PRO门槛、临时磁盘和实际发布状态写入docs/HUGGINGFACE_DEPLOYMENT.md；不代购套餐，不自动选择计费硬件。Streamlit Community Cloud使用同一入口，步骤见docs/STREAMLIT_CLOUD_DEPLOYMENT.md，并就近读取hf_space/requirements.txt；此文件与Docker依赖清单保持一致，根目录原有研究环境不升级。
 
-HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.py。用户在GitHub仓库Secret中安全设置HF_TOKEN，目标默认Rexymiao/alpha-trading-lab，也可用Variable HF_SPACE_ID指定自己已创建的公开个人Docker Space；凭据不发送到聊天。缺少发布令牌或有效目标时工作流明确跳过，不冒称部署成功。上传前校验14个包文件及哈希、个人所有权、Docker SDK和CPU Basic硬件，拒绝其他项目文件；用已读取的远端提交号作并发保护。流程不创建Space、不改硬件、不设置计费、不授权组织；代码上传与新版本应用运行分别验证。
+HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.py。用户在GitHub仓库Secret中安全设置HF_TOKEN，目标默认Rexymiao/alpha-trading-lab，也可用Variable HF_SPACE_ID指定自己已创建的公开个人Docker Space；凭据不发送到聊天。缺少发布令牌或有效目标时工作流明确跳过，不冒称部署成功。上传前校验16个包文件及哈希、个人所有权、Docker SDK和CPU Basic硬件，拒绝其他项目文件；用已读取的远端提交号作并发保护。流程不创建Space、不改硬件、不设置计费、不授权组织；代码上传与新版本应用运行分别验证。
 
 云端两份依赖清单显式固定pyarrow==25.0.1，与numpy==1.26.4和pandas==2.2.2配套。首次公网运行发现未约束的PyArrow26要求NumPy2，故在Docker构建阶段增加实际NumPy→pandas→Arrow表转换，失败即中止镜像构建；不以容器RUNNING替代表格渲染验收。JSON同时记录PyArrow、Streamlit与Plotly版本。
 
@@ -130,3 +130,18 @@ GitHub包含代码、SPEC、README、依赖清单、论文原文入口与阅读�
 必须检验标签与成交时点、跨边界标签剔除、历史特征截断不变性、权重和现金约束、风险缩放、已持仓到目标数量的转换、成本扣除、无真实订单路径。真实数据不可获得时，采集失败可重试，离线测试必须明确为测试数据。
 
 发布资料和网页时还需检查：论文及官方API来源可追溯；所有仓库内相对链接与静态素材存在；中英文切换同步切换动画、封面、下载与README示例；暂停/播放与手机布局正常；公开文件不引用本机研究目录或交易接口；待上传文件不含data、runs、state、凭据和聊天截图。远端文件的Git blob哈希需与最终上传清单一致，并保留已有LICENSE。
+
+
+## 动量与趋势研究页（0.6.0）
+
+新增 hf_space/strategies.py 和 strategy_ui.py，由云端应用侧栏“研究页面”在AI模型与动量／趋势间切换；静态GitHub Pages新增双语策略原理、教学价格交互和真实应用入口。原四模型入口保留，规则页不训练模型，不连接账户或提交订单。
+
+四类规则分别为：cross_sectional_momentum按L日历史收益选前4只（允许负收益）；time_series_momentum要求L日收益>0；moving_average_trend要求close>SMA_slow且SMA_fast>SMA_slow；channel_breakout以收盘突破此前E日high进入候选状态、跌破此前X日low退出，两个通道窗口都排除当日，期间保持状态。后三类所有合格股票参与风险分配，不附加Top4排名。默认L=60、快慢50/200、E/X=55/20；原始值分别为历史收益、close/慢均线−1、close/此前入场高点−1，均非未来收益预测。完整说明和分钟原始研究见[策略文档](docs/MOMENTUM_TREND.md)。
+
+规则采用明确eligibility分配路径，不向现有收益成本门槛塞入排名或伪造预测。四组共用逆波动、年化252的零均值归一化EWMA协方差、单股上限、20%调仓目标现金下限和只减仓的组合风险缩放（非调仓日持仓／现金比例随价格漂移）；实际整数股交易每边扣一次成本，最小交易金额0，逐笔记录、现金及在途／成交时点仅为离线模拟。research.portfolio.backtest新增可选allocation_fn，原模型默认路径保持原行为。规则参数、数据及代码哈希、实际依赖版本与账本审计进入JSON。
+
+所有策略使用相同的最长连续预热要求（默认200根）和末尾共同评估窗口（默认60个基准日期），窗口不足明确失败，不换短窗口、不填补新上市／停牌历史。首个评估日收盘现金起步，按固定锚点每5个交易日产生调仓，下一已观察基准交易日实际open模拟执行；最终close只估值，不虚构下一open或最后平仓。通道状态逐日更新、仅锚点换仓。缺少已持仓开盘／收盘价时该策略明确失败。最新权重为最后收盘后的参考，不表示已执行。
+
+云端三种数据来源沿用原CSV／在线日K／合成教学边界。源、参数、结果和下载保持当前会话；语言和未提交参数变化不运行策略。两研究页可复用会话内在线快照，但AI训练留出与规则末尾评估并不自动对齐，界面说明需统一数据、日期、仓位和成本后再比较。规则本身不宣称已发现alpha。分钟论文与数据候选只提供原文入口；当前没有分钟接入、分钟曲线或自动交易实现，也不改变M1尚未实现的状态。
+
+本轮完成代码和本地验收后再更新各公网平台状态；不能以GitHub上传或HF容器构建成功替代页面、四策略结果、双语与下载验收。HF明确包清单增加两个规则模块，共16个文件（含MANIFEST），不包含研究快照、结果、模型或密钥。
