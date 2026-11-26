@@ -1,6 +1,6 @@
 # 每日信号采集与自动交易系统实施规格
 
-版本：0.2.1；日期：2026-11-26；状态：实施设计，M1 尚未实现。
+版本：0.2.2；日期：2026-11-26；状态：实施设计，M1 尚未实现。
 
 用户目标：一套系统共用数据、因子、信号、组合、风控与审计，可选择仅提醒、人工确认执行、自动执行；最终支持真实资金自动化交易；初期先每天稳定采集真实行情、计算因子、捕捉信号并留档。本文件定义后续实现顺序及验收条件，不把现有研究网页或订单草稿描述成已具备实盘能力。当前已实现范围见[主 SPEC](../SPEC.md)。
 
@@ -442,8 +442,8 @@ moomoo 官方接口提供模拟环境，但 place_order 参数默认 REAL；适�
 | 官方参考 | 可借鉴部分 | 本项目用法 |
 | --- | --- | --- |
 | [LEAN Algorithm Framework](https://www.quantconnect.com/docs/v2/writing-algorithms/algorithm-framework/overview) | 股票池、Alpha、组合、风险、执行分工 | 信号生成不承担报单，预测转换成仓位后再经过风险和执行策略 |
-| [Qlib Workflow](https://qlib.readthedocs.io/en/latest/component/workflow.html)与[Portfolio Strategy](https://qlib.readthedocs.io/en/latest/component/strategy.html) | 配置化实验、记录训练／推理产物、分数到目标仓位的独立环节 | 冻结数据／模型／配置；明确分数单位与组合规则，不把排序值直接当收益率 |
-| [NautilusTrader Overview](https://nautilustrader.io/docs/latest/concepts/overview/)与[Adapters](https://nautilustrader.io/docs/latest/concepts/adapters/) | 回测和日常运行复用策略，行情与执行适配分离 | 尽量共用计算逻辑，单独验证成交、外部回报与恢复语义；不声称回测等同实盘 |
+| [Qlib Workflow](https://qlib.readthedocs.io/en/stable/component/workflow.html)与[Portfolio Strategy](https://qlib.readthedocs.io/en/stable/component/strategy.html) | 配置化实验、记录训练／推理产物、分数到目标仓位的独立环节 | 冻结数据／模型／配置；明确分数单位与组合规则，不把排序值直接当收益率 |
+| [NautilusTrader 稳定版说明](https://github.com/nautechsystems/nautilus_trader/blob/v1.231.0/README.md)与[适配器](https://github.com/nautechsystems/nautilus_trader/tree/v1.231.0/nautilus_trader/adapters) | 回测和日常运行复用策略，行情与执行适配分离 | 尽量共用计算逻辑，单独验证成交、外部回报与恢复语义；不声称回测等同实盘 |
 
 本阶段不新增上述框架依赖或迁移现有研究入口。M3 前须用实际 moomoo 账户地区、模拟权限和正式接口做适配技术验证；不能因为某框架支持其他券商而推断已支持本账户。若成熟引擎能满足真实接入、订单状态、恢复与复现要求，再比较复用成本与维护成本，记录新的架构决策。
 
@@ -474,3 +474,14 @@ moomoo 官方接口提供模拟环境，但 place_order 参数默认 REAL；适�
 研究入口负责候选模型训练、按时间验证与冻结 artifact；每日运行入口负责最新数据、固定版本推理、信号留档和健康状态；本机／私有控制台读取正式批次，后续承载统一执行模式控制。公开 HF／Streamlit 继续展示研究实验，不承载券商账户或运行数据库。
 
 第一阶段评估的是每天能否留下可信记录：该有的数据有没有取得、发生异常能否解释、同一输入能否重放、重启是否重复发布。IC、含成本收益和风险暴露用于另外的策略评价；十天工程运行记录不能证明策略盈利。通过 M1 后，按原计划增加持续影子账本、券商模拟及实盘能力。
+
+
+### 13.5 框架优劣与采用门槛
+
+2026-11-26 已完成文档、固定源码、发布与包元信息研究，详见[LEAN／Qlib／NautilusTrader 比较](../docs/FRAMEWORK_COMPARISON.md)。尚未安装、进行跨框架性能测试或券商联调；当前 M1 继续采用既定 Python 模块化实现路线，不新增框架依赖。
+
+研究适配先评估 Qlib 的模型接口和实验管理；美股回测／执行以 LEAN 作候选对照；NautilusTrader 保留为未来事件驱动执行候选。采用范围通过固定数据、相同标签／成本和恢复案例的小实验决定，不以宣传性能或默认回测收益决定。
+
+必须显式处理：Qlib 默认标签／标准化分数与本项目 h5-SPY 收益单位不同；LEAN 的默认补值／复权与 moomoo 接入需核实；Nautilus 稳定1.x与latest文档2.x不能混用，且当前公司行动范围及依赖冲突影响美股实盘选择。发现第三方 Futu 适配不代表我们当前桌面 Host 已兼容，也不改变现有认证和执行权限。
+
+所有候选均须保持信号／执行分离、冻结模型版本、数据可见时间、正式批次不可修改及模式切换验收。进入 M2／M3 前比较成熟引擎与自建维护成本；本轮研究不把完整订单管理默认交给自建，也不把现有研究网页升级成交易控制台。
