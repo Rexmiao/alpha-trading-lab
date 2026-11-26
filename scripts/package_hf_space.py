@@ -37,6 +37,7 @@ SOURCES = (
     ("hf_space/strategy_ui.py", "hf_space/strategy_ui.py"),
     ("hf_space/intraday.py", "hf_space/intraday.py"),
     ("hf_space/intraday_ui.py", "hf_space/intraday_ui.py"),
+    ("hf_space/snapshot_source.py", "hf_space/snapshot_source.py"),
     ("hf_space/streamlit_app.py", "hf_space/streamlit_app.py"),
     ("research/__init__.py", "research/__init__.py"),
     ("research/data.py", "research/data.py"),

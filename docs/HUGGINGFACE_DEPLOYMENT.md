@@ -1,6 +1,6 @@
 # Hugging Face Docker 发布准备
 
-这是云端 Python 研究界面的发布说明。Hugging Face是主要交互入口，GitHub Pages保留静态教学页，Streamlit Cloud是可选备用。最新0.7.0验收见文末；前面的初次发布记录属于历史里程碑。容器启动、页面交互和源码上传分别核对，应用本身不包含发布凭据。
+这是云端 Python 研究界面的发布说明。Hugging Face是主要交互入口，GitHub Pages保留静态教学页，Streamlit Cloud是可选备用。0.8.0新增私有快照读取，最新验收见文末；前面版本的记录属于历史里程碑。容器启动、页面交互和源码上传分别核对，应用本身不包含发布凭据。
 
 ## 本次个人部署目标
 
@@ -39,11 +39,11 @@ python scripts/package_hf_space.py
 打包器只复制以下明确清单，不递归复制仓库：
 
 - `deploy/huggingface/` 下四个模板：在包根目录成为 `Dockerfile`、`README.md`、`requirements.txt`、`.dockerignore`。
-- `hf_space/__init__.py`、`engine.py`、`streamlit_app.py`、`history.py`、`strategies.py`、`strategy_ui.py`、`intraday.py`、`intraday_ui.py`。
+- `hf_space/__init__.py`、`engine.py`、`streamlit_app.py`、`history.py`、`strategies.py`、`strategy_ui.py`、`intraday.py`、`intraday_ui.py`、`snapshot_source.py`。
 - `research/__init__.py`、`research/data.py`、`research/models.py`、`research/portfolio.py`。
 - 根目录的 MIT `LICENSE`，以及自动生成的 `MANIFEST.json`。
 
-不会复制 `data/`、`runs/`、`state/`、`.git/`、本机配置、根目录研究界面、pipeline、coverage、moomoo CLI、凭据或本地模型权重。运行不需要 moomoo 密钥或 HF token。
+不会复制 `data/`、`runs/`、`state/`、`execution_lab/`、`.git/`、本机配置、根目录研究界面、pipeline、coverage、moomoo CLI、凭据或模型。基础研究来源不需密钥；私有快照来源只需独立Dataset读取Secret，不使用moomoo凭据或GitHub发布令牌。
 
 脚本在写出前检查文件存在、UTF-8与Python语法，拒绝符号链接及目录连接；读入后和写出后再次核对源文件，变化中的源程序会报错。`MANIFEST.json` 只含包内相对路径、字节数和SHA256，不含本机绝对路径。报错时不要上传产物，等源代码编辑完成后重试。
 
@@ -86,15 +86,15 @@ docker run --rm -p 7860:7860 alpha-lab-simulator
 
 上传前会检查：
 
-- 本地包必须恰好是18个允许文件，`MANIFEST.json`的路径、字节数与所有SHA256一致；符号链接、额外内容、缺失或变动中的包均拒绝。
+- 当前本地包必须恰好是19个允许文件（18源码及MANIFEST），路径、字节数与所有SHA256一致；符号链接、额外内容、缺失或变动中的包均拒绝。
 - `whoami`确认个人身份与目标owner一致；目标必须已存在、为Docker且公开。
 - 从Space资料和最新runtime核对硬件：所有明确值只能是`cpu-basic`，至少一项明确为`cpu-basic`。首次构建允许current未知但requested为basic；未设置requested时允许current为basic。两项仍全未知或任何一项是其他硬件均停止，不自动改设置。
 - 远端文件只能是同一发布包的白名单文件或平台生成的`.gitattributes`；发现其他项目文件时停止，不删除或覆盖它们。
-- 使用明确的18个`CommitOperationAdd`和已读取的`parent_commit`提交，不使用全目录上传、不删除远端文件。若远端有并发提交，停止并重新核对，不强制覆盖。
+- 使用明确的19个`CommitOperationAdd`和已读取的`parent_commit`提交，不使用全目录上传、不删除远端文件。若远端有并发提交，停止并重新核对，不强制覆盖。
 
 完成后的输出包含 `code_uploaded`、Space仓库网址及commit。只有收到有效commit标识时，`code_uploaded`才为`true`；这仅证明代码上传，即使观察到runtime为RUNNING，也未证明新commit对应的应用已构建完成。实际上线仍须核对该commit的构建日志、App页面和交互功能。上传后读取runtime失败时会分别保留“代码已上传”和状态查询错误，不能误报为没有发生上传。提交请求报错、响应丢失或回应缺少有效commit标识时，`code_uploaded`为`null`，表示结果未确认；应先核对远端commit，不能认定没有写入或盲目重试。
 
-脚本只从进程环境变量读取 `HF_TOKEN`，不调用登录、不读取本地HF凭据缓存，也不持久化令牌。错误日志只报告异常类名与HTTP状态码，不输出原始服务响应、异常消息或认证头。部署令牌不属于应用运行依赖；模拟应用不需要任何HF或券商密钥。
+脚本只从进程环境变量读取 `HF_TOKEN`，不调用登录、不读取本地HF凭据缓存，也不持久化令牌。错误日志只报告异常类名与HTTP状态码，不输出原始服务响应、异常消息或认证头。部署令牌不属于应用运行依赖；私有快照读取另用`ALPHA_SNAPSHOT_READ_TOKEN`，固定到同一个Private Dataset，不复用发布权限。
 
 本地有明确授权且已经通过进程环境安全提供凭据时，可以运行：
 
@@ -148,3 +148,11 @@ Cloud独立请求的CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d
 实际依赖来自下载JSON：Python3.12.16、NumPy1.26.4、pandas2.2.2、exchange-calendars4.11.2、Streamlit1.67.0、Plotly5.24.1、PyArrow25.0.1。独立本机QA Python3.12.7，不能据requirements宣称所有环境完全相同。原95回归、48分钟引擎、4页面测试和17采集器离线测试通过；本轮Cloud备用未重新验收。
 
 私有证据在`state/intraday-qa/hf-package-verification.json`和`hf-20261126T064615/summary.json`，不推入公开仓库。本机moomoo分钟请求尚未取得行情；TCP能连接、历史请求超时、日K探针未返回结构化业务结果，原因未定。保持已登录桌面状态即可，不凭此错误要求用户重设密钥或开通付费行情。
+
+## 0.8.0 私有快照读取与本机执行分工
+
+本机后续已取得SPY／NVDA三个完整日共468行真实5分钟K线，并核实bar-end→UTC bar-start转换。原0.7.0的超时记录是早期状态，不再代表当前历史行情能力。新来源`已发布moomoo 5分钟快照`只读取固定Private Dataset，源文件／manifest／latest与revision必须通过路径、大小、hash、时点校验。原始CSV不开放下载；研究JSON可下载。完整账号设置见[私有同步说明](MOOMOO_CLOUD_SYNC.md)。
+
+公开包新增snapshot_source.py后为19文件（18源码＋MANIFEST），没有execution_lab、collector、真实行情、账户或券商密钥。本机执行依赖与HF研究依赖分开；框架和paper适配的离线测试不代表公开网页能下单。用户将私有Dataset／本机写凭据／Space只读Secret配置交由其他协助者稍后处理，本轮不修改这些账号设置；首次真实上传与HF读取尚未验收，也没有启动自动同步任务。
+
+本地独立浏览器已验证新增来源菜单、空CSV禁Run及说明、快照未配置时明确失败且无教学回退／raw下载。显式运行一次合成教学三策略success，权益4条／回撤3条；zh→en→zh JSON字节相同，SHA256为`389b71581cb36e3e8e13bc82725fac871c6649304e179edb94ade6f37e2301e2`。390px无横溢，15条数学短式可读，JS异常0。Python分钟／快照／界面／发布器124项及Node26项通过。本地证据保留`state/veighna-qa/snapshotlocal-20261126T074936/`；公网发布后另核对commit、runtime与实际浏览器结果，不以本地结果替代云端验收。

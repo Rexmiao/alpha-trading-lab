@@ -2,7 +2,7 @@
 
 研究日期：2026-11-26（America/New_York）；报告版本：1.1。适用项目：Windows／Python、美股日频与5分钟、moomoo、DL／GenAI alpha 研究，后续统一支持提醒、人工确认、自动执行。第9节补充用户提出的四种执行框架。
 
-本轮核对官方文档、固定版本源码、发布记录、包元信息和维护者说明。没有安装框架、执行性能基准、迁移真实数据、连接交易账户或验证第三方插件。以下“适合度”“成本”和采用顺序是结合本项目的工程判断，不是实测性能排名或收益结论。
+选型阶段核对官方文档、固定版本源码、发布记录、包元信息和维护者说明。后续按用户选择在独立环境安装VeighNa4.5.0：已用真实3日moomoo行情完成影子回放，并用真实MainEngine／BaseGateway与假券商完成订单及累计成交贯通；不使用旧vnpy_futu插件。尚无真实券商模拟成交、跨框架性能基准或实盘验收。以下判断不是实测性能排名或收益结论；最新范围见[执行SPEC](../specs/VEIGHNA_MOOMOO_SYSTEM.md)。
 
 ## 1. 针对本项目的结论
 
@@ -147,7 +147,7 @@ Qlib 0.9.7 的 wheel 覆盖 CPython 3.12 Windows，其直接依赖未对现有 N
 
 `vnpy.alpha`可以参考因子、标签、模型与研究流程，内置MLP不意味着已实现本项目的条件DDPM、训练隔离或五日超额收益标签。多股票共享现金宜评估PortfolioStrategy的目标仓位及统一组合执行，不将每股独立CTA账户相加代替组合账本。[alpha官方入门](https://www.vnpy.com/forum/topic/34625-veighnaduo-yin-zi-ru-men-xi-lie-1-mo-kuai-zong-lan-yu-zhun-bei)。
 
-当前核心源码的NumPy／pandas下限及alpha的scikit-learn／Torch要求与公开实验室锁版本不同，须独立环境，交换有版本的信号和目标仓位，不直接升级HF依赖。[核对的核心依赖快照](https://github.com/vnpy/vnpy/blob/fa5206fe63836f3f8cd1ebd7168fbd19a5e2ff09/pyproject.toml)。本轮没有安装或启动VeighNa、LEAN、Freqtrade或PandoraTrader，没有进行任何账户联调。
+当前核心源码的NumPy／pandas下限及alpha的scikit-learn／Torch要求与公开实验室锁版本不同，须独立环境，交换有版本的信号和目标仓位，不直接升级HF依赖。[核对的核心依赖快照](https://github.com/vnpy/vnpy/blob/fa5206fe63836f3f8cd1ebd7168fbd19a5e2ff09/pyproject.toml)。后续VeighNa安装与离线订单桥验证已完成，依赖固定在requirements-veighna.txt；LEAN、Freqtrade、PandoraTrader尚未安装，真实账户联调尚未完成。
 
 ### 9.2 应采用的边界与首个验证
 

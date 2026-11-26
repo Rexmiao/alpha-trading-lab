@@ -1,16 +1,16 @@
 # Alpha Lab
 
-美股日频的本机研究原型：moomoo历史行情 → 因子预测 → 风险约束与目标仓位 → 模拟订单草稿。结果界面支持中文与English，并有独立数学原理页。
+美股日频DL／GenAI alpha研究，并有独立5分钟动量／趋势基线与本机VeighNa＋moomoo执行试点。研究界面支持中文与English及数学原理页；公开HF不提交订单，本机暂只允许影子／券商模拟，没有实盘路径。
 
 第一版比较Ridge、两隐藏层MLP、重采样MLP及条件DDPM增强MLP。另有ADNN平滑IC目标的核心机制实验。这里的MLP与条件收益生成是研究设计，不是ADNN或DARL论文完整复现。
 
 ## 每日采集与自动交易系统规格
 
-下一阶段见[实施SPEC](specs/DAILY_SIGNAL_SYSTEM.md)：一套系统可选仅提醒、人工确认执行、自动执行，并独立选择影子／券商模拟／实盘环境。第一阶段先实现每日只读采集、因子／信号记录与审计，后续逐步开放共用提案、风控及执行能力。文件包含模块契约、时间语义、恢复规则、25项M1验收及7项统一模式验收；当前交付是规格，运行阶段尚未实现或启动。
+完整路线见[每日系统SPEC](specs/DAILY_SIGNAL_SYSTEM.md)，当前代码见[VeighNa＋moomoo试点SPEC](specs/VEIGHNA_MOOMOO_SYSTEM.md)。本机已实现行情采集→持久信号→受约束提案→提醒／确认／自动模拟委托→成交对账；SQLite放本机非同步目录。UNKNOWN提交不盲重试，模式切换不补执行旧信号。真实券商模拟认证与成交仍待验收，尚未启动常驻任务；每日M1全量验收未完成。
 
-框架评估见[框架优劣与执行候选研究](docs/FRAMEWORK_COMPARISON.md)，包含LEAN／Qlib／NautilusTrader及VeighNa／Freqtrade／PandoraTrader，核对moomoo接入、公司行动、模型与执行边界。保留moomoo时先验证VeighNa适配，若采用已有支持的美股券商则重点比较LEAN；当前没有安装或迁移这些框架。
+框架评估见[框架优劣与执行候选研究](docs/FRAMEWORK_COMPARISON.md)。VeighNa4.5.0已在独立环境验证：真实MainEngine／BaseGateway贯通假券商提交和累计成交投射。仅映射订单与派生成交事件，未声称完整账户／持仓OMS映射；其他框架保留为研究候选。
 
-新增[动量与趋势研究](docs/MOMENTUM_TREND.md)：云端侧栏可选择四种日频规则或独立5分钟模式。5分钟含正动量、均线趋势、开盘区间突破，支持moomoo／访客CSV和明确标记的合成教学数据，保留中英文、数学推导和结果下载。使用共同完整RTH日、含成本整数股及日终退出；OHLC成交代理不代表真实券商成交。分钟历史采集适配已单独准备，实际SPY请求目前超时，尚未取得真实分钟快照。
+新增[动量与趋势研究](docs/MOMENTUM_TREND.md)：四种日频规则及独立5分钟正动量、均线趋势、开盘区间突破。已取得SPY／NVDA三个完整RTH日共468根真实5分钟K线，核实供方bar-end并转换为UTC bar-start，原始数据只留本机。HF新增私有快照来源，待完成[私有存储配置](docs/MOOMOO_CLOUD_SYNC.md)后验收真实云端链路；访客仍可上传CSV或明确选择教学数据。3日结果不足以证明策略有效，OHLC成交代理也不是券商成交。
 
 ## 论文与接口手册
 
@@ -43,7 +43,7 @@ GitHub Pages已启用并发布，部署配置见[操作说明](docs/GITHUB_WORKF
 
 真实历史行情使用左侧 **Upload CSV / 上传 CSV**，基准填写CSV中的代码；本机已准备moomoo固定快照，数据与来源记录保留在`data/cloud-inputs/`，不发布到源码仓库。步骤与口径见[真实历史数据说明](docs/HISTORICAL_DATA.md)。
 
-目前以HF为主。0.7.0独立5分钟模式已发布并通过实际浏览器的三策略、双语JSON下载、390px数学页和图表验收；选择侧栏“5分钟动量与趋势”。真实分钟取数目前未成功，默认CSV入口与明确的合成教学分别标记。Cloud是可选备用，本轮未重新验收。应用源码、HF运行版本和实际依赖见[最新发布记录](docs/HUGGINGFACE_DEPLOYMENT.md#070独立5分钟模式实际发布)；这项研究更新尚未提供券商执行服务。
+目前以HF为主；侧栏选择“5分钟动量与趋势”。已发布moomoo快照来源使用固定私有Dataset和独立只读Secret，公开页面只提供研究JSON，不提供原始快照CSV下载。缺少配置时明确停止，不转教学数据。Cloud是可选备用，本轮未重新验收。发布与浏览器验收记录见[部署说明](docs/HUGGINGFACE_DEPLOYMENT.md)，本机后台的运行命令和认证边界见[执行SPEC](specs/VEIGHNA_MOOMOO_SYSTEM.md)。
 
 使用单独Python3.12环境安装云端依赖，再启动：
 

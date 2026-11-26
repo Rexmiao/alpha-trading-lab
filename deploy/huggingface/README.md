@@ -34,6 +34,11 @@ pandas and PyArrow table conversion before publishing the image.
   UTC bar-start CSV inputs, exchange-calendar RTH validation, daily aggregation
   and bilingual mathematical explanations. Intraday fills are OHLC proxies;
   synthetic and uploaded data remain explicitly separated.
+- Optionally read a published moomoo 5-minute snapshot from the fixed private
+  dataset `Rexymiao/alpha-trading-snapshots`. Configure the server-only variable
+  `ALPHA_SNAPSHOT_DATASET` and dedicated read secret `ALPHA_SNAPSHOT_READ_TOKEN`.
+  No broker credentials are used. Missing configuration fails explicitly;
+  raw snapshot CSV download is unavailable, while research JSON is downloadable.
 - Keep uploaded CSV and results in the current session; the package contains no
   saved market data, local research results, models, credentials or account data.
 - No connection to a desktop broker, no account access and no order submission.
@@ -49,8 +54,9 @@ Create a **Docker** Space, then upload all files from the generated bundle at
 the Space repository root, preserving `hf_space/` and `research/` directories.
 Do not upload the parent research repository or a ZIP as a single runtime file.
 The Dockerfile runs Streamlit on `0.0.0.0:7860` as non-root UID 1000, with CPU
-math-library threads limited to one. No broker key or HF token is needed by
-the running app.
+math-library threads limited to one. CSV, teaching and public daily-history modes
+need no broker key or HF token. The private snapshot source requires only its
+dedicated dataset read secret; the GitHub deployment token is never reused.
 
 Current Hugging Face documentation requires a paid personal PRO plan to create
 a new Docker Space on CPU Basic. CPU Basic itself has no hourly hardware charge;

@@ -1,6 +1,6 @@
 # 动量与趋势：日频基线和分钟研究边界
 
-更新：2026-11-26。**四种日频规则与独立5分钟研究，发布和验收状态见主SPEC；真实分钟采集目前超时，没有真实分钟业绩结论。** 本文定义研究对照，不提供收益保证。最终实现和验收状态以 [SPEC](../SPEC.md) 为准；每日采集与实盘阶段见 [每日系统规格](../specs/DAILY_SIGNAL_SYSTEM.md)。
+更新：2026-11-26。**已取得SPY／NVDA三日468行真实5分钟行情，确认供方结束标签并规范化；样本仅用于工程验证，没有策略有效性结论。** 四种日频规则与独立5分钟研究的发布状态见[SPEC](../SPEC.md)；本机执行试点见[VeighNa＋moomoo规格](../specs/VEIGHNA_MOOMOO_SYSTEM.md)。
 
 ## 四种日频基线
 
@@ -81,7 +81,7 @@ timestamp,symbol,open,high,low,close,volume
 node scripts/collect-moomoo-intraday.mjs --symbols SPY,NVDA --start 2026-11-24 --end 2026-11-25
 ```
 
-沿用已安装桌面CLI／Host22222、进程内密钥及本机DPAPI方式；不改变既有日K采集器或旧manifest。上述默认命令仅探测并保留raw；取得外部bar-start口径确认后，才可加`--timestamp-label bar-start --verification-source "确认依据"`声明导出，manifest仍区分操作者声明和独立核实。原始响应、分页和来源清单只留`data/intraday/`，不进入GitHub／HF发布包。当前首个SPY历史页请求超时，尚未取得真实分钟CSV；本地端口TCP检查通过，不能把超时归因为端口未监听，也不能推定账户无权限。CLI帮助确认命令和分页能力，不等于真实历史取数或时间标签已验证。[接口边界](MOOMOO_API.md)。
+沿用已安装桌面CLI／Host22222、进程内密钥及本机DPAPI方式；不改变旧日K采集器或manifest。默认未核时间标签时只留raw；本版本经78组5分钟与1分钟聚合对齐后，使用`--timestamp-label bar-end --verification-source "核验依据"`导出，减5分钟得到UTC bar-start；可用时点仍是原bar-end。已取得11月23–25日SPY／NVDA各234根，合计468行；end日期为排他边界。原始页、整数volume差异审计及来源清单只留`data/intraday/`，不进入公开包。HF只从固定私有Dataset服务端读取，首次上传／读取仍待账号配置验收。[接口边界](MOOMOO_API.md)、[私有同步](MOOMOO_CLOUD_SYNC.md)。
 
 ## 其他分钟数据候选，尚未接入
 

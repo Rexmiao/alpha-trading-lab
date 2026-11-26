@@ -19,6 +19,7 @@ from hf_space.intraday import (
     parse_intraday_csv,
     run_intraday_comparison,
 )
+from hf_space.snapshot_source import SnapshotError, fetch_moomoo_snapshot
 
 
 LABELS = {
@@ -61,6 +62,27 @@ def _remember_upload():
 
 def _frame(result, key):
     return pd.DataFrame(result.get(key) or [])
+
+
+def _snapshot_prices(*, refresh=False):
+    """Session-only immutable-revision reuse; never serialize prices to a widget."""
+    cached = st.session_state.get("intraday_snapshot_cache")
+    if refresh or cached is None:
+        prices, provenance = fetch_moomoo_snapshot()
+        cached = {"prices": prices.copy(deep=True), "provenance": copy.deepcopy(provenance)}
+        st.session_state["intraday_snapshot_cache"] = cached
+    return cached["prices"].copy(deep=True), copy.deepcopy(cached["provenance"])
+
+
+def _snapshot_error(code, tr):
+    if code == "NOT_CONFIGURED":
+        st.info(tr("本机moomoo快照尚未连接。可先上传CSV或明确选择合成教学数据。",
+                   "The published moomoo snapshot is not connected yet. Upload a CSV or explicitly choose synthetic teaching data."))
+    else:
+        st.error(tr("本机moomoo快照暂不可用或未通过校验；没有替换成合成数据。可稍后重试或使用访客CSV。",
+                    "The published moomoo snapshot is unavailable or failed validation; no synthetic data were substituted. Retry later or use visitor CSV."))
+    st.caption(tr("管理者设置说明：", "Operator setup: ")
+               + "[Hugging Face deployment](https://github.com/Rexmiao/alpha-trading-lab/blob/main/docs/HUGGINGFACE_DEPLOYMENT.md)")
 
 
 def _display_table(frame, tr):
@@ -152,6 +174,13 @@ def _render_source(result, tr):
     elif source == "uploaded_csv":
         st.info(tr("上次运行使用访客上传的5分钟CSV；来源真实性与复权口径由上传者确认，平台仅做格式和交易时段校验。",
                    "The last run used an uploaded 5-minute CSV. The uploader must verify provenance and adjustment basis; the platform checks format and session consistency."))
+    elif source == "moomoo_snapshot":
+        provenance = (result.get("lineage") or {}).get("external_data") or {}
+        st.info(tr("上次运行使用本机发布的moomoo私有行情快照；公开的是策略研究结果，原始OHLCV不提供下载。它不是实时券商连接。",
+                   "The last run used a privately published moomoo snapshot. Strategy research results are public; raw OHLCV downloads are unavailable. This is not a live brokerage connection."))
+        st.caption(tr("本次结果的数据截至（UTC）：", "This result's data as of (UTC): ")
+                   + str(provenance.get("as_of", "—")) + " · "
+                   + tr("快照：", "snapshot: ") + str(provenance.get("snapshot_id", "—")))
     else:
         st.warning(tr("结果来源未识别，请查看运行信息。", "The result source is unrecognized; inspect the run details."))
 
@@ -251,13 +280,14 @@ def render_intraday_results(result, context, tr):
 
 def render_intraday_page(tr):
     st.title(tr("5分钟动量与趋势实验室", "5-minute Momentum & Trend Lab"))
-    st.write(tr("上传真实moomoo分钟行情，或明确选择合成教学数据，比较三种日内规则及其含成本纸面成交。",
-                "Upload observed moomoo minute bars or explicitly select synthetic teaching prices to compare three intraday rules and proxy fills after costs."))
+    st.write(tr("使用本机发布的moomoo快照、访客CSV，或明确选择合成教学数据，比较三种日内规则及其含成本纸面成交。",
+                "Use a published moomoo snapshot, visitor CSV, or explicitly selected synthetic prices to compare three intraday rules and proxy fills after costs."))
     st.caption(tr("独立5分钟研究：不训练DL／GenAI模型，不连接moomoo账户，不自动下载Yahoo分钟行情，不提交订单。",
                   "Separate 5-minute research: no DL/GenAI training, moomoo account connection, automatic Yahoo minute download or order submission."))
     render_intraday_guide(tr)
     st.sidebar.subheader(tr("5分钟数据与参数", "5-minute data and settings"))
     sources = {"uploaded_csv": tr("真实moomoo / 访客5分钟CSV", "Observed moomoo / visitor 5-minute CSV"),
+               "moomoo_snapshot": tr("已发布moomoo 5分钟快照", "Published moomoo 5-minute snapshot"),
                "synthetic": tr("合成教学数据", "Synthetic teaching data")}
     source = _input("radio", "intraday_source", "uploaded_csv", tr("5分钟数据来源", "5-minute data source"),
                     options=list(sources), index=None, format_func=sources.__getitem__)
@@ -268,13 +298,38 @@ def render_intraday_page(tr):
             st.sidebar.caption(tr("会话中保留的文件：", "File retained in this session: ") + name)
         st.sidebar.caption(tr("七列：timestamp,symbol,open,high,low,close,volume。timestamp必须为含时区的UTC K线开始；1–12只股票加基准，最多8 MiB／50000行。仅美股常规交易时段，所有证券需覆盖完整交易日。至少2个完整且预热后可执行的共同日；缺bar或无可执行时段的整天剔除。只上传有权在云端处理的行情，不含账户或个人资料。",
                               "Columns: timestamp,symbol,open,high,low,close,volume. Use timezone-aware UTC bar-start timestamps; 1–12 stocks plus benchmark, at most 8 MiB / 50,000 rows. Provide complete US regular sessions for every symbol. At least 2 complete and executable common sessions are required; exclude an entire session for missing bars or no post-warmup execution window. Upload only market data authorized for cloud processing, without account or personal details."))
+    elif source == "moomoo_snapshot":
+        st.sidebar.caption(tr("从已发布的私有快照读取，基准固定SPY。点击运行时首次获取；参数比较复用同一快照，只有主动刷新才获取新版本。不提供原始行情下载，不连接本机端口或账户。",
+                              "Read a published private snapshot with benchmark SPY. Run fetches it on first use; parameter comparisons reuse that snapshot until you refresh. No raw-price download, local-port connection or account access."))
+        if st.sidebar.button(tr("获取／刷新已发布快照", "Fetch / refresh published snapshot"), key="intraday_snapshot_refresh"):
+            try:
+                with st.spinner(tr("正在获取并校验已发布快照。", "Fetching and validating the published snapshot.")):
+                    _snapshot_prices(refresh=True)
+                st.session_state["intraday_snapshot_error"] = None
+                if st.session_state.get("intraday_error_is_snapshot"):
+                    st.session_state["intraday_error"] = None
+            except SnapshotError as error:
+                st.session_state["intraday_snapshot_cache"] = None
+                st.session_state["intraday_snapshot_error"] = error.code
+            except Exception:
+                st.session_state["intraday_snapshot_cache"] = None
+                st.session_state["intraday_snapshot_error"] = "SERVICE_UNAVAILABLE"
+        if st.session_state.get("intraday_snapshot_error"):
+            _snapshot_error(st.session_state["intraday_snapshot_error"], tr)
+        cached = st.session_state.get("intraday_snapshot_cache")
+        if cached:
+            metadata = cached["provenance"]
+            st.sidebar.caption(tr("当前会话快照截至（UTC）：", "Session snapshot as of (UTC): ") + metadata["as_of"])
+            st.sidebar.caption(tr("快照ID：", "Snapshot ID: ") + metadata["snapshot_id"])
+            st.sidebar.caption(tr("刷新只获取快照；下方旧结果须再次运行才会更新。", "Refresh only fetches a snapshot; run again to update the displayed research results."))
     else:
         st.sidebar.warning(tr("虚构教学行情，仅说明规则与撮合，不代表真实市场。", "Fictional teaching prices illustrate rules and fills, not observed markets."))
         st.sidebar.caption(tr("使用5个完整交易日、6只虚构股票加BENCH；不足20日不显示夏普及年化波动。", "Use 5 complete sessions, 6 fictional assets and BENCH; Sharpe and annualized volatility are omitted below 20 sessions."))
     st.sidebar.download_button(tr("下载5分钟CSV空白模板", "Download blank 5-minute CSV template"),
                                CSV_TEMPLATE, file_name="intraday-template.csv", mime="text/csv",
                                key="intraday_download_template", use_container_width=True)
-    benchmark = "BENCH" if source == "synthetic" else _input("text_input", "intraday_benchmark", "SPY", tr("日内基准代码", "Intraday benchmark symbol")).strip().upper()
+    benchmark = ("BENCH" if source == "synthetic" else "SPY" if source == "moomoo_snapshot"
+                 else _input("text_input", "intraday_benchmark", "SPY", tr("日内基准代码", "Intraday benchmark symbol"))).strip().upper()
     momentum = _input("number_input", "intraday_momentum_lookback", 6, tr("正动量回看（5分钟根数）", "Momentum lookback (5-minute bars)"), min_value=1, max_value=30, step=1)
     fast = _input("number_input", "intraday_fast_window", 3, tr("日内快均线（根）", "Intraday fast average (bars)"), min_value=1, max_value=30, step=1)
     slow = _input("number_input", "intraday_slow_window", 12, tr("日内慢均线（根）", "Intraday slow average (bars)"), min_value=2, max_value=60, step=1)
@@ -289,27 +344,42 @@ def render_intraday_page(tr):
     delay = _input("selectbox", "intraday_execution_delay", 0, tr("额外执行延迟", "Additional execution delay"), options=[0, 1], index=None, format_func=delay_names.__getitem__)
     cap = _input("slider", "intraday_cap", 20, tr("单股目标仓位上限 %", "Per-stock target cap %"), min_value=10, max_value=100, step=5)
     cash = _input("slider", "intraday_cash_floor", 20, tr("目标现金下限 %", "Target cash floor %"), min_value=0, max_value=80, step=5)
-    submitted = st.sidebar.button(tr("运行三种5分钟策略", "Run three 5-minute strategies"), key="intraday_run", type="primary", use_container_width=True)
+    needs_upload = source == "uploaded_csv" and not st.session_state.get("intraday_upload_bytes")
+    if needs_upload:
+        st.sidebar.info(tr("请先上传5分钟CSV，或切换到已发布快照／合成教学数据，再点击运行。",
+                           "Upload a 5-minute CSV first, or switch to a published snapshot / synthetic teaching data, then Run."))
+    submitted = st.sidebar.button(tr("运行三种5分钟策略", "Run three 5-minute strategies"), key="intraday_run", type="primary", disabled=needs_upload, use_container_width=True)
     if submitted:
         st.session_state["intraday_error"] = None
+        st.session_state["intraday_error_is_snapshot"] = False
         try:
             params = dict(benchmark=benchmark, source=source, lookback_bars=int(momentum),
                           fast_bars=int(fast), slow_bars=int(slow), opening_range_bars=int(opening),
                           cost_bps=int(fee), half_spread_bps=int(spread), slippage_bps=int(slippage),
                           execution_delay_bars=int(delay), max_weight=cap / 100, cash_floor=cash / 100)
             with st.spinner(tr("正在校验完整交易日并撮合三组规则。", "Validating complete sessions and simulating three rules.")):
+                external = None
                 if source == "synthetic":
                     prices = make_synthetic_intraday_prices(seed=int(seed))
+                elif source == "moomoo_snapshot":
+                    prices, external = _snapshot_prices()
+                    st.session_state["intraday_snapshot_error"] = None
                 else:
                     contents = st.session_state.get("intraday_upload_bytes")
                     if contents is None:
                         raise ValueError(tr("请先上传5分钟CSV文件。", "Upload a 5-minute CSV file first."))
                     prices = parse_intraday_csv(contents, benchmark=benchmark)
-                result = run_intraday_comparison(prices, **params)
+                engine_params = {**params, "source": "uploaded_csv" if source == "moomoo_snapshot" else source}
+                result = run_intraday_comparison(prices, **engine_params)
                 if not isinstance(result, dict) or any(key not in result for key in REPORT_KEYS):
                     raise ValueError(tr("日内引擎返回不完整结果。", "The intraday engine returned an incomplete report."))
                 report = {key: copy.deepcopy(result[key]) for key in REPORT_KEYS}
+                report["source"] = source
                 report.setdefault("lineage", {})["synthetic_seed"] = int(seed) if source == "synthetic" else None
+                if external is not None:
+                    report["lineage"]["external_data"] = external
+                    report["lineage"]["source_mapping"] = {"published_source": source,
+                        "engine_validation_route": "uploaded_csv", "broker_connection": False}
                 report["lineage"].setdefault("dependencies", {}).update(
                     {name: version(name) for name in ("streamlit", "plotly", "pyarrow")})
                 serialized = json.dumps(report, ensure_ascii=False, allow_nan=False, indent=2).encode("utf-8")
@@ -320,9 +390,17 @@ def render_intraday_page(tr):
             st.session_state["intraday_result"] = None
             st.session_state["intraday_result_json"] = None
             st.session_state["intraday_result_context"] = None
-            st.session_state["intraday_error"] = str(error)
+            if isinstance(error, SnapshotError):
+                st.session_state["intraday_snapshot_cache"] = None
+                st.session_state["intraday_error"] = error.code
+                st.session_state["intraday_error_is_snapshot"] = True
+            else:
+                st.session_state["intraday_error"] = str(error)
     if st.session_state.get("intraday_error"):
-        st.error(tr("本次5分钟研究未完成：", "This 5-minute experiment did not complete: ") + st.session_state["intraday_error"])
+        if st.session_state.get("intraday_error_is_snapshot"):
+            _snapshot_error(st.session_state["intraday_error"], tr)
+        else:
+            st.error(tr("本次5分钟研究未完成：", "This 5-minute experiment did not complete: ") + st.session_state["intraday_error"])
     result = st.session_state.get("intraday_result")
     if result is None:
         st.info(tr("选择5分钟来源和参数后点击运行。切换语言、页面或参数不自动重算。", "Choose 5-minute data and settings, then click Run. Language, page or parameter changes do not rerun the experiment."))

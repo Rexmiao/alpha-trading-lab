@@ -31,9 +31,13 @@
 
 本机`openapi-cli 16.40.27608.11182326`帮助确认`request-history-kl`支持`--kl-type 6`、`--begin-time`／`--end-time`、`--session rth`、`--no-extended-time`、`--max-ack-kl-num`及`--next-req-key`。这些是当前桌面命令，不是OpenD Python参数。[独立只读采集器](../scripts/collect-moomoo-intraday.mjs)默认不复权，原始响应与来源保存在新的`data/intraday/`目录；不改旧日K manifest，不查询账户、持仓或订单。
 
-2026-11-26最小SPY／NVDA两日验证尚未成功：首个SPY历史页30秒超时，未返回行情，NVDA未继续。后续直接TCP检查证明22222可连接，不能用沙箱内`Get-NetTCPConnection`空输出推定服务未开启。保持桌面登录，诊断须区分TCP连通、CLI进程返回、鉴权、行情业务与账户额度；当前没有足够证据把超时定位为其中一项，也不应要求用户随意重设密钥或开通付费订阅。
+2026-11-26后续验证已取得SPY／NVDA在11月23–25日的三个完整RTH日，共468行；每股分页100＋100＋34。CLI会把结构化业务错误写入stderr，诊断必须同时检查stdout、stderr及ret_type；此前日K探针实际为未订阅KL_Day（err_code=-1002），订阅后读取成功，不能把无stdout JSON说成服务关闭。初次历史超时的具体原因仍未确定，不凭此要求重设密钥或购买行情。
 
-分钟UI要求带时区的bar-start时间；供方标签尚未实测时采集器只留raw，不默认将其当作bar-start或整体平移。声明口径、首次／末次时间和分页记录须与CSV一起复查。即使取到两天分钟数据，也不足以评价策略稳定性。详见[5分钟契约](MOMENTUM_TREND.md)。
+当前Host返回5分钟bar-end（09:35–16:00）；以同日390根1分钟聚合逐组核对78组OHLC及高精度volume后确认，规范化减5分钟得到UTC bar-start，available_at保留原结束时点。整数volume差异保留来源审计，不擅自修订。历史接口end日期为排他边界；仅收已完成的美东日期。未核口径的未来版本默认仍只留raw，不静默平移。3日数据只能检验工程流程，不足以评价策略稳定性。[5分钟契约](MOMENTUM_TREND.md)
+
+CSV SHA256为`5b126b01d9bf29d4d1bb7e63735f0994b15193b3ac1792fb0b29bb130794ff14`，468行、最后可用时点2026-11-25T21:00:00Z。完整原始页、归一化CSV、来源manifest只保存在本机。HF私有Dataset同步使用独立读写凭据，配置与实际上传／读取验收见[私有快照说明](MOOMOO_CLOUD_SYNC.md)。
+
+执行后台与历史研究分开：`execution_lab/marketdata.py`按XNYS日历读取当天已完成5分钟bar，并要求共同连续时段；即时参考报价需供方时间戳且严格小于5秒，迟到、未来或无时间戳明确拒绝。今天休市，开市实时链路尚未实测。11111与22222当前均由OpenAPIHost持有；传统SDK初始化11111超时，不能称独立OpenD已完成接入，也不能把桌面AppKey当作SDK认证。新REST模拟适配与认证边界见[本机执行SPEC](../specs/VEIGHNA_MOOMOO_SYSTEM.md)。
 
 ## Windows 新机器配置
 
