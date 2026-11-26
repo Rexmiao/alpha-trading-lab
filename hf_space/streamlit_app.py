@@ -261,10 +261,16 @@ def render_data_source(result: dict) -> None:
 def main() -> None:
     st.set_page_config(page_title="AI Alpha Simulation Lab", page_icon="📈", layout="wide")
     st.sidebar.radio("语言 / Language", ("中文", "English"), key="hf_language", horizontal=True)
-    study_index = 1 if st.session_state.get("hf_study") == "strategies" else 0
+    # Keep navigation in non-widget state: translated labels may recreate widgets.
+    memory = "_hf_study_choice"
+    if memory not in st.session_state:
+        st.session_state[memory] = st.session_state.get("hf_study", "ai")
+    st.session_state["hf_study"] = st.session_state[memory]
+    def remember_study():
+        st.session_state[memory] = st.session_state["hf_study"]
     study_labels = {"ai": tr("AI 模型对照", "AI model comparison"), "strategies": tr("动量与趋势", "Momentum & trend")}
-    study = st.sidebar.radio(tr("研究页面", "Study page"), ("ai", "strategies"), index=study_index,
-                             format_func=study_labels.__getitem__, key="hf_study")
+    study = st.sidebar.radio(tr("研究页面", "Study page"), ("ai", "strategies"), index=None,
+                             format_func=study_labels.__getitem__, key="hf_study", on_change=remember_study)
     if study == "strategies":
         from hf_space.strategy_ui import render_strategy_page
         render_strategy_page(tr, render_data_source, input_coverage, render_online_downloads)

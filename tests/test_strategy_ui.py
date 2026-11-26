@@ -31,6 +31,15 @@ def test_rule_page_runs_four_strategies_without_training_and_keeps_result(monkey
     assert not app.exception
     assert app.title[0].value == "Momentum & Trend Lab"
     assert app.session_state["strategy_result_json"] == saved
+    app.radio(key="hf_language").set_value("中文").run()
+    assert not app.exception
+    assert app.title[0].value == "动量与趋势实验室"
+    assert app.radio(key="hf_study").value == "strategies"
+    assert app.radio(key="strategy_source").value == "synthetic"
+    assert app.session_state["strategy_result_json"] == saved
+    app.radio(key="hf_language").set_value("English").run()
+    assert not app.exception
+    assert app.radio(key="hf_study").value == "strategies"
     app.number_input(key="strategy_lookback").set_value(80).run()
     assert app.session_state["strategy_result_context"]["lookback"] == 60
     assert app.session_state["strategy_result_json"] == saved

@@ -78,3 +78,12 @@ gatherUsageStats = false
 本次取数时间2026-11-26T07:24:38.040985+00:00，CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d2f23288edb46270c72`。请下载快照后用同一CSV进行参数或跨站比较，不把两次独立在线获取视为相同输入。
 
 实际JSON依赖记录中，Cloud PyArrow为`24.0.0`，虽然源码requirements要求`25.0.1`；HF Docker运行值为25.0.1。因此本次Cloud功能通过，不宣称依赖完全同步。其余已记录的NumPy1.26.4、pandas2.2.2、SciPy1.13.1、scikit-learn1.5.1、joblib1.4.2、threadpoolctl3.5.0、Streamlit1.67.0与Plotly5.24.1一致。精确复现优先使用HF Docker固定环境与同一CSV，保留实际依赖JSON；以后重装或重启需重新核对运行值。
+
+
+## 共享模块更新后的运行刷新
+
+0.6.0公网验收发现：新规则页已更新，但Cloud报告的research/portfolio.py仍为旧哈希，四组均报allocation_fn参数错误。界面新不等于所有Python模块已更新，先保存失败结果，不能标成功。
+
+0.6.1在入口同目录requirements.txt加入运行代际标记，依赖版本保持不变。官方说明依赖文件变化会触发完整重新部署；若平台未响应，需在原应用管理页执行Reboot，而不是在共享活跃进程中reload模块。重验须同时核对策略、组合模块哈希及实际依赖，运行四组并下载JSON。[官方更新机制](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app)、[重新启动说明](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app/reboot-your-app)。
+
+用户主要使用Hugging Face，Cloud作为备用服务；后续发布优先验收HF，Cloud的单独状态不阻塞主入口交付，也不能将失败或未验收标作最新可用。

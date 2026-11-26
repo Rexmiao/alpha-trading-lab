@@ -1,3 +1,4 @@
+# Runtime generation: daily-rules-v1. Refresh the Cloud process after the shared portfolio interface update.
 # Cloud simulation only. Local desktop collection and deployment SDKs are excluded.
 # Public history uses Python urllib; no provider credential or SDK is installed.
 streamlit==1.67.0

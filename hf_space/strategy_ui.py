@@ -28,12 +28,25 @@ def label(name, tr):
     return tr(*LABELS.get(str(name), (str(name), str(name))))
 
 
+def _remember_choice(widget_key, memory_key):
+    st.session_state[memory_key] = st.session_state[widget_key]
+
+
+def _restore_choice(widget_key, default):
+    memory_key = "_saved_" + widget_key
+    if memory_key not in st.session_state:
+        st.session_state[memory_key] = st.session_state.get(widget_key, default)
+    st.session_state[widget_key] = st.session_state[memory_key]
+    return memory_key
+
+
 def render_guide(tr):
     st.subheader(tr("理解四种策略", "Understand the four strategies"))
-    previous = st.session_state.get("strategy_explanation", next(iter(LABELS)))
+    memory = _restore_choice("strategy_explanation", next(iter(LABELS)))
     names = {name: label(name, tr) for name in LABELS}
-    selected = st.selectbox(tr("查看策略原理", "Explore a strategy"), list(LABELS), index=list(LABELS).index(previous),
-                            format_func=names.__getitem__, key="strategy_explanation")
+    selected = st.selectbox(tr("查看策略原理", "Explore a strategy"), list(LABELS), index=None,
+                            format_func=names.__getitem__, key="strategy_explanation",
+                            on_change=_remember_choice, args=("strategy_explanation", memory))
     descriptions = {
         "cross_sectional_momentum": (
             "比较股票之间谁过去更强。按回看窗口收益排序，最多选择前四只；即使全部下跌，排名第一仍可能入选。",
@@ -169,9 +182,10 @@ def render_strategy_page(tr, render_data_source, input_coverage, render_online_d
     sources = {"uploaded_csv": tr("moomoo / 访客 CSV", "moomoo / visitor CSV"),
                "online_history": tr("在线真实历史日 K", "Online real daily history"),
                "synthetic": tr("合成教学数据", "Synthetic teaching data")}
-    previous_source = st.session_state.get("strategy_source", "uploaded_csv")
-    source = st.sidebar.radio(tr("数据来源", "Data source"), list(sources), index=list(sources).index(previous_source),
-                              format_func=sources.__getitem__, key="strategy_source")
+    memory = _restore_choice("strategy_source", "uploaded_csv")
+    source = st.sidebar.radio(tr("数据来源", "Data source"), list(sources), index=None,
+                              format_func=sources.__getitem__, key="strategy_source",
+                              on_change=_remember_choice, args=("strategy_source", memory))
     uploaded = None
     if source == "uploaded_csv":
         uploaded = st.sidebar.file_uploader(tr("选择日 K CSV", "Choose daily OHLCV CSV"),
