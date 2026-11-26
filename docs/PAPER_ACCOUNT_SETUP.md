@@ -2,9 +2,11 @@
 
 更新2026-11-26。桌面moomoo已登录并能读行情；这不自动提供新REST模拟交易认证。当前本机执行器无已配置的paper账户，实际委托和成交均为0。HF令牌只用于研究数据，不用于券商接口。
 
+用户后续补充：优先完全不授权实盘，只接美股模拟；如确实无法实现，可考虑真实账户作为后备方向。目前没有因该补充创建授权、读取实盘资产或下单，也未确定后备方案的具体账户、读写范围和交易上限。先取得官方对“必须关联真实账户”的确切解释，区分身份／行情资格要求与真实账户读写权限；现有模拟适配器与LIVE能力不能混用。
+
 ## 当前授权页已经确认的情况
 
-用户本次截图已确认：AppKey表单的授权账户选择只列出实盘现金／保证金账户，没有模拟账户。本页不记录任何账户号或尾号。**AppKey能够绑定paper-only账户尚未证实，REST后端保持NOT_CONFIGURED。** 用户只授权模拟接入，没有授权选择、读取实盘资产／持仓／订单或执行实盘写入；不能拿实盘账户替代模拟账户来完成表单。
+用户本次截图已确认：AppKey表单的授权账户选择只列出实盘现金／保证金账户，没有模拟账户。本页不记录任何账户号或尾号。**AppKey能够绑定paper-only账户尚未证实，REST后端保持NOT_CONFIGURED。** 当时接入范围仅限模拟；后续条件性后备方向见本页开头，当前尚未选择或授权实盘，不拿实盘账户冒充模拟账户来完成表单。
 
 匿名静态审计已核到正常前端流程的限制：AppKey与OAuth都将`trade:read`和`trade:write`列为需要账户的权限。服务端返回的可选账户列表为空时，两项交易权限被禁用；列表非空、选了任一交易权限却没有选账户时，正常提交处理会提示先选择授权交易账户并返回。仅行情权限的前端流程允许账户留空，但**没有实际创建、批准或调用过这种凭据**，不能推断服务器一定接受，更不能认定它能调用模拟API。现阶段不勾选实盘账户、不创建宽授权Key、不安装或登录默认宽scope的新CLI。
 
@@ -49,6 +51,32 @@
 当前桌面CLI帮助包含账户元信息与模拟订单只读查询，但本轮只执行上述元信息GET，没有调用订单查询。主帮助没有下单、改单或撤单方法，不能将此工具称为完整执行通道；桌面返回的ID／market枚举不得直接用于REST。当前阻点是尚未取得可用paper ID与已核验的模拟接入路线，不是APP未初始化。
 
 ### 可复制给moomoo官方客服的问题
+
+#### 英文版本
+
+**Subject: US paper-trading API access without authorizing live accounts**
+
+Hello moomoo API Support,
+
+I am developing a Python trading system and have initialized my US Margin Paper account in the moomoo app. I can see the paper account and virtual funds. However, the developer dashboard's AppKey authorization form lists only my live cash and margin accounts, with no paper account available.
+
+My priority is to connect only my US paper-trading account, without granting access to my live account balances, positions, or orders, and without enabling live order submission.
+
+Could you please clarify:
+
+1. What is the officially supported way to authorize US paper trading through the new REST API? Can AppKey or OAuth authorization be completed without selecting any live account?
+2. What are the minimum permissions needed to first read the paper account, cash and positions, and later place and cancel paper orders? Is there a paper-only scope or credential restriction?
+3. How should I obtain the correct US paper `account_id` from `GET /api/v1.0/sim-trade/accounts`? Is it separate from the live account IDs shown in the authorization form?
+4. Can access be restricted server-side to `/sim-trade` so the same credentials cannot read or trade live accounts? Does MCP offer a different supported paper-only authorization route?
+
+If paper-only authorization is unavailable, I may consider a live-account connection as a fallback. Before proceeding, please explain whether selecting a live account is required only for identity verification or market-data eligibility, or whether it grants live account read/trading access. Please specify the minimum required permissions and whether live order submission can remain disabled while I use paper trading.
+
+Please provide the relevant documentation and setup steps for moomoo US.
+
+Thank you,
+Rex
+
+#### 中文详细问题
 
 以下由用户自行发送；本项目没有代发，也不需要向客服发送私钥、令牌或交易密码：
 

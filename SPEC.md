@@ -216,3 +216,5 @@ MCP目录中的8个`sim_trade_*`工具映射服务器模拟业务，不能据此
 现有真实行情、HF研究及本机执行状态不因本轮核验而改变。授权结论与可发给官方客服的问题见[接入说明](docs/PAPER_ACCOUNT_SETUP.md)；可复核的公开资源哈希和匿名协议响应只保存在本机`state/moomoo-auth-ui-audit/`及`state/veighna-qa/oauth-readonly-public-audit/`，不混入应用发布包。后续必须先取得官方支持的独立模拟授权方法，再核验实际scope、发现唯一US paper账户并只读检查资金／持仓；这些完成前不启用执行。
 
 另有独立只读OAuth实验核心`execution_lab/paper_oauth_read.py`，未接CLI／数据库／HF，未启动授权。其最小scope请求能否被官方接受尚未实测，不能将离线PKCE、scope拒绝和sim-only路由测试描述为认证或paper-only服务端绑定成功；具体契约与issuer限制见[执行规格](specs/VEIGHNA_MOOMOO_SYSTEM.md#024-独立模拟授权核验)。
+
+用户后续表达“实在不行就用真实账户”，作为独立模拟授权确实不可行时的条件性后备方向；优先级仍是零实盘授权接US paper。现阶段仅整理官方客服问题，核对真实账户关联与身份／行情资格、只读查询、交易写权限的区别，没有启动后备授权或改变运行状态。账户、权限和交易上限尚未确定，LIVE适配也未实现；不能将模拟配置换成实盘ID后执行。英文问题保存在[模拟账户接入说明](docs/PAPER_ACCOUNT_SETUP.md#英文版本)。
