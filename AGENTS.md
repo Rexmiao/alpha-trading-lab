@@ -13,3 +13,5 @@
 - 在线历史仅使用固定Yahoo公开端点与严格USD股票/ETF代码，不提供任意URL或券商认证入口；限流或数据错误明确失败，不转合成。仅当前会话保存快照，参数对比复用原快照，提供CSV与来源JSON下载；分别标记已运行来源和新获取但未使用的快照。
 
 - 部署后用实际结果JSON核对依赖，不假定requirements已全部生效。本次Community Cloud实际PyArrow24.0.0、HF Docker25.0.1，差异写入SPEC；严格复现以同一CSV和固定Docker环境为参照。
+
+- 每日信号／自动交易的后续实现先读specs/DAILY_SIGNAL_SYSTEM.md。用户最终希望全自动实盘，M1范围先为采集、因子、信号及审计；计划与已实现状态分开。活动SQLite放本机非同步目录，REPLAY与CAPTURE发布键隔离，不能把未来实盘目标误当作当前下单授权。
