@@ -156,3 +156,11 @@ Cloud独立请求的CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d
 公开包新增snapshot_source.py后为19文件（18源码＋MANIFEST），没有execution_lab、collector、真实行情、账户或券商密钥。本机执行依赖与HF研究依赖分开；框架和paper适配的离线测试不代表公开网页能下单。用户将私有Dataset／本机写凭据／Space只读Secret配置交由其他协助者稍后处理，本轮不修改这些账号设置；首次真实上传与HF读取尚未验收，也没有启动自动同步任务。
 
 本地独立浏览器已验证新增来源菜单、空CSV禁Run及说明、快照未配置时明确失败且无教学回退／raw下载。显式运行一次合成教学三策略success，权益4条／回撤3条；zh→en→zh JSON字节相同，SHA256为`389b71581cb36e3e8e13bc82725fac871c6649304e179edb94ade6f37e2301e2`。390px无横溢，15条数学短式可读，JS异常0。Python分钟／快照／界面／发布器124项及Node26项通过。本地证据保留`state/veighna-qa/snapshotlocal-20261126T074936/`；公网发布后另核对commit、runtime与实际浏览器结果，不以本地结果替代云端验收。
+
+### 0.8.0 实际发布验收
+
+应用源码commit为`a91cdc9043fc5909fbfd83c4451876b2879a3317`，[同步工作流45825078929](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45825078929)成功。HF仓库与runtime.sha均为`72a793dd3c1cc77468818335b5dd5d916e6ad10a`、RUNNING、CPU Basic。18源码与本机逐字节／SHA一致；MANIFEST仅created_at不同，其余语义一致。
+
+公网独立浏览器已核对新快照菜单、空CSV禁Run、快照当前NOT_CONFIGURED且无教学回退／raw下载。一次显式教学运行三策略success，权益4条／回撤3条；中英中三次JSON逐字节相同，SHA256为`221b103598ed7435c6624fce2b22c4699f68204f27f7c1df6eef0b1081259cc8`。390px页面与15条公式无横向溢出，JS异常0。实际Python3.12.16、NumPy1.26.4、pandas2.2.2、Streamlit1.67.0、PyArrow25.0.1；本地Python3.12.7，不声称两个运行环境或两个JSON内容相同。
+
+证据位于本机`state/veighna-qa/hf-package-verification.json`与`hf-20261126T080241/summary.json`。这证明新版研究界面已上线，**不证明私有Dataset上传／读取已接通，也不证明券商模拟订单已成交**。Cloud备用入口本轮未重新验收。
