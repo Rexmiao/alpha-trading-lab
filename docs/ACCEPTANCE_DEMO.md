@@ -109,3 +109,16 @@ node --test --test-reporter=tap tests/test_intraday_collector.mjs
 本页证明上述版本在给定离线输入下遵守断言。真实实时权限、私有数据上传／读取、模拟账户授权、REST订单期限默认及真实订单／撤单／成交需要各自的服务实测记录；本页测试不为这些事项代签通过。paper尚无预定尾盘强平，持续SHADOW执行尚未实现，当前SHADOW入口是独立历史回放。完整每日M1也未由这342项测试验收完成。
 
 测试数量不能证明策略有效、未来收益、真实成交质量、数据覆盖完整或无人值守交易已经可用。当前执行范围与待验收项见[执行规格](../specs/VEIGHNA_MOOMOO_SYSTEM.md)，研究撮合与成本近似见[动量／趋势说明](MOMENTUM_TREND.md)。
+
+## 0.8.2授权检查增量（未激活）
+
+2026-11-26新增`tests/test_paper_oauth_read.py`的74项离线用例，检查独立只读OAuth实验核心：PKCE／state／10分钟有效期、回调与issuer拒绝、实际scope缺失或含写／账户权限时拒绝、仅选定模拟GET路径、唯一US个人模拟账户、持仓两份官方schema的明确变体、数值边界、无重定向／自动重试及敏感字段隐藏。没有连接真实授权或账户服务，也没有CLI、数据库或HF接线。
+
+随后与原REST签名／适配器56项、Gateway18项一起复跑，**148项全部通过**；其中原有74项属于重复回归，不新增计数。此结果与上文342项基线及发布器后续3项修复分别记录，不能把148项当作新增案例，更不能代替真实paper-only授权和券商成交验收。
+
+```powershell
+& '.\state\veighna-venv\Scripts\python.exe' -m pytest `
+  tests/test_paper_oauth_read.py tests/test_rest_paper.py tests/test_paper_gateway.py -q
+```
+
+本机JUnit为`state/veighna-qa/oauth-readonly-regression.xml`，对应授权结论为`state/veighna-qa/paper-only-auth-decision-20261126.json`。新模块没有启动浏览器、注册客户端、取得令牌或访问券商账户；REST仍为`NOT_CONFIGURED`，交易数据库仍为`ALERT_ONLY／NONE`且无委托或成交。

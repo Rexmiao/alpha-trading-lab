@@ -1,6 +1,6 @@
 # moomoo 官方文档入口与本项目接入手册
 
-核对日期：2026-11-26。本文说明只读日K与独立5分钟采集适配。当前链路是 Windows moomoo 桌面端 CLI 加本机 HTTP Host；官网 OpenD 手册和新 REST 手册的认证方式不能直接套到这条链路上。
+核对日期：2026-11-26。本文说明只读日K、独立5分钟采集，以及本机模拟执行代码的认证边界。已实测的行情链路是 Windows moomoo 桌面端 CLI 加本机 HTTP Host；已有受限SDK／REST模拟适配代码，但真实US paper认证与执行尚未验收。官网 OpenD 手册和新 REST 手册的认证方式不能直接套到桌面Host链路上。
 
 ## 官方 manual book 从哪里看
 
@@ -19,11 +19,11 @@
 
 | 方式 | 连接与认证 | 本项目状态 |
 | --- | --- | --- |
-| 当前桌面 CLI | Node 子进程调用 `moomooapp-cli.exe`，连接本机 `http://127.0.0.1:22222`；通过 `OPENAPI_HOST_APPKEY` 提供本机 Host 的 AppKey | 日K仅`subscribe`／`get-kline`；独立分钟脚本仅`request-history-kl`，实际取数待通过 |
-| 传统 OpenD 加 SDK | 独立 OpenD 网关加 Python 等语言 SDK；官方示例常用 `OpenQuoteContext` 连接本机 `11111` | 可参考接口语义，当前代码没有此适配器。[官方架构](https://openapi.moomoo.com/moomoo-api-doc/en/intro/intro.html)、[SDK K 线示例](https://openapi.moomoo.com/moomoo-api-doc/quote/get-kl.html) |
-| 新 REST API | 公网 HTTP 接口；官方快速开始区分 OAuth 与带签名的 API Key 认证 | 当前代码没有接入。其 OAuth Token、签名私钥和 AppKey ID 不等于本机 Host AppKey。[官方认证说明](https://open.moomoo.com/zh-cn/api/overview/getting-started) |
+| 当前桌面 CLI | 子进程调用 `moomooapp-cli.exe`，连接本机 `http://127.0.0.1:22222`；通过 `OPENAPI_HOST_APPKEY` 提供本机 Host 的 AppKey | 日K`subscribe`／`get-kline`和独立`request-history-kl`历史5分钟分页已实测；当天bar与即时snapshot报价适配已有离线测试，开市实时验收待完成 |
+| 传统 OpenD 加 SDK | 独立 OpenD 网关加 Python 等语言 SDK；官方示例常用 `OpenQuoteContext` 连接本机 `11111` | 已有受限SDK模拟适配及离线测试，尚未建立本用户的独立OpenD／US paper服务连接；桌面Host的11111监听不能代替协议验证。[官方架构](https://openapi.moomoo.com/moomoo-api-doc/en/intro/intro.html)、[SDK K 线示例](https://openapi.moomoo.com/moomoo-api-doc/quote/get-kl.html) |
+| 新 REST API | 公网 HTTP 接口；官方快速开始区分 OAuth 与带签名的 API Key 认证 | 已有独立sim-only传输、签名、模拟适配与恢复代码；paper-only授权尚未证实，REST模拟业务请求未执行，保持`NOT_CONFIGURED`。其 OAuth Token、签名私钥和 AppKey ID 不等于本机 Host AppKey。[官方认证说明](https://open.moomoo.com/zh-cn/api/overview/getting-started) |
 
-当前实际链路为：`python run.py collect → Node 采集脚本 → 桌面 CLI → 本机 Host → moomoo 行情服务`。本项目只接受 loopback 地址，不把 Host 改成公网服务。账户登录与行情授权由桌面端负责；Python 训练代码读取已保存的快照。
+日K研究的实际链路为：`python run.py collect → Node 采集脚本 → 桌面 CLI → 本机 Host → moomoo 行情服务`；历史5分钟使用独立采集器。本机Host适配只接受loopback地址，不把Host改成公网服务。账户登录与行情授权由桌面端负责；Python研究代码读取已保存的快照。行情成功不等于模拟执行认证已配置。
 
 桌面 CLI 的文件名、默认目录、HTTP 端口和参数来自本项目当前适配实现，不能仅凭 OpenD 或 REST 文档认定所有客户端版本都相同。配置时应查看本机已安装 CLI 的帮助和桌面端设置。实现依据见 [collect-moomoo.mjs](../scripts/collect-moomoo.mjs)。
 
@@ -35,9 +35,21 @@
 
 当前Host返回5分钟bar-end（09:35–16:00）；以同日390根1分钟聚合逐组核对78组OHLC及高精度volume后确认，规范化减5分钟得到UTC bar-start，available_at保留原结束时点。整数volume差异保留来源审计，不擅自修订。历史接口end日期为排他边界；仅收已完成的美东日期。未核口径的未来版本默认仍只留raw，不静默平移。3日数据只能检验工程流程，不足以评价策略稳定性。[5分钟契约](MOMENTUM_TREND.md)
 
-CSV SHA256为`5b126b01d9bf29d4d1bb7e63735f0994b15193b3ac1792fb0b29bb130794ff14`，468行、最后可用时点2026-11-25T21:00:00Z。完整原始页、归一化CSV、来源manifest只保存在本机。HF私有Dataset同步使用独立读写凭据，配置与实际上传／读取验收见[私有快照说明](MOOMOO_CLOUD_SYNC.md)。
+CSV SHA256为`5b126b01d9bf29d4d1bb7e63735f0994b15193b3ac1792fb0b29bb130794ff14`，468行、最后可用时点2026-11-25T21:00:00Z。原始响应页和完整本机来源manifest留在本机；规范化CSV及净化来源文件已通过独立凭据发布到私有HF Dataset，公网研究界面已实际读取并运行三策略，数据行数／哈希／截至时间一致。公开的是研究结果，不提供原始OHLCV下载，也不将HF读写令牌用于券商认证。配置、每日完整窗口同步与验收见[私有快照说明](MOOMOO_CLOUD_SYNC.md)。
 
 执行后台与历史研究分开：`execution_lab/marketdata.py`按XNYS日历读取当天已完成5分钟bar，并要求共同连续时段；即时参考报价需供方时间戳且严格小于5秒，迟到、未来或无时间戳明确拒绝。今天休市，开市实时链路尚未实测。11111与22222当前均由OpenAPIHost持有；传统SDK初始化11111超时，不能称独立OpenD已完成接入，也不能把桌面AppKey当作SDK认证。新REST模拟适配与认证边界见[本机执行SPEC](../specs/VEIGHNA_MOOMOO_SYSTEM.md)。
+
+### 新模拟API的授权仍待确认
+
+用户已在APP初始化US Margin Paper并看到虚拟资金，不要求重新初始化。桌面Host的有界账户元信息发现尚未给出可绑定paper ID；没有读取实盘资产、持仓或订单，也没有提交委托。官方SDK包应为`moomoo-api`／`import moomoo`；本次同版静态比较显示关键握手与`FT` magic相同，不能把换包视作已解决连接问题。[官方包名说明](https://openapi.moomoo.com/moomoo-api-doc/en/qa/other.html)
+
+2026-11-26对[官方公开前端脚本](https://open.moomoo.com/assets/chunks/theme.DJor68Up.js)的匿名静态审计显示：正常AppKey／OAuth流程中，`trade:read`与`trade:write`均要求可用账户；已有账户而选择为空时，提交处理拒绝继续。仅行情权限允许空选是前端行为，未实际创建或批准这种凭据，不能推断它可访问模拟API。用户当前授权列表只显示实盘账户，因此不勾选实盘来通过表单、不输入真实交易密码、不安装或登录默认宽scope的CLI。具体静态证据、限制和给官方客服的问题见[模拟账户设置](PAPER_ACCOUNT_SETUP.md)。
+
+[官方2026-10-27更新日志](https://open.moomoo.com/zh-cn/changelog)将模拟交易改为交易读写权限；11月9日更新是参数与返回结构对齐，不是该scope变更日期。[模拟账户列表](https://open.moomoo.com/zh-cn/api/sim-trade/account-list)按当前登录用户返回独立`account_id`，之后与同条`market_id`配合使用；不能将控制台的`univsAccountId`或实盘ID填进去。当前通用scope列表没有独立paper／sim项，尚未确认不授权实盘账户的正式服务端授权方法。
+
+[公开MCP工具目录](https://open.moomoo.com/api/biz/mcp/tools)列有8项`sim_trade_*`，但没有证明quote-only可调用。前端翻译编号`387822`中有关未授交易权限时MCP走模拟盘的文字，本次仅见于翻译字典，未找到直接渲染引用；不能当作有效fallback或REST授权依据。MCP与REST的权限须分别核验，不能以工具存在推定调用成功。[MCP认证](https://open.moomoo.com/mcp-docs/authentication)、[MCP工具说明](https://open.moomoo.com/mcp-docs/available-tools)
+
+接通验收依次要求正式paper-only授权、精确US个人模拟ID、选定模拟账户的只读对账、实时新鲜报价及订单期限核验，最后才是已授权模拟范围内的1股限价受理／撤单／成交／重启对账。任何一步缺证据保持未配置或未验收；本机路径白名单和离线测试不会收窄服务端凭据权限。完整门槛见[本机接入与验收顺序](PAPER_ACCOUNT_SETUP.md#本机接入与验收顺序)。
 
 ## Windows 新机器配置
 
@@ -134,6 +146,6 @@ API 调用费用、某市场的行情权限、订阅额度、历史 K 线额度�
 
 ## 保存和交易边界
 
-采集只写本机 `data/raw/<采集时间>/` 和 `data/manifest.json`，训练结果与模型写 `runs/`。`.gitignore` 排除了 `data/`、`runs/`、预留的 `state/` 及凭据。新取得的完整官方手册可在本地另行保存；行情原始响应、模型、账户、AppKey 和聊天图片不随代码上传 GitHub。代码发布也不自动取得行情再分发权。
+日K采集写本机`data/raw/<采集时间>/`和`data/manifest.json`，独立历史5分钟写`data/intraday/`；训练结果与模型写`runs/`，活动执行数据库与当天快照使用显式非同步运行目录。`.gitignore`排除了`data/`、`runs/`、`state/`及凭据。新取得的完整官方手册可在本地另行保存；行情原始响应、模型、账户、AppKey和聊天图片不随代码上传GitHub。私有HF快照仅按上述专用发布路径处理，代码发布不自动取得行情再分发权。
 
-当前采集命令白名单只有 `subscribe`、`get-kline`，没有账户、资金、持仓、下单、撤单或交易解锁方法。界面里的数量和仓位是独立模拟资本计算的参考草稿，需要重新报价，不会提交到券商。官方手册包含交易功能，不表示本项目已经实现或授权使用这些功能。
+日K采集器的命令白名单只有`subscribe`、`get-kline`；独立历史分钟采集器使用`request-history-kl`，当前执行行情源还包含只读`get-security-snapshot`报价。它们不查询账户或提交订单。公开HF界面展示研究指标、代理成交及参考仓位，不提交券商委托。本机另有受限模拟执行代码，但尚未完成上游模拟授权与真实paper闭环，不能将其离线测试或官方接口示例当作已接通、已授权的交易能力。

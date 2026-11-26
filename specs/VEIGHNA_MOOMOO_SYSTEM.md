@@ -1,6 +1,6 @@
 # VeighNa＋moomoo交易系统实施规格
 
-版本0.2.3，2026-11-26。目标是完整的本机自动化交易后台；HF是公开研究展示入口。当前交付是可配置的5分钟采集／策略／持久化与券商模拟执行代码增量，真实券商模拟闭环尚未验收，不启用真钱交易。完整日频M1验收及原M1–M4阶段仍见[每日系统规格](DAILY_SIGNAL_SYSTEM.md)，不以影子回放或离线适配器测试代替券商模拟验收。
+版本0.2.4（本机草案），2026-11-26。目标是完整的本机自动化交易后台；HF是公开研究展示入口。当前交付是可配置的5分钟采集／策略／持久化与券商模拟执行代码增量，真实券商模拟闭环尚未验收，不启用真钱交易。完整日频M1验收及原M1–M4阶段仍见[每日系统规格](DAILY_SIGNAL_SYSTEM.md)，不以影子回放或离线适配器测试代替券商模拟验收。
 
 ## 结构与职责
 
@@ -134,6 +134,18 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 用户已在APP进入US Margin Paper并看到虚拟资金，初始化已确认，不要求重新初始化。桌面Host有界元信息GET尚未返回可绑定paper ID，不能把它解释为APP账户不存在。下一步可核验真正独立OpenD／官方SDK的`SIMULATE＋US`路径，或官方新模拟API的认证绑定规则；不猜权限或盲加参数。不得将桌面Host11111／22222的TCP连通当成独立OpenD成功。账户列表若包含REAL条目，在输出与持久化前丢弃，不查询其资产、持仓或订单。官方[交易QA的Q1／Q17与Q16](https://openapi.moomoo.com/moomoo-api-doc/en/qa/trade.html)分别说明旧paper路径与旧美股paper逐步下线，不能保证独立OpenD一装即通。具体证据与操作边界见[模拟账户设置](../docs/PAPER_ACCOUNT_SETUP.md)。
 
 当前REST配置、权限、新鲜报价与DAY默认均未完成真实服务核验，后端仍为NOAUTH／NOT_CONFIGURED；离线工厂和配置模板不改变这一状态。
+
+### 0.2.4 独立模拟授权核验
+
+用户要求零实盘连接与授权。匿名公开前端审计显示：正常AppKey／OAuth在已有账户且选择`trade:read`或`trade:write`时，提交处理器拒绝空选授权账户；无账户时交易权限禁选。只有行情权限可在前端空选。用户账户下拉目前只有实盘项，不能将其勾选来取得模拟权限。静态条件不是服务端实测，本轮没有注册OAuth客户端、创建AppKey、批准同意或交换令牌。
+
+当前官方schema要求模拟列表`trade:read`、模拟下单`trade:write`；MCP公开元数据没有独立sim scope。工具目录有8个真实模拟业务工具，但没有证明quote-only调用可用；匿名MCP初始化实际返回401。旧“未授权交易就走模拟”的文字只在翻译字典出现，不能当作当前可用的降级路线。官方scope变更日期为2026-10-27，2026-11-09更新的是模拟字段与枚举对齐，两者不可混淆。[scope更新](https://open.moomoo.com/changelog)、[MCP认证](https://open.moomoo.com/zh-cn/mcp-docs/authentication)
+
+后续只在官方明确支持零实盘账户授权的条件下继续：先请求交易只读权限，核对实际返回scope拒绝写权限与任何`accid:*`／具体实盘账户scope，再只读发现唯一`broker_id=0／account_type=1／market_id=100`账户。账户选择UI的`univsAccountId`与模拟业务`account_id`不能互换。未满足这些前提继续保持未配置；不启动默认宽scope CLI，不读取未知令牌，也不尝试用行情凭据探测交易接口。公开证据在忽略的state目录，操作问题与后续验收顺序见[接入说明](../docs/PAPER_ACCOUNT_SETUP.md)。
+
+`execution_lab/paper_oauth_read.py`另提供未激活的独立只读实验核心，不接交易CLI、Gateway、活动数据库或云端页面。显式调用才能请求注册／token协议端点；目前未调用。注册metadata不作为实际授权证明，实际token必须明确返回`trade:read`，最多再含`quote:read`；缺scope、任何账户scope或写权限均在业务请求前拒绝。PKCE S256、随机state、10分钟尝试有效期、单次交换、固定loopback回调、无代理／重定向／自动重试及有界响应组成离线检查；不存令牌、不启动浏览器或回调服务。业务只允许模拟列表和随后唯一选定US模拟账户的资金／持仓三个GET，不查询订单或写入。它固定REST origin／预期issuer为`webapi.moomoo.com`，未覆盖MCP公布的`mcp.moomoo.com` issuer；不能因此声称已实现MCP授权。官方尚未证明支持其最小scope请求，所以本模块不是当前可运行的接通步骤，实际状态仍为NOT_CONFIGURED。
+
+新增74项授权／只读核心用例，与既有REST56项、Gateway18项共同复跑148项全通过，不把原74项再次新增计数。检查覆盖具体token scope拒绝、回调和TTL、路由零token读取、两份官方持仓schema的明确变体及数值格式化边界；未发出实际认证或业务请求。JUnit与匿名核验记录留state；复跑命令见[验收说明](../docs/ACCEPTANCE_DEMO.md#082授权检查增量未激活)。活动数据库仅用SQLite只读连接复核，仍ALERT_ONLY／NONE、broker_states／intents／executions均0且主文件哈希未变。
 
 ## 当前真实证据与外部前提
 
