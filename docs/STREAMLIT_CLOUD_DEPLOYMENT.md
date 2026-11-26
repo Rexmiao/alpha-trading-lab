@@ -1,6 +1,6 @@
 # Streamlit Community Cloud 免费部署
 
-更新：2026-11-26。公开模拟入口是 `hf_space/streamlit_app.py`，与 Hugging Face Docker 发布包共用引擎。发布包已通过本地 11 项测试及 Streamlit 1.67 的实际计算 AppTest；这些验证不等于云端已上线。目前仍需完成托管账号连接和创建应用，尚无已验证的 `streamlit.app` 地址。Community Cloud 官方提供免费托管；应用仍受资源和休眠政策限制。[官方介绍](https://docs.streamlit.io/deploy/streamlit-community-cloud)
+更新：2026-11-26。公开模拟入口是 `hf_space/streamlit_app.py`，与 Hugging Face Docker 发布包共用引擎。发布包已通过本地 11 项测试及 Streamlit 1.67 的实际计算 AppTest；这些验证不等于云端已上线。本次已完成托管连接和实际发布：[公网应用](https://alpha-trading-lab-rnb8nqgww7tgbdvgdcysxm.streamlit.app/)。三来源功能已实测，实际依赖差异见文末。Community Cloud 官方提供免费托管；应用仍受资源和休眠政策限制。[官方介绍](https://docs.streamlit.io/deploy/streamlit-community-cloud)
 
 ## 最短发布步骤
 
@@ -70,3 +70,11 @@ gatherUsageStats = false
 结果仅保存在当前用户的 `st.session_state`，代码不把上传文件、模型或模拟结果主动写入持久存储，也不跨会话缓存结果。切换界面语言可保留当前会话结果，但服务休眠重启、浏览器重载或连接重建可能清除它们；需要留存时应先下载 JSON。[Session State 的连接边界](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.session_state)
 
 免费托管并非永久常驻服务。官方当前说明无流量应用会休眠，访问者可唤醒；资源不足也可能导致运行失败，不能据此承诺全天在线。[官方休眠与资源说明](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app)
+
+## 实际发布与依赖核对（2026-11-26）
+
+应用源码commit为`b54637fb25eef7746a0ce2c93a97e18c672fcb62`。公开浏览器验证默认moomoo/访客CSV；在线7股加SPY实际获取400日、3200行（2025-04-25至2026-11-25），四模型全部成功。CSV快照、来源JSON和模型结果实际下载一致；中文切English后模型报告逐字节不变。手填7日与持有/调仓周期一致也已验证。
+
+本次取数时间2026-11-26T07:24:38.040985+00:00，CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d2f23288edb46270c72`。请下载快照后用同一CSV进行参数或跨站比较，不把两次独立在线获取视为相同输入。
+
+实际JSON依赖记录中，Cloud PyArrow为`24.0.0`，虽然源码requirements要求`25.0.1`；HF Docker运行值为25.0.1。因此本次Cloud功能通过，不宣称依赖完全同步。其余已记录的NumPy1.26.4、pandas2.2.2、SciPy1.13.1、scikit-learn1.5.1、joblib1.4.2、threadpoolctl3.5.0、Streamlit1.67.0与Plotly5.24.1一致。精确复现优先使用HF Docker固定环境与同一CSV，保留实际依赖JSON；以后重装或重启需重新核对运行值。

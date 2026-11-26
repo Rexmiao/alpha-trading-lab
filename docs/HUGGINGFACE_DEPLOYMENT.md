@@ -9,12 +9,12 @@
 2026-11-26已完成实际发布与公网验收：
 
 - [Space页面](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)；[应用直达](https://rexymiao-alpha-trading-lab.hf.space)。
-- GitHub应用源码commit：`6cd170b83bdb44611ce5008f4d21e693f6676c0e`；[成功的同步工作流](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45770050258)。
-- Space commit与runtime.sha：`825c7ff3f4d8dc5570258b132800c0ee73f966be`；状态RUNNING，当前及请求硬件均为CPU Basic。
+- GitHub应用源码commit：`b54637fb25eef7746a0ce2c93a97e18c672fcb62`；[成功的同步工作流](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45774744781)。
+- Space commit与runtime.sha：`24cdfa5c21ec02cf0ed4e7971c9716691c1d59f0`；状态RUNNING，当前及请求硬件均为CPU Basic。
 - 真实浏览器主动执行四模型成功，表格、三张Plotly图、中英文切换、实际JSON下载及390px手机布局通过；JS异常0。下载报告确认PyArrow25.0.1 / NumPy1.26.4 / Streamlit1.67.0。
 - 初次部署的PyArrow26/NumPy1.26导入错误已修复，Docker构建已增加真实表转换检查。公网测试使用明确标记的合成教学数据，不是策略市场有效性证据。
 
-Streamlit Community Cloud已由用户创建；手填周期和四模型运行通过，在线来源新版本与实际依赖仍需再次验收。
+Streamlit Community Cloud也已通过真实在线来源、四模型、三类下载和双语验证。实际PyArrow为24.0.0，与本HF固定25.0.1不同；详见其部署说明。
 
 自动同步默认目标为`Rexymiao/alpha-trading-lab`，`HF_SPACE_ID`保留为可选覆盖；不创建Space、购买服务或更改硬件。
 
@@ -123,8 +123,16 @@ Streamlit Community Cloud同样使用用户自己的账号，在GitHub仓库部�
 
 ## 手动输入预测与调仓周期
 
-周期输入支持1–20的整数、默认5。界面建议初期从5开始并在10个交易日以内研究，明确这是教学起点而非最优周期。该值共同控制未来开盘收益标签的持有期和调仓间隔；较长周期会减少标签与独立调仓观察。本变更的新部署与公网验收需单独确认。
+周期输入支持1–20的整数、默认5。界面建议初期从5开始并在10个交易日以内研究，明确这是教学起点而非最优周期。该值共同控制未来开盘收益标签的持有期和调仓间隔；较长周期会减少标签与独立调仓观察。已发布并核对真实手填7日与调仓间隔，后续变更仍须重新验收。
 
 ## 在线历史来源与发布包
 
-新增hf_space/history.py，包为14文件；默认CSV、在线历史、合成教学三来源分别标记。在线模式只访问固定Yahoo HTTPS端点，不需要HF或券商密钥；仅会话保存行情，下载CSV快照和来源JSON以复现。输入、截止日期、调整口径和失败处理见[真实历史数据说明](HISTORICAL_DATA.md)。新模式需在两个公网入口实际验证后记录验收。
+新增hf_space/history.py，包为14文件；默认CSV、在线历史、合成教学三来源分别标记。在线模式只访问固定Yahoo HTTPS端点，不需要HF或券商密钥；仅会话保存行情，下载CSV快照和来源JSON以复现。输入、截止日期、调整口径和失败处理见[真实历史数据说明](HISTORICAL_DATA.md)。新模式已在两个公网入口完成实际服务器取数、模型计算和三类下载验收。
+
+## 三来源公网验收记录（2026-11-26）
+
+两个入口默认CSV，访客无需券商登录即可上传；在线默认7股加SPY，另保留明确标记的合成教学。HF服务器实际获取Yahoo 2025-04-25至2026-11-25的400日，共3200行，四模型均success，CSV/来源JSON/模型结果三份下载一致，切English保留结果。
+
+HF获取时间2026-11-26T07:28:49.292490+00:00；CSV SHA256 `450ddcf459441d4f17ec8164b4b444d2950bfe2284917b9ce94959a0459ef4ff`，实际依赖PyArrow25.0.1、Streamlit1.67.0、NumPy1.26.4。源码包14文件已按固定Space commit逐项核对长度、字节与SHA。
+
+Cloud独立请求的CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d2f23288edb46270c72`，两次请求不是同一冻结输入；精确比较请在两站上传同一下载CSV。完整价格、截图及测试报告只留本机，不纳入公开源码。

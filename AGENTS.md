@@ -11,3 +11,5 @@
 - Hugging Face与Streamlit Community Cloud共用同一引擎，分别按各自部署文档处理账号和认证。源码仍用现有GitHub App；不将它误当作第三方托管服务的登录，也不请求组织或私库权限。付费套餐或硬件不得自动开通。
 
 - 在线历史仅使用固定Yahoo公开端点与严格USD股票/ETF代码，不提供任意URL或券商认证入口；限流或数据错误明确失败，不转合成。仅当前会话保存快照，参数对比复用原快照，提供CSV与来源JSON下载；分别标记已运行来源和新获取但未使用的快照。
+
+- 部署后用实际结果JSON核对依赖，不假定requirements已全部生效。本次Community Cloud实际PyArrow24.0.0、HF Docker25.0.1，差异写入SPEC；严格复现以同一CSV和固定Docker环境为参照。

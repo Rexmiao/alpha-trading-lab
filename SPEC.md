@@ -58,7 +58,7 @@ GitHub Pages使用.github/workflows/pages.yml部署main分支的web/目录，发
 
 ## 云端 Python 模拟
 
-新增独立入口hf_space/streamlit_app.py，可用于Hugging Face Docker Space和Streamlit Community Cloud；GitHub Pages主站继续只运行浏览器教学交互。本次已准备共同模拟代码与部署资料。已核实用户个人HF账号Rexymiao为PRO，公开Docker / CPU Basic Space Rexymiao/alpha-trading-lab已创建，发布令牌由用户保存到GitHub Secret；HF已于2026-11-26通过实际公网验收，入口为https://huggingface.co/spaces/Rexymiao/alpha-trading-lab；Streamlit Community Cloud入口为https://alpha-trading-lab-rnb8nqgww7tgbdvgdcysxm.streamlit.app/，手填7日、四模型及双语提示已验证；此前Cloud实际PyArrow为24.0.0，与期望25.0.1存在差异，新版本依赖安装需再次核对。两个平台发布状态分别记录。
+新增独立入口hf_space/streamlit_app.py，可用于Hugging Face Docker Space和Streamlit Community Cloud；GitHub Pages主站继续只运行浏览器教学交互。本次已准备共同模拟代码与部署资料。已核实用户个人HF账号Rexymiao为PRO，公开Docker / CPU Basic Space Rexymiao/alpha-trading-lab已创建，发布令牌由用户保存到GitHub Secret；HF已于2026-11-26通过实际公网验收，入口为https://huggingface.co/spaces/Rexymiao/alpha-trading-lab；Streamlit Community Cloud入口为https://alpha-trading-lab-rnb8nqgww7tgbdvgdcysxm.streamlit.app/，手填7日、四模型及双语提示已验证；本次实际下载报告确认Cloud为PyArrow24.0.0、HF为25.0.1；其余所记录的NumPy、pandas、SciPy、scikit-learn、joblib、threadpoolctl、Streamlit与Plotly版本一致，不宣称两个托管运行环境完全相同。两个平台发布状态分别记录。
 
 hf_space/engine.py直接复用research/data.py、models.py、portfolio.py中的特征、时间切分、四模型和含成本回测函数，不调用load_snapshot、run_experiment、moomoo CLI或根目录本机结果查看器。默认选择上传CSV，访客也可使用；合成教学数据需明确选择：BENCH加6只TOY虚构资产、400个工作日、seed42，日历并非交易所节假日日历；全部收益和IC仅说明教学模拟，不代表市场证据。上传失败或数据不足时明确报错，不能自动以合成数据替代。
 
@@ -78,7 +78,7 @@ HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.
 
 云端两份依赖清单显式固定pyarrow==25.0.1，与numpy==1.26.4和pandas==2.2.2配套。首次公网运行发现未约束的PyArrow26要求NumPy2，故在Docker构建阶段增加实际NumPy→pandas→Arrow表转换，失败即中止镜像构建；不以容器RUNNING替代表格渲染验收。JSON同时记录PyArrow、Streamlit与Plotly版本。
 
-上一轮已验收的HF运行源码来自GitHub commit 6cd170b83bdb44611ce5008f4d21e693f6676c0e，Space commit及runtime.sha均为825c7ff3f4d8dc5570258b132800c0ee73f966be；当前/请求硬件均为cpu-basic。实际浏览器主动运行四模型成功，验证了表格、三张交互图、中英文切换、JSON下载及390px手机布局，未出现JS异常；报告依赖为PyArrow25.0.1、NumPy1.26.4、Streamlit1.67.0。此次合成教学运行只验证部署功能，不作为真实行情策略有效性证据。手填周期变更须再次核对实际标签、purge、调仓时点及公网输入行为，后续部署记录见docs/HUGGINGFACE_DEPLOYMENT.md。
+当前已验证的应用源码为GitHub commit b54637fb25eef7746a0ce2c93a97e18c672fcb62，Space commit及runtime.sha均为24cdfa5c21ec02cf0ed4e7971c9716691c1d59f0，当前/请求硬件为cpu-basic。两个公网入口均实测默认访客CSV、真实Yahoo取数7股加SPY、400个交易日、四模型成功、三类下载及中英切换保留结果。输入框1–20/default5和真实手填7日的持有/调仓一致性已核对，CSV拒绝错误不使用合成回退。57项数据/引擎测试及三来源AppTest通过。
 
 新增online_history来源，显式选择并点击运行后才访问Yahoo公开日线端点。hf_space/history.py仅请求固定HTTPS域名和严格股票代码，支持3–8只USD股票/ETF加基准、400个基准日期；要求America/New_York时区，保守排除美东当天。请求有时间及大小上限，HTTP限流、无数据、非法价格与不支持币种明确失败，不使用合成回退。
 
@@ -87,6 +87,8 @@ HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.
 在线快照仅在当前会话缓存，股票/基准变化或主动刷新会重新获取；模型参数对比默认复用同一快照。提供当前快照CSV和来源JSON下载，已显示结果仍按该次运行保存的source及external_data标记；切换来源或取得新快照不会伪装成旧结果所用数据。公开包只增加获取器源码，不内置本机行情、账户或券商凭据，包扩为14文件。
 
 本机真实moomoo快照已整理为8股加SPY、2025-04-24至2026-11-24、400个交易日，共3600行；CSV SHA256为8748612159d562adc85661068f149d9f8ce9ea82bdcaa75b56276860a45acc17，留在data/cloud-inputs。已在HF临时会话h5/10bps实际运行四模型并下载报告，真实数据、报告及来源审计不推入公开源码。步骤见docs/HISTORICAL_DATA.md；该窗口内四组均未跑赢SPY，不能描述为已证明有效alpha。
+
+两站的独立在线请求时间与CSV快照哈希分别记录在部署说明中；不同快照不等于同一实验。精确复现应保存相同CSV与JSON配置，并以HF Docker固定环境为参照，结果中始终记录实际依赖版本，不以requirements声明替代运行值。
 
 新云端行为须通过CSV边界、无工作目录写入、时间purge、模型失败与并发测试；还需在云端依赖环境实际运行四模型界面，验证语言切换和参数改动不会错误重训或冒称已经应用。Docker构建与真实平台上线是额外状态，只有各自构建和公网检查成功后才更新相应入口。
 

@@ -31,7 +31,7 @@ GitHub Pages已启用并发布，部署配置见[操作说明](docs/GITHUB_WORKF
 
 新增[模拟界面](hf_space/streamlit_app.py)可按参数实际训练四组小模型，查看留出期Rank IC、含成本净值、回撤和参考权重。默认上传标准OHLCV CSV，访客也可上传；还可明确选择在线历史行情或合成教学数据；合成结果不是市场业绩，云端版本不接moomoo账户。
 
-[Hugging Face部署说明](docs/HUGGINGFACE_DEPLOYMENT.md)、[Docker发布模板](deploy/huggingface/README.md)和[Streamlit Community Cloud部署说明](docs/STREAMLIT_CLOUD_DEPLOYMENT.md)已准备；[Hugging Face Space](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)已上线并通过公网四模型、中英文、图表、JSON下载及手机布局验证；[Streamlit Community Cloud](https://alpha-trading-lab-rnb8nqgww7tgbdvgdcysxm.streamlit.app/)已创建并通过手填周期及四模型运行验证；新版本在线模式与依赖仍需再验收。GitHub Pages主教学站独立运行，不因本地模拟或发布包存在而成为Python后台。
+[Hugging Face部署说明](docs/HUGGINGFACE_DEPLOYMENT.md)、[Docker发布模板](deploy/huggingface/README.md)和[Streamlit Community Cloud部署说明](docs/STREAMLIT_CLOUD_DEPLOYMENT.md)已准备；[Hugging Face Space](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)已上线，公网实际在线取数、四模型、中英文、图表、三类下载及手机布局均已验证；[Streamlit Community Cloud](https://alpha-trading-lab-rnb8nqgww7tgbdvgdcysxm.streamlit.app/)已通过默认访客CSV、在线真实取数、四模型、快照/来源/结果下载及中英文验证。GitHub Pages主教学站独立运行，不因本地模拟或发布包存在而成为Python后台。
 
 真实历史行情使用左侧 **Upload CSV / 上传 CSV**，基准填写CSV中的代码；本机已准备moomoo固定快照，数据与来源记录保留在`data/cloud-inputs/`，不发布到源码仓库。步骤与口径见[真实历史数据说明](docs/HISTORICAL_DATA.md)。
 
