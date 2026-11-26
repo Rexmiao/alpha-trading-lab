@@ -6,6 +6,8 @@
 
 ## 每日采集与自动交易系统规格
 
+[查看验收展示与可复跑命令](docs/ACCEPTANCE_DEMO.md)：2026-11-26重新执行342项Python基线与26项采集测试，另有3项真实DPAPI问题回归。先落盘、超时恢复、成交去重、模式切换及回放隔离分别列出具体测试；这些不等于真实券商成交或策略盈利证明。[模拟账户接入入口](docs/PAPER_ACCOUNT_SETUP.md)
+
 完整路线见[每日系统SPEC](specs/DAILY_SIGNAL_SYSTEM.md)，当前代码见[VeighNa＋moomoo试点SPEC](specs/VEIGHNA_MOOMOO_SYSTEM.md)。本机已实现行情采集→持久信号→受约束提案→提醒／确认／自动模拟委托→成交对账；SQLite放本机非同步目录。UNKNOWN提交不盲重试，模式切换不补执行旧信号。真实券商模拟认证与成交仍待验收，尚未启动常驻任务；每日M1全量验收未完成。
 
 框架评估见[框架优劣与执行候选研究](docs/FRAMEWORK_COMPARISON.md)。VeighNa4.5.0已在独立环境验证：真实MainEngine／BaseGateway贯通假券商提交和累计成交投射。仅映射订单与派生成交事件，未声称完整账户／持仓OMS映射；其他框架保留为研究候选。

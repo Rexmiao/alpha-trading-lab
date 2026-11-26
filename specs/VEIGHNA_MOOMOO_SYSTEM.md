@@ -1,6 +1,6 @@
 # VeighNa＋moomoo交易系统实施规格
 
-版本0.2.0，2026-11-26。目标是完整的本机自动化交易后台；HF是公开研究展示入口。当前交付是可配置的5分钟采集／策略／持久化与券商模拟执行代码增量，真实券商模拟闭环尚未验收，不启用真钱交易。完整日频M1验收及原M1–M4阶段仍见[每日系统规格](DAILY_SIGNAL_SYSTEM.md)，不以影子回放或离线适配器测试代替券商模拟验收。
+版本0.2.1，2026-11-26。目标是完整的本机自动化交易后台；HF是公开研究展示入口。当前交付是可配置的5分钟采集／策略／持久化与券商模拟执行代码增量，真实券商模拟闭环尚未验收，不启用真钱交易。完整日频M1验收及原M1–M4阶段仍见[每日系统规格](DAILY_SIGNAL_SYSTEM.md)，不以影子回放或离线适配器测试代替券商模拟验收。
 
 ## 结构与职责
 
@@ -159,4 +159,12 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 | 模式切换 | 旧提醒不升级成订单，pause不暗中清仓 |
 | 范围限制 | 无LIVE调用、无真实账户资金／持仓读取、无对旧持仓迁移 |
 
-上述真实券商场景须逐项标记实测状态；现有离线测试证明代码约束，不能当成券商实测。HF私有Dataset／服务端只读secret与本机发布权限由管理者或接手人稍后完成，本轮不把这些设置或真实快照连接标记为已验收；原始行情不开放访客下载，公开范围为研究结果。详见[设置说明](../docs/MOOMOO_CLOUD_SYNC.md)。
+上述真实券商场景须逐项标记实测状态；现有离线测试证明代码约束，不能当成券商实测。HF本机发布与Space独立读取分别验收，最新进度见下节；原始行情不开放访客下载，公开范围为研究结果。详见[设置说明](../docs/MOOMOO_CLOUD_SYNC.md)。
+
+## 0.2.1 后续实测进度
+
+本机私有发布已实际成功，Dataset保持Private，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；468行与原CSV哈希一致，复查没有重复POST。HF访客读取仍NOT_CONFIGURED，用户确认尚未添加Space的两个设置；已打开设置页指导配置，本机上传成功不代表Space读取成功。原始CSV不开放访客下载。
+
+真实paper就绪检查：文档中的私有REST config不存在，ALPHA_REST_PAPER_CONFIG未配置；DB仍ALERT_ONLY／NONE且无broker state／intent／execution，受控工厂返回NOT_CONFIGURED，网络与认证调用0。11111／22222仍是loopback OpenAPIHost；没有重复SDK握手或复用桌面AppKey。下一动作是管理者在官方控制台核对模拟权限和明确账户，完成本机私有配置后先只读reconcile，再于可撮合时段验收受控委托。[操作入口](../docs/PAPER_ACCOUNT_SETUP.md)
+
+342项Python基线和26项Node已重新执行通过，另有3项DPAPI模块路径问题回归（publisher共16项）。用例清单及能证明／不能证明的范围见[验收展示](../docs/ACCEPTANCE_DEMO.md)。

@@ -8,7 +8,7 @@
 - 已取得SPY／NVDA在2026-11-23至25的三个完整RTH日，共468行。原始5分钟为bar-end标签，规范化减5分钟得到UTC bar-start；同日78组5分钟OHLC与每组5根1分钟聚合全部匹配，高精度volume也匹配，供方整数volume差异保留在本机来源审计中。
 - 私有发布器`sync_moomoo_snapshot.py`只允许三个文件：内容寻址的CSV、已净化manifest和latest指针。它拒绝公开数据集、哈希不符、未核时间口径和未来bar；不上传完整原始响应、账户、本机路径或密钥。
 - HF新增“已发布moomoo 5分钟快照”来源，固定私有仓库与revision，核对文件路径／长度／hash；原始OHLCV只留服务端会话，不提供原始下载。访客仍可上传自己的CSV或选择教学数据。
-- 尚未配置下面的私有数据集与专用读写凭据，不能将代码／离线测试通过描述为真实云端链路已接通。完成设置后应以真实上传与公网运行单独验收。
+- 2026-11-26私有Dataset与本机专用写凭据已实际验收，首次三文件上传成功；revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`，468行与原CSV哈希一致。重复检查只读取现有快照。**Space的独立读取设置尚未完成**，访客刷新仍NOT_CONFIGURED，不能将本机上传描述为网页已读通。
 
 ## 管理者的一次性设置
 
@@ -48,7 +48,9 @@ $env:ALPHA_SNAPSHOT_TOKEN_DPAPI = 'C:\Users\Rexy\Documents\ChatGPT\量化准备\
 & '.\state\veighna-venv\Scripts\python.exe' '.\scripts\run_snapshot_sync.py' --runtime-dir 'C:\Users\Rexy\Documents\ChatGPT\量化准备\alpha-paper-runtime' --symbols SPY,NVDA --sessions 3 --publish
 ```
 
-若要持续检查，在同一命令末尾显式加`--watch`；停止不会修改交易模式或取消订单。目前用户决定稍后由其他协助者完成账号设置；没有启动watch、创建任务或进行真实私有上传。发布器SDK环境与本机执行环境分开安装。
+若要持续检查，在同一命令末尾显式加`--watch`；停止不会修改交易模式或取消订单。目前真实私有上传已经完成，但Space独立读取尚待用户添加Variable与Secret；没有启动watch或创建任务。发布器SDK环境与本机执行环境分开安装。
+
+Windows真实运行修复：若从PowerShell7启动，旧实现可能让Windows PowerShell5继承不兼容PSModulePath，从而报LOCAL_PROTECTED_TOKEN_UNAVAILABLE，即使DPAPI凭据有效。当前发布器对子进程使用绝对powershell.exe路径和仅系统模块环境，已通过真实凭据再读取。不要仅因该旧错误重新生成或转存明文令牌。
 
 ## 与本机交易的分工
 

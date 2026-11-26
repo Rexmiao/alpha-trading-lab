@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.8.0（本机执行试点与私有行情快照）；更新日期：2026-11-26。研究主线仍为美股日频DL／GenAI alpha预测，另有独立5分钟动量／趋势工程基线。新增本机持久交易协调器、VeighNa订单桥及moomoo模拟适配；公开HF只负责研究，不提供委托入口。真实券商模拟认证与成交验收尚未完成，没有实盘路径。
+版本：0.8.1（私有发布实测与可查看验收）；更新日期：2026-11-26。研究主线仍为美股日频DL／GenAI alpha预测，另有独立5分钟动量／趋势工程基线。新增本机持久交易协调器、VeighNa订单桥及moomoo模拟适配；公开HF只负责研究，不提供委托入口。真实券商模拟认证与成交验收尚未完成，没有实盘路径。
 
 ## 系统实施路线与当前增量
 
@@ -175,6 +175,8 @@ GitHub包含代码、SPEC、README、依赖清单、论文原文入口与阅读�
 
 ## 0.8.0：本机执行试点与私有行情快照
 
+本节记录0.8.0阶段；最新私有上传与配置进度见文末0.8.1。
+
 执行范围与命令以[VeighNa＋moomoo规格](specs/VEIGHNA_MOOMOO_SYSTEM.md)为准。独立环境固定vnpy4.5.0、SDK及签名依赖；本机SQLite默认ALERT_ONLY＋NONE，明确支持提醒／确认／自动策略、不同账号命名空间、持久提交意图、UNKNOWN查询恢复及已拥有仓位对账。真实MainEngine／BaseGateway路由同一模拟适配器，SQLite提交后投射订单及累计数量派生成交，OMS失败阻止后续新意图；不伪造完整AccountData／PositionData或第二现金账本。LIVE不开放，没有常驻任务或开机启动被注册。
 
 真实moomoo SPY／NVDA在2026-11-23至25日共468行，CSV SHA256为`5b126b01d9bf29d4d1bb7e63735f0994b15193b3ac1792fb0b29bb130794ff14`，as_of为2026-11-25T21:00:00Z。原始时间是bar-end；78组5分钟OHLC与1分钟右端聚合相符后明确减5分钟转换为UTC bar-start。高精度volume相符，供方整数volume差异保留本机审计；不修订价格、不填缺失。真实3日影子回放213信号／71本地委托与成交，对账一致；不属于券商成交，也不是策略盈利证据。
@@ -186,3 +188,13 @@ HF新增`moomoo_snapshot`来源，固定Dataset与revision，核对相对路径�
 最终执行栈218项离线测试、分钟／快照／UI／发布器124项Python测试与26项Node测试通过。真实时钟休市运行未加载认证或调用券商，REPLAY前后活动DB字节与政策不变。独立本地浏览器验证三策略教学运行、中英中同JSON、15条数学式及390px布局，无raw下载、无失败教学回退。真实开市报价与采集、受限paper授权、REST DAY默认及券商订单／成交尚待逐项实测；不能用这些离线结果标记模拟闭环或完整每日M1完成。公网版本另在[部署记录](docs/HUGGINGFACE_DEPLOYMENT.md)核对。
 
 0.8.0公网验收已完成：应用源码`a91cdc9043fc5909fbfd83c4451876b2879a3317`，工作流45825078929成功；HF仓库／runtime为`72a793dd3c1cc77468818335b5dd5d916e6ad10a`，RUNNING、CPU Basic。18源码一致，MANIFEST仅创建时点差异。公网三策略教学成功、双语JSON不重算、390px及15数学式通过；快照来源实际仍为NOT_CONFIGURED，未做真实私有读取。SHADOW目前仅独立历史回放，本机paper没有预定EOD强平，0／1股执行与HF研究的权重／退出政策不可混称。具体限制与下一步券商验收见执行SPEC。
+
+## 0.8.1：真实私有发布与验收展示
+
+2026-11-26已用本机专用DPAPI凭据核对固定Dataset确为Private，并首次发布三文件快照；Dataset revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`。服务端存储下载重新核对468行、SHA256 `5b126b01d9bf29d4d1bb7e63735f0994b15193b3ac1792fb0b29bb130794ff14`及as_of `2026-11-25T21:00:00Z`一致；重复检查读取现有revision，不重复POST。本机上传验收已通过，HF独立只读Secret尚未配置，网页仍NOT_CONFIGURED；这两个状态分别记录，不将本机写令牌的读取当成Space凭据验收。没有启动watch或计划任务。
+
+真实运行发现父PowerShell7的PSModulePath使Windows PowerShell5无法自动加载Security模块，有效DPAPI凭据被误报不可用。发布器现使用绝对Windows PowerShell路径、仅系统Modules的子进程环境，并移除父缓存路径；不更改父环境、不输出凭据、不回退HF_TOKEN。新增3项相关回归，publisher16项全通过，真实凭据读取及同快照再验证通过。
+
+此前342项Python及26项Node已在2026-11-26T19:38:08Z–19:38:49Z重新执行，零失败、零跳过；基线期间67个源码／依赖文件hash不变。其后只针对发布器修复新增3例，不把重复运行的旧13例再次计数。公开的逐文件覆盖、五场景9条测试与复跑命令见[验收展示说明](docs/ACCEPTANCE_DEMO.md)，完整日志／JUnit与来源指纹留本机。
+
+本机paper实际就绪检查仍为ALERT_ONLY／NONE，模拟订单数0。文档指定的REST私有config不存在，未读取任何未知凭据、未查询账户或提交订单；桌面登录与Host监听不替代REST认证。管理者入口、精确账户与只读对账顺序见[模拟账户接入](docs/PAPER_ACCOUNT_SETUP.md)。真实下单／成交、开市实时权限及隔夜退出政策仍待验收。

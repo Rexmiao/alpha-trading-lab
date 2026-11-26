@@ -39,6 +39,10 @@ pandas and PyArrow table conversion before publishing the image.
   `ALPHA_SNAPSHOT_DATASET` and dedicated read secret `ALPHA_SNAPSHOT_READ_TOKEN`.
   No broker credentials are used. Missing configuration fails explicitly;
   raw snapshot CSV download is unavailable, while research JSON is downloadable.
+  The dataset and local publisher being ready does not configure the Space:
+  add both entries in this Space's Settings → Variables and secrets, save and
+  restart it. Use a dataset-only read token, separate from the local write token
+  and the GitHub source-deployment token.
 - Keep uploaded CSV and results in the current session; the package contains no
   saved market data, local research results, models, credentials or account data.
 - No connection to a desktop broker, no account access and no order submission.

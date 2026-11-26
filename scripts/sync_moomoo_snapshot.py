@@ -147,8 +147,21 @@ def _write_token():
         'try {[Console]::Out.Write([Runtime.InteropServices.Marshal]::PtrToStringBSTR($p))} '
         'finally {[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($p)}')
     try:
-        result = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', command],
-            capture_output=True, timeout=10, check=False, text=True, env=os.environ,
+        # A PowerShell 7 parent exports its own PSModulePath. Windows PowerShell
+        # 5 can then fail to autoload Security/Management and misreport a valid
+        # DPAPI credential as unavailable. Use only its installed system modules.
+        system_root = os.environ.get('SystemRoot')
+        if not system_root:
+            raise SnapshotPublishError('LOCAL_PROTECTED_TOKEN_UNAVAILABLE')
+        powershell_root = Path(system_root) / 'System32/WindowsPowerShell/v1.0'
+        executable, modules = powershell_root / 'powershell.exe', powershell_root / 'Modules'
+        if not executable.is_file() or not modules.is_dir():
+            raise SnapshotPublishError('LOCAL_PROTECTED_TOKEN_UNAVAILABLE')
+        child_environment = dict(os.environ)
+        child_environment['PSModulePath'] = str(modules)
+        child_environment.pop('PSModuleAnalysisCachePath', None)
+        result = subprocess.run([str(executable), '-NoProfile', '-NonInteractive', '-Command', command],
+            capture_output=True, timeout=10, check=False, text=True, env=child_environment,
             creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         if result.returncode or not result.stdout.strip():
             raise SnapshotPublishError('LOCAL_PROTECTED_TOKEN_UNAVAILABLE')

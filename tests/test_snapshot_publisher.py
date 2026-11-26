@@ -95,3 +95,53 @@ def test_three_files_are_atomic_expected_parent_commit_and_old_snapshots_not_ove
     with pytest.raises(SnapshotPublishError, match='NO_OVERWRITE'):
         publish_payloads(payloads, api=api, operation_factory=lambda **kwargs:kwargs)
     assert len(api.commits) == 1
+
+
+def test_dedicated_write_token_never_invokes_powershell_or_uses_deployment_token(monkeypatch):
+    from scripts import sync_moomoo_snapshot as publisher
+    monkeypatch.setenv('ALPHA_SNAPSHOT_WRITE_TOKEN', 'dedicated-dataset-only-fixture')
+    monkeypatch.setenv('HF_TOKEN', 'deployment-fixture-must-not-be-used')
+    monkeypatch.setattr(publisher.subprocess, 'run', lambda *a, **k: pytest.fail('No child process for explicit token'))
+    assert publisher._write_token() == 'dedicated-dataset-only-fixture'
+
+
+def _protected_fixture(tmp_path, monkeypatch):
+    from scripts import sync_moomoo_snapshot as publisher
+    protected = tmp_path / 'credential.dpapi'
+    protected.write_text('offline-encrypted-fixture', encoding='utf-8')
+    system_root = tmp_path / 'Windows'
+    base = system_root / 'System32/WindowsPowerShell/v1.0'
+    (base / 'Modules').mkdir(parents=True)
+    (base / 'powershell.exe').touch()
+    environment = {'ALPHA_SNAPSHOT_TOKEN_DPAPI': str(protected), 'SystemRoot': str(system_root),
+        'PSModulePath': 'incompatible-powershell7-modules', 'PSModuleAnalysisCachePath': 'parent-cache',
+        'HF_TOKEN': 'deployment-fixture-must-not-be-used'}
+    monkeypatch.setattr(publisher, 'os', SimpleNamespace(name='nt', environ=environment))
+    return publisher, base, environment
+
+
+def test_dpapi_reader_uses_windows_powershell_system_modules_and_no_plaintext_arguments(tmp_path, monkeypatch, capsys):
+    publisher, base, environment = _protected_fixture(tmp_path, monkeypatch)
+    calls = []
+    def execute(argv, **kwargs):
+        calls.append((argv, kwargs))
+        assert argv[0] == str(base / 'powershell.exe')
+        assert kwargs['env']['PSModulePath'] == str(base / 'Modules')
+        assert 'PSModuleAnalysisCachePath' not in kwargs['env']
+        assert kwargs['capture_output'] is True
+        return SimpleNamespace(returncode=0, stdout='private-dataset-fixture', stderr='')
+    monkeypatch.setattr(publisher.subprocess, 'run', execute)
+    assert publisher._write_token() == 'private-dataset-fixture'
+    assert len(calls) == 1 and environment['PSModulePath'] == 'incompatible-powershell7-modules'
+    assert 'private-dataset-fixture' not in str(calls[0][0])
+    assert not capsys.readouterr().out
+
+
+def test_dpapi_failure_does_not_expose_child_output_or_reuse_hf_token(tmp_path, monkeypatch, capsys):
+    publisher, _, _ = _protected_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(publisher.subprocess, 'run', lambda *a, **k:
+        SimpleNamespace(returncode=1, stdout='sensitive-fixture', stderr='sensitive-fixture'))
+    with pytest.raises(SnapshotPublishError, match='^LOCAL_PROTECTED_TOKEN_UNAVAILABLE$'):
+        publisher._write_token()
+    captured = capsys.readouterr()
+    assert not captured.out and not captured.err
