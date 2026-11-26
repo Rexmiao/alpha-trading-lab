@@ -163,8 +163,10 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 
 ## 0.2.1 后续实测进度
 
-本机私有发布已实际成功，Dataset保持Private，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；468行与原CSV哈希一致，复查没有重复POST。HF访客读取仍NOT_CONFIGURED，用户确认尚未添加Space的两个设置；已打开设置页指导配置，本机上传成功不代表Space读取成功。原始CSV不开放访客下载。
+本机私有发布已实际成功，Dataset保持Private，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；468行与原CSV哈希一致，复查没有重复POST。用户随后完成Space两个设置，新访客已实际读取该revision、运行三规则研究并下载JSON；无教学回退，原始CSV不开放访客下载。HF读取成功不代表本机券商执行验收完成，自动watch仍未启动。
 
 真实paper就绪检查：文档中的私有REST config不存在，ALPHA_REST_PAPER_CONFIG未配置；DB仍ALERT_ONLY／NONE且无broker state／intent／execution，受控工厂返回NOT_CONFIGURED，网络与认证调用0。11111／22222仍是loopback OpenAPIHost；没有重复SDK握手或复用桌面AppKey。下一动作是管理者在官方控制台核对模拟权限和明确账户，完成本机私有配置后先只读reconcile，再于可撮合时段验收受控委托。[操作入口](../docs/PAPER_ACCOUNT_SETUP.md)
 
 342项Python基线和26项Node已重新执行通过，另有3项DPAPI模块路径问题回归（publisher共16项）。用例清单及能证明／不能证明的范围见[验收展示](../docs/ACCEPTANCE_DEMO.md)。
+
+管理者进入AppKey创建步骤后，本机非同步runtime/rest-paper已生成Ed25519签名密钥对和config.example.json。目录与文件去除ACL继承，仅当前Windows用户和SYSTEM可访问；密钥对签名／验签通过，不覆盖已有密钥。只打开公钥供管理者填写网页，私钥留本机；示例仍是占位account_id／app_key、authorization_confirmed=false，不等于配置或账户认证完成。当前尚未创建或绑定服务端AppKey，需先核对控制台可提供的模拟权限。

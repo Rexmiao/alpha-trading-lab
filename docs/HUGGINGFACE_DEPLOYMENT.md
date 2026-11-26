@@ -1,6 +1,6 @@
 # Hugging Face Docker 发布准备
 
-最新0.8.1进度：Private Dataset已实际上传468行真实moomoo快照并核对hash，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；Space的独立读取Variable／Secret尚未设置，访客仍NOT_CONFIGURED。这两个验收分开，自动watch未启动。设置入口为[本Space的Settings](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab/settings)，在Variables and secrets添加ALPHA_SNAPSHOT_DATASET和ALPHA_SNAPSHOT_READ_TOKEN，详细值见[操作说明](MOOMOO_CLOUD_SYNC.md)。历史0.8.0验收保留文末。[新鲜测试展示与命令](ACCEPTANCE_DEMO.md)
+最新0.8.1进度：Private Dataset已实际上传468行真实moomoo快照并核对hash，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；用户完成Space独立读取配置后，新访客已读通并实际运行三种策略，来源／行数／hash／as_of全部一致，研究JSON可下载、无原始CSV下载。自动watch未启动。设置入口为[本Space的Settings](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab/settings)，详细值见[操作说明](MOOMOO_CLOUD_SYNC.md)。历史0.8.0验收保留文末。[新鲜测试展示与命令](ACCEPTANCE_DEMO.md)
 
 这是云端 Python 研究界面的发布说明。Hugging Face是主要交互入口，GitHub Pages保留静态教学页，Streamlit Cloud是可选备用。0.8.0新增私有快照读取，最新验收见文末；前面版本的记录属于历史里程碑。容器启动、页面交互和源码上传分别核对，应用本身不包含发布凭据。
 
@@ -166,3 +166,11 @@ Cloud独立请求的CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d
 公网独立浏览器已核对新快照菜单、空CSV禁Run、快照当前NOT_CONFIGURED且无教学回退／raw下载。一次显式教学运行三策略success，权益4条／回撤3条；中英中三次JSON逐字节相同，SHA256为`221b103598ed7435c6624fce2b22c4699f68204f27f7c1df6eef0b1081259cc8`。390px页面与15条公式无横向溢出，JS异常0。实际Python3.12.16、NumPy1.26.4、pandas2.2.2、Streamlit1.67.0、PyArrow25.0.1；本地Python3.12.7，不声称两个运行环境或两个JSON内容相同。
 
 证据位于本机`state/veighna-qa/hf-package-verification.json`与`hf-20261126T080241/summary.json`。这证明新版研究界面已上线，**不证明私有Dataset上传／读取已接通，也不证明券商模拟订单已成交**。Cloud备用入口本轮未重新验收。
+
+## 0.8.1 真实私有快照验收
+
+应用源码`37e0304920eb1cd194250bab06d164c732888a40`，[同步工作流45886342499](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45886342499)成功；HF仓库与runtime均为`33d83478f01e4cc5739fa7a3158b38304f27aab7`、RUNNING、CPU Basic。18源码一致，MANIFEST仅创建时点不同。
+
+用户保存独立Dataset变量和只读Secret后，fresh访客实际从私有revision `81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`取到468行／28908字节、截至2026-11-25T21:00:00Z的SPY／NVDA数据，SHA256与本机一致。source=moomoo_snapshot，没有教学回退，3个共同完整／可执行日、9条逐日结果，三规则均success。JSON原生下载并在英文切换后保持相同字节，SHA256为`7fb87ddb0fc521b29a25961458b893c0a544e9adb0aa6c3a7ba3311bd825002d`；无原始CSV下载。证据仅留本机`state/hf-real-qa/savedconfig-20261126T145207/`。
+
+三日含成本总收益分别约−1.2467%（正动量）、−1.0642%（均线趋势）、−0.3407%（开盘区间突破）。这次用于链路与策略实现验证，短样本不展示夏普，不据此选最优策略或证明alpha。实际运行Python3.12.16／NumPy1.26.4／pandas2.2.2／Streamlit1.67.0／PyArrow25.0.1。真实行情研究、真实券商模拟成交及常驻同步是三种独立验收；后两项未完成，Cloud备用入口未重新验收。

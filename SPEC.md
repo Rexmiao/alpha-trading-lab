@@ -191,10 +191,12 @@ HF新增`moomoo_snapshot`来源，固定Dataset与revision，核对相对路径�
 
 ## 0.8.1：真实私有发布与验收展示
 
-2026-11-26已用本机专用DPAPI凭据核对固定Dataset确为Private，并首次发布三文件快照；Dataset revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`。服务端存储下载重新核对468行、SHA256 `5b126b01d9bf29d4d1bb7e63735f0994b15193b3ac1792fb0b29bb130794ff14`及as_of `2026-11-25T21:00:00Z`一致；重复检查读取现有revision，不重复POST。本机上传验收已通过，HF独立只读Secret尚未配置，网页仍NOT_CONFIGURED；这两个状态分别记录，不将本机写令牌的读取当成Space凭据验收。没有启动watch或计划任务。
+2026-11-26已用本机专用DPAPI凭据核对固定Dataset确为Private，并首次发布三文件快照；Dataset revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`。服务端存储下载重新核对468行、SHA256 `5b126b01d9bf29d4d1bb7e63735f0994b15193b3ac1792fb0b29bb130794ff14`及as_of `2026-11-25T21:00:00Z`一致；重复检查读取现有revision，不重复POST。用户随后完成Space的独立读取配置，新访客已从该私有revision读取并实际运行三规则研究；本机上传与Space独立凭据分别验收通过。没有启动watch或计划任务。
 
 真实运行发现父PowerShell7的PSModulePath使Windows PowerShell5无法自动加载Security模块，有效DPAPI凭据被误报不可用。发布器现使用绝对Windows PowerShell路径、仅系统Modules的子进程环境，并移除父缓存路径；不更改父环境、不输出凭据、不回退HF_TOKEN。新增3项相关回归，publisher16项全通过，真实凭据读取及同快照再验证通过。
 
 此前342项Python及26项Node已在2026-11-26T19:38:08Z–19:38:49Z重新执行，零失败、零跳过；基线期间67个源码／依赖文件hash不变。其后只针对发布器修复新增3例，不把重复运行的旧13例再次计数。公开的逐文件覆盖、五场景9条测试与复跑命令见[验收展示说明](docs/ACCEPTANCE_DEMO.md)，完整日志／JUnit与来源指纹留本机。
 
 本机paper实际就绪检查仍为ALERT_ONLY／NONE，模拟订单数0。文档指定的REST私有config不存在，未读取任何未知凭据、未查询账户或提交订单；桌面登录与Host监听不替代REST认证。管理者入口、精确账户与只读对账顺序见[模拟账户接入](docs/PAPER_ACCOUNT_SETUP.md)。真实下单／成交、开市实时权限及隔夜退出政策仍待验收。
+
+真实HF研究验收：source=moomoo_snapshot，468行／28908字节、3共同完整且可执行日、无缺bar填补；三策略均success，9条逐日指标齐备，研究期末模拟仓位为0。动量、均线趋势、开盘突破的含成本总收益分别约−1.2467%、−1.0642%、−0.3407%；仅3日样本，不展示夏普，也不能作为策略有效性的证据。研究JSON原生下载，中英切换字节相同，SHA256为`7fb87ddb0fc521b29a25961458b893c0a544e9adb0aa6c3a7ba3311bd825002d`；无原始CSV下载。应用源码`37e0304920eb1cd194250bab06d164c732888a40`，HF仓库／runtime为`33d83478f01e4cc5739fa7a3158b38304f27aab7`，RUNNING／CPU Basic；真实读取与本机交易执行验收分开。

@@ -10,6 +10,8 @@
 
 这些是已核对的[官方认证说明](https://open.moomoo.com/zh-cn/api/overview/getting-started)，具体权限以本人控制台实际提供为准。不需要重装或退出当前桌面moomoo。
 
+本机已准备签名材料，目录为`C:\Users\Rexy\Documents\ChatGPT\量化准备\alpha-paper-runtime\rest-paper`：公钥`ed25519-public.pem`、私钥`ed25519-private.pem`、占位配置`config.example.json`。仅当前Windows用户和SYSTEM有访问权限；网页只使用公钥，算法对应Ed25519，名称可填`alpha-trading-lab-paper`。名称不会缩小服务端权限，仍需先核对表单权限；示例中authorization_confirmed保持false，不能直接用于认证。
+
 ## 本机接入与验收顺序
 
 按[执行SPEC的显式配置](../specs/VEIGHNA_MOOMOO_SYSTEM.md#rest显式配置与授权边界)在本机非同步目录保存配置。管理者核实授权后才设置authorization_confirmed；精确account_id必须来自官方模拟账户列表，不能使用真实资金账户ID或默认首账户。
