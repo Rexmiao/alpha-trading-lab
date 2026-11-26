@@ -15,3 +15,5 @@
 - 部署后用实际结果JSON核对依赖，不假定requirements已全部生效。本次Community Cloud实际PyArrow24.0.0、HF Docker25.0.1，差异写入SPEC；严格复现以同一CSV和固定Docker环境为参照。
 
 - 每日信号／自动交易的后续实现先读specs/DAILY_SIGNAL_SYSTEM.md。用户最终希望全自动实盘，M1范围先为采集、因子、信号及审计；计划与已实现状态分开。活动SQLite放本机非同步目录，REPLAY与CAPTURE发布键隔离，不能把未来实盘目标误当作当前下单授权。
+
+- 提醒、半自动与全自动是同一策略引擎的可选执行策略；automation_mode与execution_environment、workflow_kind分开。模式切换不重写信号、不补执行旧提醒，不自动迁移在途订单或升级为真钱账户；M1仍固定CAPTURE＋ALERT_ONLY＋NONE。
