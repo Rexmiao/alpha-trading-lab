@@ -58,7 +58,7 @@ GitHub Pages使用.github/workflows/pages.yml部署main分支的web/目录，发
 
 ## 云端 Python 模拟
 
-新增独立入口hf_space/streamlit_app.py，可用于Hugging Face Docker Space和Streamlit Community Cloud；GitHub Pages主站继续只运行浏览器教学交互。本次已准备共同模拟代码与部署资料。已核实用户个人HF账号Rexymiao为PRO，公开Docker / CPU Basic Space Rexymiao/alpha-trading-lab已创建，发布令牌由用户保存到GitHub Secret；HF首次构建已启动容器，兼容性修复后的公网验收仍待完成；Streamlit Community Cloud尚未创建应用，不得把部署包或本地测试描述为已经上线。
+新增独立入口hf_space/streamlit_app.py，可用于Hugging Face Docker Space和Streamlit Community Cloud；GitHub Pages主站继续只运行浏览器教学交互。本次已准备共同模拟代码与部署资料。已核实用户个人HF账号Rexymiao为PRO，公开Docker / CPU Basic Space Rexymiao/alpha-trading-lab已创建，发布令牌由用户保存到GitHub Secret；HF已于2026-11-26通过实际公网验收，入口为https://huggingface.co/spaces/Rexymiao/alpha-trading-lab；Streamlit Community Cloud尚未创建应用，两个平台的发布状态分别记录。
 
 hf_space/engine.py直接复用research/data.py、models.py、portfolio.py中的特征、时间切分、四模型和含成本回测函数，不调用load_snapshot、run_experiment、moomoo CLI或根目录本机结果查看器。默认显式选择合成教学数据：BENCH加6只TOY虚构资产、400个工作日、seed42，日历并非交易所节假日日历；全部收益和IC仅说明教学模拟，不代表市场证据。上传失败或数据不足时明确报错，不能自动以合成数据替代。
 
@@ -77,6 +77,8 @@ Hugging Face使用deploy/huggingface的Docker模板，Python3.12、非root UID10
 HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.py。用户在GitHub仓库Secret中安全设置HF_TOKEN，目标默认Rexymiao/alpha-trading-lab，也可用Variable HF_SPACE_ID指定自己已创建的公开个人Docker Space；凭据不发送到聊天。缺少发布令牌或有效目标时工作流明确跳过，不冒称部署成功。上传前校验13个包文件及哈希、个人所有权、Docker SDK和CPU Basic硬件，拒绝其他项目文件；用已读取的远端提交号作并发保护。流程不创建Space、不改硬件、不设置计费、不授权组织；代码上传与新版本应用运行分别验证。
 
 云端两份依赖清单显式固定pyarrow==25.0.1，与numpy==1.26.4和pandas==2.2.2配套。首次公网运行发现未约束的PyArrow26要求NumPy2，故在Docker构建阶段增加实际NumPy→pandas→Arrow表转换，失败即中止镜像构建；不以容器RUNNING替代表格渲染验收。JSON同时记录PyArrow、Streamlit与Plotly版本。
+
+当前HF运行源码来自GitHub commit 6cd170b83bdb44611ce5008f4d21e693f6676c0e，Space commit及runtime.sha均为825c7ff3f4d8dc5570258b132800c0ee73f966be；当前/请求硬件均为cpu-basic。实际浏览器主动运行四模型成功，验证了表格、三张交互图、中英文切换、JSON下载及390px手机布局，未出现JS异常；报告依赖为PyArrow25.0.1、NumPy1.26.4、Streamlit1.67.0。此次合成教学运行只验证部署功能，不作为真实行情策略有效性证据。
 
 新云端行为须通过CSV边界、无工作目录写入、时间purge、模型失败与并发测试；还需在云端依赖环境实际运行四模型界面，验证语言切换和参数改动不会错误重训或冒称已经应用。Docker构建与真实平台上线是额外状态，只有各自构建和公网检查成功后才更新相应入口。
 

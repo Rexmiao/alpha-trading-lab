@@ -6,7 +6,15 @@
 
 个人PRO账号：`Rexymiao`。公开Docker / CPU Basic Space：[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。用户已创建Space并将细粒度发布令牌保存为GitHub仓库Secret `HF_TOKEN`；代码和聊天均不保存令牌。
 
-2026-11-26首次GitHub同步已完成，HF commit `e554a643d0c446ae18891dca88615cb0dbe44444`完成容器启动。首次浏览器训练后表格渲染暴露PyArrow26与NumPy1.26兼容问题；当前固定PyArrow25.0.1并添加Docker构建时的真实表转换检查，修复后的构建和公网交互仍待验证。Streamlit Community Cloud仍未创建应用。
+2026-11-26已完成实际发布与公网验收：
+
+- [Space页面](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)；[应用直达](https://rexymiao-alpha-trading-lab.hf.space)。
+- GitHub应用源码commit：`6cd170b83bdb44611ce5008f4d21e693f6676c0e`；[成功的同步工作流](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45770050258)。
+- Space commit与runtime.sha：`825c7ff3f4d8dc5570258b132800c0ee73f966be`；状态RUNNING，当前及请求硬件均为CPU Basic。
+- 真实浏览器主动执行四模型成功，表格、三张Plotly图、中英文切换、实际JSON下载及390px手机布局通过；JS异常0。下载报告确认PyArrow25.0.1 / NumPy1.26.4 / Streamlit1.67.0。
+- 初次部署的PyArrow26/NumPy1.26导入错误已修复，Docker构建已增加真实表转换检查。公网测试使用明确标记的合成教学数据，不是策略市场有效性证据。
+
+Streamlit Community Cloud仍待用户完成平台连接和应用创建，不能因HF成功而报告两边均已上线。
 
 自动同步默认目标为`Rexymiao/alpha-trading-lab`，`HF_SPACE_ID`保留为可选覆盖；不创建Space、购买服务或更改硬件。
 
