@@ -1,0 +1,17 @@
+# Default-deny context. Build only the generated, inspected bundle.
+**
+!Dockerfile
+!README.md
+!requirements.txt
+!.dockerignore
+!LICENSE
+!MANIFEST.json
+!hf_space/
+!hf_space/__init__.py
+!hf_space/engine.py
+!hf_space/streamlit_app.py
+!research/
+!research/__init__.py
+!research/data.py
+!research/models.py
+!research/portfolio.py

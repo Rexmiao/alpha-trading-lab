@@ -27,6 +27,22 @@ GitHub Pages已启用并发布，部署配置见[操作说明](docs/GITHUB_WORKF
 
 网页源码与素材保存在 `web/`；本地预览可运行 `python -m http.server 8512 --bind 127.0.0.1 --directory web`，再打开 http://127.0.0.1:8512/ 。无需安装 Node 依赖或连接 moomoo。
 
+## Python模拟与云端部署准备
+
+新增[模拟界面](hf_space/streamlit_app.py)可按参数实际训练四组小模型，查看留出期Rank IC、含成本净值、回撤和参考权重。可明确选择合成教学数据或上传标准OHLCV CSV；合成结果不是市场业绩，云端版本不接moomoo账户。
+
+[Hugging Face部署说明](docs/HUGGINGFACE_DEPLOYMENT.md)、[Docker发布模板](deploy/huggingface/README.md)和[Streamlit Community Cloud部署说明](docs/STREAMLIT_CLOUD_DEPLOYMENT.md)已准备，两个平台尚无已验证的公网实例。GitHub Pages主教学站独立运行，不因本地模拟或发布包存在而成为Python后台。
+
+使用单独Python3.12环境安装云端依赖，再启动：
+
+```powershell
+python -m pip install -r hf_space/requirements.txt
+python -m streamlit run hf_space/streamlit_app.py
+python scripts/package_hf_space.py
+```
+
+Streamlit Community Cloud选择本仓库的`main`分支和入口`hf_space/streamlit_app.py`。Hugging Face使用生成包中的Docker结构，需先完成个人账号与创建Space所需套餐。不要把根目录只读结果查看器`app.py`当作云端模拟入口。
+
 ## 本机启动
 
 已验证环境为Windows、Python 3.12.7、Node 20.12.2。直接依赖见requirements.txt；本机已验证的传递依赖闭包版本见requirements-lock.txt。

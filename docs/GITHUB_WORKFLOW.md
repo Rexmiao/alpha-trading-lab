@@ -38,6 +38,12 @@ GitHub 保存研究代码、复现资料和 README 动图。量化教学页已�
 
 维护方式：网页源码以 main 的 web/ 为准，修改后提交触发发布。语言切换、五个滑块、GIF 播放/暂停和下载均由浏览器 JavaScript 执行，Pages 上保留这些交互；Python 训练及 moomoo 采集继续在本机运行。
 
+## 独立Python模拟
+
+`hf_space/streamlit_app.py`是另一个受限模拟入口，可部署到[Hugging Face](HUGGINGFACE_DEPLOYMENT.md)和[Streamlit Community Cloud](STREAMLIT_CLOUD_DEPLOYMENT.md)。它复用公开计算代码，通过合成教学数据或访客CSV现场运行；不读取本机data/runs，也不连接moomoo。这里的受限云端演示不替代原本机完整研究。
+
+上传这些源码不代表两处实例已创建。账号由用户本人注册和授权，代码继续由现有GitHub App同步。HF发布凭据仅放目标仓库Secret，不能放在源码或聊天；Streamlit首次连接仅使用个人公开仓库，不额外授予私库或组织访问。平台实际上线及链接以各自构建结果和公网验证为准，参见SPEC。
+
 网页导出文件位于 `web/`。在仓库根目录运行：
 
 ```powershell
