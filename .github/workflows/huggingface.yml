@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       space_id:
-        description: "Existing personal public Docker Space (owner/name); optional override of HF_SPACE_ID"
+        description: "Existing personal public Docker Space (owner/name); optional override of HF_SPACE_ID / default personal Space"
         required: false
         default: ""
         type: string
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      HF_SPACE_ID: ${{ inputs.space_id || vars.HF_SPACE_ID }}
+      HF_SPACE_ID: ${{ inputs.space_id || vars.HF_SPACE_ID || 'Rexymiao/alpha-trading-lab' }}
       HF_HUB_DISABLE_PROGRESS_BARS: "1"
       HF_HUB_DISABLE_TELEMETRY: "1"
     steps:
@@ -44,7 +44,7 @@ jobs:
         run: |
           if [ -z "$HF_TOKEN" ] || [ -z "$HF_SPACE_ID" ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::HF sync skipped: set repository secret HF_TOKEN and variable HF_SPACE_ID. No Space was created and no code was uploaded."
+            echo "::notice::HF sync skipped: set repository secret HF_TOKEN; optional variable HF_SPACE_ID overrides the default personal Space. No Space was created and no code was uploaded."
             echo "Hugging Face sync was skipped because HF_TOKEN or HF_SPACE_ID is missing. No deployment occurred." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"

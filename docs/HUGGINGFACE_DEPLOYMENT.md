@@ -1,6 +1,12 @@
 # Hugging Face Docker 发布准备
 
-这是云端 Python 模拟教学界面的发布说明。GitHub Pages 继续提供纯静态主教学站，两者相互独立。下列文件只是发布准备，不表示已注册账号、创建 Space、通过云端构建或上线。本项目没有可代用户发布的 Hugging Face 服务账号，也没有预置 HF 认证。
+这是云端 Python 模拟教学界面的发布说明。GitHub Pages 继续提供纯静态主教学站，两者相互独立。下列文件只是发布准备，不表示已创建 Space、通过云端构建或上线。本项目没有可代用户发布的 Hugging Face 服务账号，也没有预置 HF 认证。
+
+## 本次个人部署目标
+
+2026-11-26已通过公开API核实个人账号`Rexymiao`为PRO；当时公开Space列表为空。计划目标为`Rexymiao/alpha-trading-lab`，这是已配置的发布目标，不是已上线地址。用户需先在该账号创建专用Public / Docker / Blank / CPU Basic Space。此账号信息不提供服务操作权限；实际构建与公网交互仍待验证。
+
+自动同步已默认采用此目标，用户只需在GitHub仓库Secret安全配置`HF_TOKEN`；`HF_SPACE_ID`变量保留为可选覆盖。默认目标不会创建Space、购买服务或选择其他硬件。
 
 ## 账号和费用前提
 
@@ -62,11 +68,11 @@ docker run --rm -p 7860:7860 alpha-lab-simulator
 1. 确认当前PRO及创建资格，创建 **Docker → Blank** Space，公开范围选择 **Public**，硬件确认 **CPU Basic**。套餐或硬件付费须由用户单独决定。
 2. 到 HF **Settings → Access Tokens** 创建细粒度发布令牌，只给这个目标Space的仓库内容写入权限。不要给其他Space、模型、数据集、组织或硬件管理扩大授权。
 3. 到 GitHub 仓库 **Settings → Secrets and variables → Actions → Secrets → New repository secret**，名称填 **`HF_TOKEN`**，值只在GitHub的Secret页面输入。不发到聊天、不写源码、不放进应用本身的Space Secrets。
-4. 在同一 GitHub 页面切到 **Variables → New repository variable**，名称填 **`HF_SPACE_ID`**，值为实际已有的 `owner/name`。owner必须与该HF令牌的个人用户名一致，不填写URL或组织空间。
+4. 默认目标已是 **`Rexymiao/alpha-trading-lab`**，不必再建变量。只有实际选择了另一个专用Space时，才在 **Variables → New repository variable** 设置 **`HF_SPACE_ID`** 为已有的 `owner/name`。owner必须与该HF令牌的个人用户名一致，不填写URL或组织空间。
 
 `.github/workflows/huggingface.yml` 在main分支相关模拟源文件更新时触发，也可在 **Actions → Sync simulator source to existing Hugging Face Space → Run workflow** 手动运行。手动的 `space_id` 输入可覆盖仓库变量；目标仍须通过同样的个人所有权、公开范围和CPU Basic检查。输入不是额外授权，不能用来向其他人的Space发布。
 
-工作流只有GitHub `contents: read`，使用Python3.12与`huggingface_hub==2.4.0`。缺少 `HF_TOKEN` 或Space ID时会给出notice并跳过打包和上传；绿色的“跳过”不表示已经部署。此配置不需要新的GitHub OAuth或组织登录。
+工作流只有GitHub `contents: read`，使用Python3.12与`huggingface_hub==2.4.0`。缺少 `HF_TOKEN` 或最终Space ID时会给出notice并跳过打包和上传；绿色的“跳过”不表示已经部署。此配置不需要新的GitHub OAuth或组织登录。
 
 上传前会检查：
 

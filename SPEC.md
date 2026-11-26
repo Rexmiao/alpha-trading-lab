@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.4；更新日期：2026-11-26。第一版为美股股票日频研究，数据优先来自本机moomoo历史日K。目标是打通数据、因子、组合决策和模拟订单草稿，包含结果与数学原理界面、公开教学网页和可重生成的动画。没有券商订单提交功能。
+版本：0.4.1；更新日期：2026-11-26。第一版为美股股票日频研究，数据优先来自本机moomoo历史日K。目标是打通数据、因子、组合决策和模拟订单草稿，包含结果与数学原理界面、公开教学网页和可重生成的动画。没有券商订单提交功能。
 
 ## 数据与时点
 
@@ -58,7 +58,7 @@ GitHub Pages使用.github/workflows/pages.yml部署main分支的web/目录，发
 
 ## 云端 Python 模拟
 
-新增独立入口hf_space/streamlit_app.py，可用于Hugging Face Docker Space和Streamlit Community Cloud；GitHub Pages主站继续只运行浏览器教学交互。本次已准备共同模拟代码与部署资料。用户已表示完成HF注册，实际用户名、Space、服务认证及两个平台的云端构建仍待核对，不得把部署包或本地测试描述为已经上线。
+新增独立入口hf_space/streamlit_app.py，可用于Hugging Face Docker Space和Streamlit Community Cloud；GitHub Pages主站继续只运行浏览器教学交互。本次已准备共同模拟代码与部署资料。已核实用户个人HF账号Rexymiao为PRO，公开Space列表为空；Space、发布认证及两个平台的云端构建仍待完成，不得把部署包或本地测试描述为已经上线。
 
 hf_space/engine.py直接复用research/data.py、models.py、portfolio.py中的特征、时间切分、四模型和含成本回测函数，不调用load_snapshot、run_experiment、moomoo CLI或根目录本机结果查看器。默认显式选择合成教学数据：BENCH加6只TOY虚构资产、400个工作日、seed42，日历并非交易所节假日日历；全部收益和IC仅说明教学模拟，不代表市场证据。上传失败或数据不足时明确报错，不能自动以合成数据替代。
 
@@ -74,7 +74,7 @@ JSON记录来源标识、标准化数据哈希、配置、seed、分割边界、
 
 Hugging Face使用deploy/huggingface的Docker模板，Python3.12、非root UID1000、端口7860、数值线程1及3MiB上传限制。scripts/package_hf_space.py按白名单生成父目录outputs/hf-space-bundle及ZIP，只包含共同UI、引擎、三个计算模块、依赖、模板和许可证，保存文件哈希。账号PRO门槛、临时磁盘和未部署状态写入docs/HUGGINGFACE_DEPLOYMENT.md；不代购套餐，不自动选择计费硬件。Streamlit Community Cloud使用同一入口，步骤见docs/STREAMLIT_CLOUD_DEPLOYMENT.md，并就近读取hf_space/requirements.txt；此文件与Docker依赖清单保持一致，根目录原有研究环境不升级。
 
-HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.py。用户在GitHub仓库Secret中安全设置HF_TOKEN，并用Variable HF_SPACE_ID指定自己已创建的公开个人Docker Space；凭据不发送到聊天。缺少任一配置时工作流明确跳过，不冒称部署成功。上传前校验13个包文件及哈希、个人所有权、Docker SDK和CPU Basic硬件，拒绝其他项目文件；用已读取的远端提交号作并发保护。流程不创建Space、不改硬件、不设置计费、不授权组织；代码上传与新版本应用运行分别验证。
+HF源码同步使用.github/workflows/huggingface.yml与scripts/upload_hf_space.py。用户在GitHub仓库Secret中安全设置HF_TOKEN，目标默认Rexymiao/alpha-trading-lab，也可用Variable HF_SPACE_ID指定自己已创建的公开个人Docker Space；凭据不发送到聊天。缺少发布令牌或有效目标时工作流明确跳过，不冒称部署成功。上传前校验13个包文件及哈希、个人所有权、Docker SDK和CPU Basic硬件，拒绝其他项目文件；用已读取的远端提交号作并发保护。流程不创建Space、不改硬件、不设置计费、不授权组织；代码上传与新版本应用运行分别验证。
 
 新云端行为须通过CSV边界、无工作目录写入、时间purge、模型失败与并发测试；还需在云端依赖环境实际运行四模型界面，验证语言切换和参数改动不会错误重训或冒称已经应用。Docker构建与真实平台上线是额外状态，只有各自构建和公网检查成功后才更新相应入口。
 
