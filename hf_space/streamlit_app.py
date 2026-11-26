@@ -5,6 +5,7 @@ shared caching, brokerage clients, credentials, arbitrary paths or model files.
 """
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 import sys
@@ -21,12 +22,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from hf_space.engine import make_synthetic_prices, parse_csv, run_simulation
+from hf_space.history import fetch_history
 
 
 MODEL_NAMES = ("ridge", "mlp", "mlp_resample", "mlp_diffusion")
 MODEL_COLORS = {"ridge": "#718096", "mlp": "#087F8C", "mlp_resample": "#C58A28",
                 "mlp_diffusion": "#6554A4"}
 REPORT_KEYS = ("source", "metrics", "ic", "equity", "predictions", "weights", "lineage", "warnings")
+DEFAULT_ONLINE_SYMBOLS = "NVDA, AMD, AVGO, MU, WDC, NBIS, CRWV"
 
 
 def tr(zh: str, en: str) -> str:
@@ -185,6 +188,76 @@ def render_predictions_and_weights(result: dict) -> None:
             st.dataframe(view, hide_index=True, use_container_width=True)
 
 
+def input_coverage(prices: pd.DataFrame) -> dict:
+    """Describe exactly the submitted rows; unavailable history is never filled."""
+    dates = pd.to_datetime(prices.date)
+    return {"start": dates.min().strftime("%Y-%m-%d"),
+            "end": dates.max().strftime("%Y-%m-%d"), "rows": len(prices),
+            "symbols": sorted(prices.symbol.unique()),
+            "by_symbol": [{"symbol": str(symbol), "rows": len(group),
+                           "start": pd.to_datetime(group.date).min().strftime("%Y-%m-%d"),
+                           "end": pd.to_datetime(group.date).max().strftime("%Y-%m-%d")}
+                          for symbol, group in prices.groupby("symbol")]}
+
+
+def render_online_downloads(result: dict | None) -> None:
+    """Offer the session's fetched snapshot without confusing it with a result."""
+    cached = st.session_state.get("hf_online_snapshot")
+    if not cached:
+        return
+    provenance = cached["provenance"]
+    result_provenance = ((result or {}).get("lineage") or {}).get("external_data")
+    same_result_snapshot = (result or {}).get("source") == "online_history" and result_provenance == provenance
+    st.sidebar.subheader(tr("在线行情快照下载", "Online snapshot downloads"))
+    st.sidebar.caption(tr("当前会话最近获取的快照：", "Latest snapshot fetched in this session: ")
+                       + ", ".join(provenance.get("symbols") or [])
+                       + f" · {provenance.get('benchmark', '—')}"
+                       + tr(" · 获取时间（UTC）：", " · Retrieved (UTC): ")
+                       + str(provenance.get("retrieved_at", "—")))
+    st.sidebar.caption(tr("与当前展示结果使用同一快照。", "This is the snapshot used by the displayed result.")
+                       if same_result_snapshot else
+                       tr("此快照尚未用于当前展示结果；不要与其他来源或之前运行的结果混用。",
+                          "This snapshot is not used by the currently displayed result; do not confuse it with another source or an earlier run."))
+    csv_data = cached["prices"].to_csv(index=False, date_format="%Y-%m-%d", lineterminator="\n").encode("utf8")
+    st.sidebar.download_button(tr("下载行情 CSV 快照", "Download price CSV snapshot"), data=csv_data,
+        file_name="online-history-snapshot.csv", mime="text/csv", key="hf_download_snapshot", use_container_width=True)
+    st.sidebar.download_button(tr("下载来源 JSON", "Download source JSON"),
+        data=json.dumps(provenance, ensure_ascii=False, allow_nan=False, indent=2),
+        file_name="online-history-provenance.json", mime="application/json",
+        key="hf_download_provenance", use_container_width=True)
+
+
+def render_data_source(result: dict) -> None:
+    """Use the saved result's source, never the current, unsubmitted selector."""
+    source = result.get("source")
+    lineage = result.get("lineage") or {}
+    if source == "synthetic":
+        st.warning(tr("假设教学数据，非市场收益。以下曲线和指标不是任何证券、真实账户或可获利策略的业绩。",
+                      "Hypothetical teaching data, not market returns. These curves and metrics are not performance of securities, a real account or a proven profitable strategy."))
+    elif source == "online_history":
+        external = lineage.get("external_data") or {}
+        st.info(tr("以下使用在线获取的真实历史日 K（Yahoo），是离线研究模拟；不是实时行情、券商成交或实盘表现。",
+                   "These offline research simulations use real daily history retrieved from Yahoo; they are not live quotes, broker fills or live performance."))
+        st.caption(tr("来源：", "Provider: ") + str(external.get("provider", "Yahoo Finance"))
+                   + tr(" · 数据区间：", " · Dates: ")
+                   + f"{external.get('start', '—')} — {external.get('end', '—')}"
+                   + tr(" · 获取时间（UTC）：", " · Retrieved (UTC): ")
+                   + str(external.get("retrieved_at", "—")))
+        st.caption(tr("股票：", "Stocks: ") + ", ".join(external.get("symbols") or [])
+                   + tr(" · 基准：", " · Benchmark: ") + str(external.get("benchmark", "—")))
+        st.caption(tr("本会话使用同一行情快照比较参数；重新获取可能修订历史。缺失和新上市历史不作填充，逐股覆盖与复权口径见运行信息。",
+                      "Parameter comparisons reuse this session's price snapshot. Refreshing can revise history. Missing or pre-IPO history is not filled; per-symbol coverage and adjustment details are in Run details."))
+    elif source == "uploaded_csv":
+        st.info(tr("以下为上传 CSV 的离线模拟结果；数据已在云端处理，不代表券商成交或实盘表现。",
+                   "These are offline simulation results from the uploaded CSV, processed in the cloud; they are not broker fills or live performance."))
+        coverage = lineage.get("input_coverage") or lineage.get("data") or {}
+        st.caption(tr("CSV 覆盖：", "CSV coverage: ")
+                   + f"{coverage.get('start', '—')} — {coverage.get('end', '—')}"
+                   + tr(" · 证券：", " · Symbols: ") + ", ".join(coverage.get("symbols") or []))
+    else:
+        st.warning(tr("结果来源未识别，请查看运行信息。", "Result source is unrecognized; check Run details."))
+
+
 def main() -> None:
     st.set_page_config(page_title="AI Alpha Simulation Lab", page_icon="📈", layout="wide")
     st.sidebar.radio("语言 / Language", ("中文", "English"), key="hf_language", horizontal=True)
@@ -195,13 +268,16 @@ def main() -> None:
                   "Ridge · MLP · resampled MLP · conditional-DDPM-augmented MLP. This is a bounded research comparison, not a full replication of the papers."))
 
     st.sidebar.subheader(tr("数据与参数", "Data and settings"))
-    source_labels = {"synthetic": tr("合成教学数据", "Synthetic teaching data"),
-                     "uploaded_csv": tr("上传 CSV", "Upload CSV")}
-    mode = st.sidebar.radio(tr("数据来源", "Data source"), ("synthetic", "uploaded_csv"),
+    source_labels = {"uploaded_csv": tr("moomoo / 访客 CSV（主要入口）", "moomoo / visitor CSV (primary)"),
+                     "online_history": tr("在线真实历史日 K", "Online real daily history"),
+                     "synthetic": tr("合成教学数据", "Synthetic teaching data")}
+    mode = st.sidebar.radio(tr("数据来源", "Data source"), ("uploaded_csv", "online_history", "synthetic"),
                             format_func=source_labels.__getitem__,
                             key="hf_source_mode")
     uploaded = None
     if mode == "uploaded_csv":
+        st.sidebar.caption(tr("主要使用 moomoo 导出的历史日 K，也接受访客提供的标准 CSV；请先整理为下方 7 列。这里不连接 moomoo 登录或账户。",
+                              "Primarily use historical daily bars exported from moomoo; visitor-supplied standard CSV is also accepted. Map it to the seven columns below. No moomoo login or account is connected."))
         st.sidebar.info(tr("CSV 会发送到运行此模拟的云端环境临时处理。请勿上传账户、个人信息或密钥；请确认有权用于云端处理。",
                            "CSV files are sent to the server hosting this simulation for temporary processing. Exclude account details, personal information and secrets, and ensure you have the right to process the data in the cloud."))
         uploaded = st.sidebar.file_uploader(tr("选择日 K CSV", "Choose a daily OHLCV CSV"), type=["csv"], key="hf_uploaded_csv")
@@ -211,15 +287,28 @@ def main() -> None:
                         "Include both stocks and the benchmark in the same file, using YYYY-MM-DD dates. Enough history is needed for chronological train, validation and test splits; insufficient data raises an explicit error."))
             st.caption(tr("上限为3 MiB、8000行、600个日期、3至12只股票加基准；训练样本超过3000行时请减少范围。",
                           "Limits: 3 MiB, 8,000 rows, 600 dates, and 3–12 stocks plus a benchmark. Reduce the scope if training rows exceed 3,000."))
+    elif mode == "online_history":
+        st.sidebar.info(tr("点击运行后从 Yahoo 获取公开历史日 K，无需 API 密钥；最多取最近 400 个已完成基准交易日，保守排除美东今日。不是实时行情。获取失败会明确报错，不改用合成数据。",
+                           "Run fetches public daily history from Yahoo without an API key: up to 400 completed benchmark sessions, conservatively excluding today's New York date. This is not live data. Fetch failures are reported without synthetic fallback."))
+        st.sidebar.caption(tr("在线默认 7 股：NVDA、AMD、AVGO、MU、WDC、NBIS、CRWV；这是在线来源的独立名单，不会修改你的 moomoo CSV 股票范围。",
+                              "Online default: 7 stocks—NVDA, AMD, AVGO, MU, WDC, NBIS, CRWV. This separate online list does not change the symbols in your moomoo CSV."))
     else:
         st.sidebar.caption(tr("固定 6 只虚构资产、400 个工作日，基准为 BENCH。", "Six fictional assets over 400 business days; benchmark: BENCH."))
 
     with st.sidebar.form("hf_run_settings"):
-        if mode == "uploaded_csv":
+        if mode in {"uploaded_csv", "online_history"}:
             benchmark = st.text_input(tr("基准代码", "Benchmark symbol"), value="SPY", key="hf_benchmark").strip().upper()
         else:
             benchmark = "BENCH"
             st.caption(tr("基准：BENCH", "Benchmark: BENCH"))
+        symbols_text, refresh_history = "", False
+        if mode == "online_history":
+            symbols_text = st.text_input(tr("股票代码（逗号分隔，3–8 只）", "Stock symbols (comma-separated, 3–8)"),
+                                         value=DEFAULT_ONLINE_SYMBOLS, key="hf_online_symbols")
+            refresh_history = st.checkbox(tr("重新获取在线行情", "Refresh online history"), value=False,
+                                          key="hf_refresh_online",
+                                          help=tr("默认重用本会话同一股票和基准的快照；勾选时每次运行都会重新获取。",
+                                                  "By default, reuse this session's snapshot for the same symbols and benchmark. When checked, each Run fetches a fresh snapshot."))
         horizon = st.number_input(tr("预测与调仓周期（交易日）", "Forecast and rebalance horizon (sessions)"),
                                   min_value=1, max_value=20, value=5, step=1, key="hf_horizon",
                                   help=tr("同时决定收益标签的持有期与调仓间隔；较长周期会减少可用标签和可观察的调仓次数。",
@@ -237,6 +326,7 @@ def main() -> None:
 
     if submitted:
         st.session_state["hf_last_error"] = None
+        st.session_state["hf_last_error_source"] = None
         try:
             if mode == "uploaded_csv" and uploaded is None:
                 raise ValueError(tr("请先选择 CSV 文件。", "Choose a CSV file first."))
@@ -246,11 +336,28 @@ def main() -> None:
                        "cost_bps": int(cost_bps), "max_weight": max_weight_pct / 100,
                        "target_vol": target_vol_pct / 100}
             with st.spinner(tr("正在校验数据、训练并评估，请等待本次运行结束。", "Validating, training and evaluating; please wait for this run to finish.")):
-                prices = (make_synthetic_prices(seed=int(seed), periods=400, n_assets=6)
-                          if mode == "synthetic" else parse_csv(uploaded.getvalue(), benchmark=benchmark))
+                external_data = None
+                if mode == "synthetic":
+                    prices = make_synthetic_prices(seed=int(seed), periods=400, n_assets=6)
+                elif mode == "uploaded_csv":
+                    prices = parse_csv(uploaded.getvalue(), benchmark=benchmark)
+                else:
+                    symbols = tuple(symbol.strip().upper() for symbol in symbols_text.split(",") if symbol.strip())
+                    cache_key = (tuple(sorted(symbols)), benchmark)
+                    cached = st.session_state.get("hf_online_snapshot")
+                    if refresh_history or not cached or cached.get("key") != cache_key:
+                        prices, external_data = fetch_history(symbols, benchmark=benchmark, sessions=400)
+                        st.session_state["hf_online_snapshot"] = {"key": cache_key,
+                            "prices": prices.copy(deep=True), "provenance": copy.deepcopy(external_data)}
+                    else:
+                        prices = cached["prices"].copy(deep=True)
+                        external_data = copy.deepcopy(cached["provenance"])
                 result = run_simulation(prices, **context)
                 if not isinstance(result, dict) or any(key not in result for key in REPORT_KEYS):
                     raise ValueError(tr("模拟引擎返回了不完整的结果。", "The simulation engine returned an incomplete report."))
+                result.setdefault("lineage", {})["input_coverage"] = input_coverage(prices)
+                if external_data is not None:
+                    result["lineage"]["external_data"] = copy.deepcopy(external_data)
                 # The export contains report data and metadata, never model objects.
                 report = {key: result[key] for key in REPORT_KEYS}
                 report_json = json.dumps(report, ensure_ascii=False, allow_nan=False, indent=2)
@@ -262,11 +369,17 @@ def main() -> None:
             st.session_state["hf_result_json"] = None
             st.session_state["hf_result_context"] = None
             st.session_state["hf_last_error"] = str(error)
+            st.session_state["hf_last_error_source"] = mode
 
     error = st.session_state.get("hf_last_error")
     if error:
         st.error(tr("本次运行未完成：", "This run did not complete: ") + error)
+        if st.session_state.get("hf_last_error_source") == "online_history":
+            st.info(tr("在线数据流程未完成，没有替换成合成数据。可检查股票与数据覆盖，或改用 moomoo / 访客 CSV。",
+                       "The online-data workflow did not complete; no synthetic data was substituted. Check symbols and coverage, or use a moomoo / visitor CSV."))
     result = st.session_state.get("hf_result")
+    if mode == "online_history":
+        render_online_downloads(result)
     if result is None:
         if mode == "synthetic":
             st.warning(tr("合成模式使用假设教学数据，非市场收益。运行后出现的指标仅用于理解流程。",
@@ -276,13 +389,7 @@ def main() -> None:
         return
 
     context = st.session_state.get("hf_result_context") or {}
-    educational = result.get("source") == "synthetic" or (result.get("lineage") or {}).get("data", {}).get("educational_only") is True
-    if educational:
-        st.warning(tr("假设教学数据，非市场收益。以下曲线和指标不是任何证券、真实账户或可获利策略的业绩。",
-                      "Hypothetical teaching data, not market returns. These curves and metrics are not performance of securities, a real account or a proven profitable strategy."))
-    else:
-        st.info(tr("以下为上传 CSV 的离线模拟结果；数据已在云端处理，不代表券商成交或实盘表现。",
-                   "These are offline simulation results from the uploaded CSV, processed in the cloud; they are not broker fills or live performance."))
+    render_data_source(result)
     st.caption(tr("当前展示的是上次已运行的参数：", "Displayed results use the last executed settings: ")
                + f"{context.get('benchmark', '—')} · h={context.get('horizon', '—')} · seed={context.get('seed', '—')}"
                + f" · {context.get('cost_bps', '—')} bps"

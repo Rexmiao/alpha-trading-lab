@@ -9,6 +9,7 @@
 !hf_space/
 !hf_space/__init__.py
 !hf_space/engine.py
+!hf_space/history.py
 !hf_space/streamlit_app.py
 !research/
 !research/__init__.py

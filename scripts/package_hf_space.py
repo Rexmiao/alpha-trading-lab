@@ -32,6 +32,7 @@ SOURCES = (
     ("LICENSE", "LICENSE"),
     ("hf_space/__init__.py", "hf_space/__init__.py"),
     ("hf_space/engine.py", "hf_space/engine.py"),
+    ("hf_space/history.py", "hf_space/history.py"),
     ("hf_space/streamlit_app.py", "hf_space/streamlit_app.py"),
     ("research/__init__.py", "research/__init__.py"),
     ("research/data.py", "research/data.py"),

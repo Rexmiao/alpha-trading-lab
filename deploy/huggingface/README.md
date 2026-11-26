@@ -15,7 +15,9 @@ short_description: Bilingual, bounded AI alpha learning simulations
 A Chinese/English Streamlit teaching app for the path from historical features
 and future-return labels to model training, held-out evaluation and constrained
 portfolio weights. Synthetic teaching observations are explicitly labeled.
-Users can optionally supply a bounded OHLCV CSV for the current session.
+The primary input is a bounded OHLCV CSV supplied by a visitor. An optional
+online mode retrieves public Yahoo daily history for 3–8 US stocks/ETFs and a
+benchmark, with explicit source and adjustment metadata.
 
 Deployment status and verified public entrypoints are recorded in the
 [project deployment guide](https://github.com/Rexmiao/alpha-trading-lab/blob/main/docs/HUGGINGFACE_DEPLOYMENT.md).
@@ -25,7 +27,8 @@ pandas and PyArrow table conversion before publishing the image.
 
 ## Scope
 
-- Run bounded simulations only after an explicit user action.
+- Run bounded simulations and public history requests only after an explicit user action.
+- Download a session-only online price CSV snapshot and source JSON for repeatability; provider errors are explicit and never replaced with synthetic data.
 - Compare Ridge, MLP, resampling and conditional-DDPM augmentation.
 - Keep uploaded CSV and results in the current session; the package contains no
   saved market data, local research results, models, credentials or account data.

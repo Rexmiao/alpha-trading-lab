@@ -49,7 +49,7 @@ MODEL_SETTINGS = {
 # No snapshot, configuration, model, credential or result paths are inspected.
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 _CODE_SHA256 = {name: hashlib.sha256((_PROJECT_ROOT / name).read_bytes()).hexdigest()
-                for name in ("hf_space/engine.py", "research/data.py",
+                for name in ("hf_space/engine.py", "hf_space/history.py", "research/data.py",
                              "research/models.py", "research/portfolio.py")}
 _DEPENDENCIES = {name: version(name) for name in
                  ("numpy", "pandas", "scipy", "scikit-learn", "joblib", "threadpoolctl",
@@ -137,6 +137,7 @@ def parse_csv(contents: bytes, benchmark="SPY"):
         raise ValueError("Upload a nonempty CSV no larger than 3 MiB.")
     try:
         frame = pd.read_csv(BytesIO(contents), encoding="utf-8-sig", dtype={"date": str, "symbol": str},
+                            float_precision="round_trip",
                             keep_default_na=False, nrows=MAX_ROWS + 1, on_bad_lines="error")
     except (UnicodeError, pd.errors.ParserError, pd.errors.EmptyDataError, ValueError) as exc:
         raise ValueError("CSV could not be parsed as a UTF-8 daily OHLCV table.") from exc
@@ -223,8 +224,8 @@ def _run_simulation(prices, *, benchmark, source, seed=42, horizon=5,
     No files are written; no estimator objects or filesystem paths are returned.
     Fixed public source fingerprints are captured once when this module loads.
     """
-    if source not in {"synthetic", "uploaded_csv"}:
-        raise ValueError("source must be 'synthetic' or 'uploaded_csv'.")
+    if source not in {"synthetic", "uploaded_csv", "online_history"}:
+        raise ValueError("source must be 'synthetic', 'uploaded_csv' or 'online_history'.")
     seed = _integer(seed, "seed", 0, 2**32 - 1)
     horizon = _integer(horizon, "horizon", 1, 20)
     cost_bps = _number(cost_bps, "cost_bps", 0, 100)
@@ -322,7 +323,8 @@ def _run_simulation(prices, *, benchmark, source, seed=42, horizon=5,
             "rows": len(prices), "symbols": sorted(prices.symbol.unique()), "benchmark": benchmark,
             "start": prices.date.min().strftime("%Y-%m-%d"), "end": prices.date.max().strftime("%Y-%m-%d"),
             "completed_session_cutoff": str(completed_session_cutoff()), "large_move_count": large_move_count,
-            "calendar": "synthetic weekdays, not exchange holidays" if source == "synthetic" else "uploaded benchmark sessions"},
+            "calendar": "synthetic weekdays, not exchange holidays" if source == "synthetic" else
+                        "online benchmark sessions" if source == "online_history" else "uploaded benchmark sessions"},
         "config": {"seed": seed, "horizon": horizon, "lookback": 30,
             "validation_days": 30, "test_days": 60, "minimum_train_days": 90,
             "models": dict(MODEL_SETTINGS), "portfolio": vars(cfg)},

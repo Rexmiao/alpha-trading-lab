@@ -14,7 +14,7 @@
 - 真实浏览器主动执行四模型成功，表格、三张Plotly图、中英文切换、实际JSON下载及390px手机布局通过；JS异常0。下载报告确认PyArrow25.0.1 / NumPy1.26.4 / Streamlit1.67.0。
 - 初次部署的PyArrow26/NumPy1.26导入错误已修复，Docker构建已增加真实表转换检查。公网测试使用明确标记的合成教学数据，不是策略市场有效性证据。
 
-Streamlit Community Cloud仍待用户完成平台连接和应用创建，不能因HF成功而报告两边均已上线。
+Streamlit Community Cloud已由用户创建；手填周期和四模型运行通过，在线来源新版本与实际依赖仍需再次验收。
 
 自动同步默认目标为`Rexymiao/alpha-trading-lab`，`HF_SPACE_ID`保留为可选覆盖；不创建Space、购买服务或更改硬件。
 
@@ -39,7 +39,7 @@ python scripts/package_hf_space.py
 打包器只复制以下明确清单，不递归复制仓库：
 
 - `deploy/huggingface/` 下四个模板：在包根目录成为 `Dockerfile`、`README.md`、`requirements.txt`、`.dockerignore`。
-- `hf_space/__init__.py`、`hf_space/engine.py`、`hf_space/streamlit_app.py`。
+- `hf_space/__init__.py`、`hf_space/engine.py`、`hf_space/streamlit_app.py`、`hf_space/history.py`。
 - `research/__init__.py`、`research/data.py`、`research/models.py`、`research/portfolio.py`。
 - 根目录的 MIT `LICENSE`，以及自动生成的 `MANIFEST.json`。
 
@@ -86,11 +86,11 @@ docker run --rm -p 7860:7860 alpha-lab-simulator
 
 上传前会检查：
 
-- 本地包必须恰好是13个允许文件，`MANIFEST.json`的路径、字节数与所有SHA256一致；符号链接、额外内容、缺失或变动中的包均拒绝。
+- 本地包必须恰好是14个允许文件，`MANIFEST.json`的路径、字节数与所有SHA256一致；符号链接、额外内容、缺失或变动中的包均拒绝。
 - `whoami`确认个人身份与目标owner一致；目标必须已存在、为Docker且公开。
 - 从Space资料和最新runtime核对硬件：所有明确值只能是`cpu-basic`，至少一项明确为`cpu-basic`。首次构建允许current未知但requested为basic；未设置requested时允许current为basic。两项仍全未知或任何一项是其他硬件均停止，不自动改设置。
 - 远端文件只能是同一发布包的白名单文件或平台生成的`.gitattributes`；发现其他项目文件时停止，不删除或覆盖它们。
-- 使用明确的13个`CommitOperationAdd`和已读取的`parent_commit`提交，不使用全目录上传、不删除远端文件。若远端有并发提交，停止并重新核对，不强制覆盖。
+- 使用明确的14个`CommitOperationAdd`和已读取的`parent_commit`提交，不使用全目录上传、不删除远端文件。若远端有并发提交，停止并重新核对，不强制覆盖。
 
 完成后的输出包含 `code_uploaded`、Space仓库网址及commit。只有收到有效commit标识时，`code_uploaded`才为`true`；这仅证明代码上传，即使观察到runtime为RUNNING，也未证明新commit对应的应用已构建完成。实际上线仍须核对该commit的构建日志、App页面和交互功能。上传后读取runtime失败时会分别保留“代码已上传”和状态查询错误，不能误报为没有发生上传。提交请求报错、响应丢失或回应缺少有效commit标识时，`code_uploaded`为`null`，表示结果未确认；应先核对远端commit，不能认定没有写入或盲目重试。
 
@@ -124,3 +124,7 @@ Streamlit Community Cloud同样使用用户自己的账号，在GitHub仓库部�
 ## 手动输入预测与调仓周期
 
 周期输入支持1–20的整数、默认5。界面建议初期从5开始并在10个交易日以内研究，明确这是教学起点而非最优周期。该值共同控制未来开盘收益标签的持有期和调仓间隔；较长周期会减少标签与独立调仓观察。本变更的新部署与公网验收需单独确认。
+
+## 在线历史来源与发布包
+
+新增hf_space/history.py，包为14文件；默认CSV、在线历史、合成教学三来源分别标记。在线模式只访问固定Yahoo HTTPS端点，不需要HF或券商密钥；仅会话保存行情，下载CSV快照和来源JSON以复现。输入、截止日期、调整口径和失败处理见[真实历史数据说明](HISTORICAL_DATA.md)。新模式需在两个公网入口实际验证后记录验收。

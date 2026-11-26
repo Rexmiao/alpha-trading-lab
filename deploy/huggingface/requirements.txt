@@ -1,4 +1,5 @@
 # Cloud simulation only. Local desktop collection and deployment SDKs are excluded.
+# Public history uses Python urllib; no provider credential or SDK is installed.
 streamlit==1.67.0
 numpy==1.26.4
 pandas==2.2.2
