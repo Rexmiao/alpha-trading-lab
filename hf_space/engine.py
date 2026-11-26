@@ -226,9 +226,7 @@ def _run_simulation(prices, *, benchmark, source, seed=42, horizon=5,
     if source not in {"synthetic", "uploaded_csv"}:
         raise ValueError("source must be 'synthetic' or 'uploaded_csv'.")
     seed = _integer(seed, "seed", 0, 2**32 - 1)
-    if isinstance(horizon, bool) or horizon not in {1, 5, 10}:
-        raise ValueError("horizon must be 1, 5 or 10 sessions.")
-    horizon = int(horizon)
+    horizon = _integer(horizon, "horizon", 1, 20)
     cost_bps = _number(cost_bps, "cost_bps", 0, 100)
     max_weight = _number(max_weight, "max_weight", .05, .5)
     target_vol = _number(target_vol, "target_vol", 0, .5)

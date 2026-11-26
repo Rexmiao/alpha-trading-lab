@@ -71,6 +71,70 @@ def test_full_simulation_has_real_estimators_and_no_working_directory_writes(pri
         assert group.loc[group.kind.eq("cash"), "weight"].iloc[0] >= .2 - 1e-12
 
 
+@pytest.mark.parametrize("horizon", [7, 20])
+def test_custom_horizon_uses_matching_labels_purge_and_actual_rebalances(prices, monkeypatch, horizon):
+    """Exercise nonpreset and upper-bound horizons through all real estimators."""
+    original_backtest = engine.backtest
+    actual_simulations = []
+
+    def capture_real_backtest(*args, **kwargs):
+        simulation = original_backtest(*args, **kwargs)
+        actual_simulations.append(simulation)
+        return simulation
+
+    monkeypatch.setattr(engine, "backtest", capture_real_backtest)
+    report = engine.run_simulation(prices, benchmark="BENCH", source="synthetic", horizon=horizon)
+    assert report["status"] == "success"
+    assert all(status["status"] == "success" for status in report["lineage"]["model_status"].values())
+    assert len(actual_simulations) == len(engine.MODEL_NAMES)
+    assert {row["model"] for row in report["predictions"]} == set(engine.MODEL_NAMES)
+    json.dumps(report, allow_nan=False)
+
+    split = report["lineage"]["split"]
+    sessions = pd.DatetimeIndex(sorted(prices.loc[prices.symbol.eq("BENCH"), "date"]))
+    for segment, next_segment in (("train", "validation"), ("validation", "test")):
+        last_signal = pd.Timestamp(split[f"{segment}_end"])
+        last_label_end = pd.Timestamp(split[f"{segment}_label_end"])
+        assert last_label_end == sessions[sessions.get_loc(last_signal) + horizon + 1]
+        assert last_label_end < pd.Timestamp(split[f"{next_segment}_start"])
+    assert split["purged_train_rows"] > 0
+    assert split["purged_validation_rows"] > 0
+
+    # Check exported realized answers against actual next-open and exit-open
+    # prices, independently of build_dataset and its generated target column.
+    opens = prices.pivot(index="date", columns="symbol", values="open")
+    predictions = pd.DataFrame(report["predictions"])
+    for _, model_predictions in predictions.groupby("model"):
+        for row in model_predictions.iloc[[0, len(model_predictions) // 2, -1]].itertuples(index=False):
+            position = sessions.get_loc(pd.Timestamp(row.date))
+            entry, exit_ = sessions[position + 1], sessions[position + horizon + 1]
+            stock_return = opens.at[exit_, row.symbol] / opens.at[entry, row.symbol] - 1
+            market_return = opens.at[exit_, "BENCH"] / opens.at[entry, "BENCH"] - 1
+            assert row.realized_excess == pytest.approx(stock_return - market_return, abs=1e-12)
+
+    first_test = pd.Timestamp(predictions.date.min())
+    for simulation in actual_simulations:
+        rebalances = simulation["rebalances"]
+        assert len(rebalances) >= 2
+        signal_positions = [sessions.get_loc(pd.Timestamp(row["signal_date"])) for row in rebalances]
+        execution_positions = [sessions.get_loc(pd.Timestamp(row["execution_date"])) for row in rebalances]
+        assert sessions[signal_positions[0]] == first_test
+        assert np.all(np.diff(signal_positions) == horizon)
+        assert np.array_equal(np.asarray(execution_positions), np.asarray(signal_positions) + 1)
+        assert simulation["metrics"]["rebalance_days"] == horizon
+        assert simulation["metrics"]["rebalance_count"] == len(rebalances)
+
+
+@pytest.mark.parametrize("horizon", [0, 21, 7.5, True, False])
+def test_invalid_horizon_is_refused_before_training(prices, monkeypatch, horizon):
+    def unexpected_fit(*args, **kwargs):
+        pytest.fail("invalid horizon reached the estimator")
+
+    monkeypatch.setattr(engine, "fit_predict_models", unexpected_fit)
+    with pytest.raises(ValueError, match="horizon"):
+        engine.run_simulation(prices, benchmark="BENCH", source="synthetic", horizon=horizon)
+
+
 def test_cpu_row_limit_rejects_before_estimator_call(monkeypatch):
     def unexpected_fit(*args, **kwargs):
         pytest.fail("oversized input reached the estimator")

@@ -220,7 +220,12 @@ def main() -> None:
         else:
             benchmark = "BENCH"
             st.caption(tr("基准：BENCH", "Benchmark: BENCH"))
-        horizon = st.selectbox(tr("预测与调仓周期（交易日）", "Forecast and rebalance horizon (sessions)"), [1, 5, 10], index=1, key="hf_horizon")
+        horizon = st.number_input(tr("预测与调仓周期（交易日）", "Forecast and rebalance horizon (sessions)"),
+                                  min_value=1, max_value=20, value=5, step=1, key="hf_horizon",
+                                  help=tr("同时决定收益标签的持有期与调仓间隔；较长周期会减少可用标签和可观察的调仓次数。",
+                                          "Sets both the return-label holding period and the rebalance interval; longer horizons leave fewer usable labels and observed rebalances."))
+        st.caption(tr("建议从 5 个交易日开始，初期在 10 个交易日以内研究；可输入 1–20 的整数。这是教学起点，并非经验证的最优周期。",
+                      "Start with 5 trading days; use 10 or fewer for initial experiments. Enter an integer from 1–20. This is a teaching starting point, not a validated optimal horizon."))
         seed = st.number_input(tr("随机种子", "Random seed"), min_value=0, max_value=2147483647,
                                value=42, step=1, key="hf_seed")
         cost_bps = st.slider(tr("单边成交成本（bps）", "Execution cost per side (bps)"), 0, 50, 10, 1, key="hf_cost_bps")

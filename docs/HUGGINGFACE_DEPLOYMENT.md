@@ -120,3 +120,7 @@ Streamlit Community Cloud同样使用用户自己的账号，在GitHub仓库部�
 ## 依赖兼容与构建检查
 
 云端两份requirements固定`pyarrow==25.0.1`与`numpy==1.26.4`、`pandas==2.2.2`。Docker安装后实际执行NumPy数组→pandas DataFrame→PyArrow Table；导入或转换失败会使构建失败。还需通过浏览器训练后表格、图表与JSON下载验收。版本依据：[Arrow v25依赖](https://arrow.apache.org/docs/25.0/python/install.html#dependencies)、[Arrow26的NumPy要求](https://arrow.apache.org/docs/python/install.html#dependencies)。
+
+## 手动输入预测与调仓周期
+
+周期输入支持1–20的整数、默认5。界面建议初期从5开始并在10个交易日以内研究，明确这是教学起点而非最优周期。该值共同控制未来开盘收益标签的持有期和调仓间隔；较长周期会减少标签与独立调仓观察。本变更的新部署与公网验收需单独确认。
