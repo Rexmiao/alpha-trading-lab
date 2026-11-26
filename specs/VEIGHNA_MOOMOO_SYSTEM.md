@@ -1,6 +1,6 @@
 # VeighNa＋moomoo交易系统实施规格
 
-版本0.2.1，2026-11-26。目标是完整的本机自动化交易后台；HF是公开研究展示入口。当前交付是可配置的5分钟采集／策略／持久化与券商模拟执行代码增量，真实券商模拟闭环尚未验收，不启用真钱交易。完整日频M1验收及原M1–M4阶段仍见[每日系统规格](DAILY_SIGNAL_SYSTEM.md)，不以影子回放或离线适配器测试代替券商模拟验收。
+版本0.2.2，2026-11-26。目标是完整的本机自动化交易后台；HF是公开研究展示入口。当前交付是可配置的5分钟采集／策略／持久化与券商模拟执行代码增量，真实券商模拟闭环尚未验收，不启用真钱交易。完整日频M1验收及原M1–M4阶段仍见[每日系统规格](DAILY_SIGNAL_SYSTEM.md)，不以影子回放或离线适配器测试代替券商模拟验收。
 
 ## 结构与职责
 
@@ -127,6 +127,12 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 
 **上游paper-only授权尚未证实。** 官方scope示例存在`accid:<id>`，但文档未证明该约束适用于模拟业务账户ID，也未证实AppKey可只给sim-trade路径权限。本地路径白名单只能限制本程序，不会收窄凭据本身的实盘能力。默认Futu CLI v0.6.0硬编码宽scope，未采用、未登录；管理者须先核对控制台可选权限，无法取得受限权限时保留未配置并明确未完成，不自动扩大授权。
 
+用户本次截图进一步确认：AppKey授权账户下拉只列实盘现金／保证金账户，没有模拟账户；不记录任何账户号或尾号。用户仅授权模拟接入，没有授权选择实盘账户、读取实盘资产／持仓／订单或实盘写入。不能拿实盘账户替代paper，也不能声称不选账户即可创建可用的paper Key。名称示例统一为`alpha_trading_lab_paper`，符合本次表单“字母开头，后续字母／数字／下划线”的校验；名称不是权限限制，`authorization_confirmed`仍保持false。
+
+最小下一步是先核对模拟业务账户的认证／授权绑定规则，再在获认可的模拟认证下只读调用`GET /api/v1.0/sim-trade/accounts`，取独立字符串paper ID并筛选`market_id=100`。接口存在不证明本次AppKey表单可绑定它；[2026-10-27 scope更新](https://open.moomoo.com/zh-cn/changelog)已将模拟交易纳入交易读写权限，但没有据此证明paper-only账户绑定可用。[模拟账户列表](https://open.moomoo.com/zh-cn/api/sim-trade/account-list)
+
+备用只读验证方向为本机原生模拟入口，或真正独立OpenD／官方SDK的`SIMULATE＋US`路径；不得将桌面Host11111／22222的TCP连通当成独立OpenD成功。账户列表若包含REAL条目，在输出与持久化前丢弃，不查询其资产、持仓或订单。官方[交易QA的Q1／Q17与Q16](https://openapi.moomoo.com/moomoo-api-doc/en/qa/trade.html)分别说明旧paper路径与旧美股paper逐步下线；该备用方案必须实际核验，不能承诺仍可用。具体操作边界见[模拟账户设置](../docs/PAPER_ACCOUNT_SETUP.md)。
+
 当前REST配置、权限、新鲜报价与DAY默认均未完成真实服务核验，后端仍为NOAUTH／NOT_CONFIGURED；离线工厂和配置模板不改变这一状态。
 
 ## 当前真实证据与外部前提
@@ -170,3 +176,7 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 342项Python基线和26项Node已重新执行通过，另有3项DPAPI模块路径问题回归（publisher共16项）。用例清单及能证明／不能证明的范围见[验收展示](../docs/ACCEPTANCE_DEMO.md)。
 
 管理者进入AppKey创建步骤后，本机非同步runtime/rest-paper已生成Ed25519签名密钥对和config.example.json。目录与文件去除ACL继承，仅当前Windows用户和SYSTEM可访问；密钥对签名／验签通过，不覆盖已有密钥。只打开公钥供管理者填写网页，私钥留本机；示例仍是占位account_id／app_key、authorization_confirmed=false，不等于配置或账户认证完成。当前尚未创建或绑定服务端AppKey，需先核对控制台可提供的模拟权限。
+
+本机身份校正：普通工具沙箱身份不是交互桌面用户，不能直接作为凭据ACL对象。本轮仅修改DACL，使签名目录／文件授权给交互桌面用户与SYSTEM并移除沙箱身份；不改密钥内容、不输出私钥。用户又确认尚未进入过客户端模拟交易，应先完成美股模拟账户初始化；此步骤不保证AppKey下拉会新增模拟项。
+
+桌面CLI帮助实测包含get-acc-list及模拟订单只读查询，但没有下单／改单／撤单方法；SIMULATE／US需显式按其本地枚举指定，不能混用REST枚举。当前实际账户请求数仍为0，未取得paper ID、未读取实盘资产、未发送订单；不能将帮助能力或ACL修复描述为已接通账户。

@@ -200,3 +200,7 @@ HF新增`moomoo_snapshot`来源，固定Dataset与revision，核对相对路径�
 本机paper实际就绪检查仍为ALERT_ONLY／NONE，模拟订单数0。文档指定的REST私有config不存在，未读取任何未知凭据、未查询账户或提交订单；桌面登录与Host监听不替代REST认证。管理者入口、精确账户与只读对账顺序见[模拟账户接入](docs/PAPER_ACCOUNT_SETUP.md)。真实下单／成交、开市实时权限及隔夜退出政策仍待验收。
 
 真实HF研究验收：source=moomoo_snapshot，468行／28908字节、3共同完整且可执行日、无缺bar填补；三策略均success，9条逐日指标齐备，研究期末模拟仓位为0。动量、均线趋势、开盘突破的含成本总收益分别约−1.2467%、−1.0642%、−0.3407%；仅3日样本，不展示夏普，也不能作为策略有效性的证据。研究JSON原生下载，中英切换字节相同，SHA256为`7fb87ddb0fc521b29a25961458b893c0a544e9adb0aa6c3a7ba3311bd825002d`；无原始CSV下载。应用源码`37e0304920eb1cd194250bab06d164c732888a40`，HF仓库／runtime为`33d83478f01e4cc5739fa7a3158b38304f27aab7`，RUNNING／CPU Basic；真实读取与本机交易执行验收分开。
+
+2026-11-26授权页现场核对补充：AppKey的账户下拉只列实盘现金／保证金账户，没有模拟账户；不保存任何号或尾号。用户范围仍为仅模拟，不选择实盘账户代替，REST保持未配置。新模拟账户通过独立sim-trade/accounts取得，不能混用实盘或旧SDK编号；仅凭trade:read／trade:write名称无法证实凭据为paper-only。原生本机或真正OpenD的SIMULATE＋US路径作为备用验证，旧美股paper逐步退出必须实测，不承诺可用。具体进度及正确名称alpha_trading_lab_paper见[接入说明](docs/PAPER_ACCOUNT_SETUP.md)。
+
+用户随后确认尚未进入过客户端模拟交易，下一步先初始化美股模拟账户。桌面CLI帮助只证明具备账户元信息／模拟只读查询、没有委托写方法；本轮实际账户请求0、paper ID未知、订单0。签名材料的DACL已按交互桌面用户而非工具沙箱身份校正；不改密钥内容。模拟初始化、认证、只读账户核验和券商成交继续分别验收。

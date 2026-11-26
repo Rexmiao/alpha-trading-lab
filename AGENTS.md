@@ -10,6 +10,7 @@
 - 云端研究使用 `hf_space/streamlit_app.py`，不部署根app.py或execution_lab。HF可用独立只读Secret从固定Private Dataset读取已净化moomoo快照，原始OHLCV只在服务端会话，不提供原始下载；公开包不携带行情、账户、券商密钥或模型。合成、访客CSV与已发布快照必须分别标记，禁止失败回退成合成。
 
 - 当前本机执行增量先读specs/VEIGHNA_MOOMOO_SYSTEM.md：独立requirements-veighna环境、活动SQLite在本机非同步目录。用户已授权先验收券商模拟；LIVE未实现，不能升级真实账户。HF私有Dataset、本机发布、Space独立只读读取与三规则研究已实测成功；没有常驻同步任务，不索取聊天令牌。
+- Windows凭据与签名文件的ACL以实际交互桌面用户为准，不能把普通工具沙箱的当前身份当作用户本人。DPAPI与密钥可用性须在本人进程验证；ACL限制为本人及SYSTEM，私钥不打印，账户发现输出与落盘前丢弃所有实盘行。
 - Hugging Face与Streamlit Community Cloud共用同一引擎，分别按各自部署文档处理账号和认证。源码仍用现有GitHub App；不将它误当作第三方托管服务的登录，也不请求组织或私库权限。付费套餐或硬件不得自动开通。
 
 - 在线历史仅使用固定Yahoo公开端点与严格USD股票/ETF代码，不提供任意URL或券商认证入口；限流或数据错误明确失败，不转合成。仅当前会话保存快照，参数对比复用原快照，提供CSV与来源JSON下载；分别标记已运行来源和新获取但未使用的快照。
