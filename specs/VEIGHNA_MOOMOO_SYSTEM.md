@@ -1,6 +1,6 @@
 # VeighNa＋moomoo交易系统实施规格
 
-版本0.2.2，2026-11-26。目标是完整的本机自动化交易后台；HF是公开研究展示入口。当前交付是可配置的5分钟采集／策略／持久化与券商模拟执行代码增量，真实券商模拟闭环尚未验收，不启用真钱交易。完整日频M1验收及原M1–M4阶段仍见[每日系统规格](DAILY_SIGNAL_SYSTEM.md)，不以影子回放或离线适配器测试代替券商模拟验收。
+版本0.2.3，2026-11-26。目标是完整的本机自动化交易后台；HF是公开研究展示入口。当前交付是可配置的5分钟采集／策略／持久化与券商模拟执行代码增量，真实券商模拟闭环尚未验收，不启用真钱交易。完整日频M1验收及原M1–M4阶段仍见[每日系统规格](DAILY_SIGNAL_SYSTEM.md)，不以影子回放或离线适配器测试代替券商模拟验收。
 
 ## 结构与职责
 
@@ -131,7 +131,7 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 
 最小下一步是先核对模拟业务账户的认证／授权绑定规则，再在获认可的模拟认证下只读调用`GET /api/v1.0/sim-trade/accounts`，取独立字符串paper ID并筛选`market_id=100`。接口存在不证明本次AppKey表单可绑定它；[2026-10-27 scope更新](https://open.moomoo.com/zh-cn/changelog)已将模拟交易纳入交易读写权限，但没有据此证明paper-only账户绑定可用。[模拟账户列表](https://open.moomoo.com/zh-cn/api/sim-trade/account-list)
 
-备用只读验证方向为本机原生模拟入口，或真正独立OpenD／官方SDK的`SIMULATE＋US`路径；不得将桌面Host11111／22222的TCP连通当成独立OpenD成功。账户列表若包含REAL条目，在输出与持久化前丢弃，不查询其资产、持仓或订单。官方[交易QA的Q1／Q17与Q16](https://openapi.moomoo.com/moomoo-api-doc/en/qa/trade.html)分别说明旧paper路径与旧美股paper逐步下线；该备用方案必须实际核验，不能承诺仍可用。具体操作边界见[模拟账户设置](../docs/PAPER_ACCOUNT_SETUP.md)。
+用户已在APP进入US Margin Paper并看到虚拟资金，初始化已确认，不要求重新初始化。桌面Host有界元信息GET尚未返回可绑定paper ID，不能把它解释为APP账户不存在。下一步可核验真正独立OpenD／官方SDK的`SIMULATE＋US`路径，或官方新模拟API的认证绑定规则；不猜权限或盲加参数。不得将桌面Host11111／22222的TCP连通当成独立OpenD成功。账户列表若包含REAL条目，在输出与持久化前丢弃，不查询其资产、持仓或订单。官方[交易QA的Q1／Q17与Q16](https://openapi.moomoo.com/moomoo-api-doc/en/qa/trade.html)分别说明旧paper路径与旧美股paper逐步下线，不能保证独立OpenD一装即通。具体证据与操作边界见[模拟账户设置](../docs/PAPER_ACCOUNT_SETUP.md)。
 
 当前REST配置、权限、新鲜报价与DAY默认均未完成真实服务核验，后端仍为NOAUTH／NOT_CONFIGURED；离线工厂和配置模板不改变这一状态。
 
@@ -141,11 +141,11 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 
 该真实CSV已通过三种研究规则和实际VeighNa MainEngine／OmsEngine／自定义BaseGateway影子流程；后者213条信号、71张本地订单／71条本地成交，重建现金与OMS数量一致、无未结订单。**这不是券商模拟成交，broker_status仍未配置。** 本机证据在`state/veighna-qa/`，不推入公开源码。
 
-本机11111与22222均属于OpenAPIHost，不能仅凭TCP连接把11111当独立OpenD。官方SDK初始握手30秒未返回，未查询到模拟账户；没有猜测把桌面AppKey塞入另一协议TOKEN。传统US paper正逐步停用，官方建议新模拟API。
+本机11111与22222均属于OpenAPIHost，目前只确认该Host运行，尚无已注册独立OpenD元数据证据。先前SDK初始握手30秒未返回；本轮没有重复SDK握手或把桌面AppKey塞入另一协议TOKEN。官方moomoo包名为`moomoo-api==10.12.7208`，同版静态审计与futu的关键握手／schema／`FT` magic相同；本轮未安装或执行新moomoo SDK，不能将结果归因于SDK品牌差异。传统US paper逐步停用，独立OpenD与新模拟API两条路线均仍需按明确模拟身份实测。
 
 已核新官方Futu CLI v0.6.0默认OAuth scope包含`trade:write accid:*`且不提供scope参数，同时会对非幂等POST进行通用重试。它不作为本系统默认执行传输，也未启动其登录。REST文档存在账户绑定scope示例，但是否适用于paper账户、能否做到paper-only授权尚未核实；该限制不能靠本机只调用sim路径来冒称服务端权限已经缩小。
 
-本轮已完成**真实框架＋假broker响应**的离线贯通：`capture → MainEngine → Gateway → 同适配器 → SQLite ACK → OMS Order`；随后累计成交查询使SQLite execution与OMS Trade各增加1，重复reconcile均保持1，close没有cancel。`tests/test_paper_gateway.py`18项及REST签名／适配器56项通过，runtime另有43项通过并含上述全链路用例。真实Ed25519／RSA签名离线验签成功；这些证据只证明代码行为，认证、模拟账户查询和真实paper下单／撤单／成交均未执行，实际订单数为0。
+本轮已完成**真实框架＋假broker响应**的离线贯通：`capture → MainEngine → Gateway → 同适配器 → SQLite ACK → OMS Order`；随后累计成交查询使SQLite execution与OMS Trade各增加1，重复reconcile均保持1，close没有cancel。`tests/test_paper_gateway.py`18项及REST签名／适配器56项通过，runtime另有43项通过并含上述全链路用例。真实Ed25519／RSA签名离线验签成功；这些证据只证明代码行为。桌面实际只执行元信息发现GET；REST认证、模拟资金／持仓／订单读取及真实paper下单／撤单／成交均未执行，实际订单数为0。
 
 今天是感恩节休市，下一5分钟采集资格为11月27日09:35:10美东；11月27日13:00提前收市。真实券商paper验收需认证、账户、实时权限和实际可撮合时段齐备。完整M1和券商模拟成交闭环尚未验收，不因单元测试、影子利润或HTTP连通而标记完成。
 
@@ -171,12 +171,12 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 
 本机私有发布已实际成功，Dataset保持Private，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；468行与原CSV哈希一致，复查没有重复POST。用户随后完成Space两个设置，新访客已实际读取该revision、运行三规则研究并下载JSON；无教学回退，原始CSV不开放访客下载。HF读取成功不代表本机券商执行验收完成，自动watch仍未启动。
 
-真实paper就绪检查：文档中的私有REST config不存在，ALPHA_REST_PAPER_CONFIG未配置；DB仍ALERT_ONLY／NONE且无broker state／intent／execution，受控工厂返回NOT_CONFIGURED，网络与认证调用0。11111／22222仍是loopback OpenAPIHost；没有重复SDK握手或复用桌面AppKey。下一动作是管理者在官方控制台核对模拟权限和明确账户，完成本机私有配置后先只读reconcile，再于可撮合时段验收受控委托。[操作入口](../docs/PAPER_ACCOUNT_SETUP.md)
+真实paper就绪检查：私有REST config及ALPHA_REST_PAPER_CONFIG仍未配置，REST认证／请求调用为0，受控后端保持NOT_CONFIGURED。活动DB通过SQLite mode=ro复核仍为ALERT_ONLY／NONE，broker_states／intents／executions均0，主数据库文件哈希未变。另有3次桌面Host元信息GET，属于独立只读发现，不代表REST接通。下一动作先确认独立OpenD协议或新模拟认证规则与paper ID，之后才可能进行选定模拟账户的只读reconcile；不选择实盘替代。[操作入口](../docs/PAPER_ACCOUNT_SETUP.md)
 
 342项Python基线和26项Node已重新执行通过，另有3项DPAPI模块路径问题回归（publisher共16项）。用例清单及能证明／不能证明的范围见[验收展示](../docs/ACCEPTANCE_DEMO.md)。
 
 管理者进入AppKey创建步骤后，本机非同步runtime/rest-paper已生成Ed25519签名密钥对和config.example.json。目录与文件去除ACL继承，仅当前Windows用户和SYSTEM可访问；密钥对签名／验签通过，不覆盖已有密钥。只打开公钥供管理者填写网页，私钥留本机；示例仍是占位account_id／app_key、authorization_confirmed=false，不等于配置或账户认证完成。当前尚未创建或绑定服务端AppKey，需先核对控制台可提供的模拟权限。
 
-本机身份校正：普通工具沙箱身份不是交互桌面用户，不能直接作为凭据ACL对象。本轮仅修改DACL，使签名目录／文件授权给交互桌面用户与SYSTEM并移除沙箱身份；不改密钥内容、不输出私钥。用户又确认尚未进入过客户端模拟交易，应先完成美股模拟账户初始化；此步骤不保证AppKey下拉会新增模拟项。
+本机身份校正：普通工具沙箱身份不是交互桌面用户，不能直接作为凭据ACL对象。此前仅修改DACL，使签名目录／文件授权给交互桌面用户与SYSTEM并移除沙箱身份；不改密钥内容、不输出私钥。用户随后已在US Margin Paper看到虚拟资金，初始化完成；网页AppKey是否能绑定该模拟账户仍未证实。
 
-桌面CLI帮助实测包含get-acc-list及模拟订单只读查询，但没有下单／改单／撤单方法；SIMULATE／US需显式按其本地枚举指定，不能混用REST枚举。当前实际账户请求数仍为0，未取得paper ID、未读取实盘资产、未发送订单；不能将帮助能力或ACL修复描述为已接通账户。
+桌面Host共执行3次有界账户元信息GET：第1次错误假定环境为数值枚举且原始已丢弃，不能据此断言；第2次审计到snake_case与字符串`trd_env`，实际1条REAL／市场列表US；第3次在同证券category1范围明确need-general-sec-account后仍1条REAL／US、无SIMULATE。仅保存安全聚合，无账号／卡号或完整REAL行。结论是桌面通信成功但该路径尚未暴露可绑定paper ID，不否认APP账户存在。没有读取资产、持仓或订单，也未下单；桌面CLI帮助没有下单／改单／撤单方法，不能将帮助能力或ACL修复描述为已接通模拟执行。
