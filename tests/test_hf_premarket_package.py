@@ -11,6 +11,15 @@ def test_reviewed_reference_is_the_only_packaged_json_input():
     assert not any("collect_premarket" in src or "build_premarket" in src for src, _ in package.SOURCES)
 
 
+def test_docker_context_admits_every_packaged_path_and_no_extra_paths():
+    lines = [line.strip() for line in (package.ROOT / "deploy/huggingface/.dockerignore").read_text().splitlines()
+             if line.strip() and not line.startswith("#")]
+    assert lines[0] == "**"
+    expected = {"!" + path for path in package.ALLOWED_FILES}
+    expected |= {"!" + path + "/" for path in package.ALLOWED_DIRECTORIES}
+    assert set(lines[1:]) == expected
+
+
 def test_reviewed_reference_passes_and_modified_data_fails():
     raw = (package.ROOT / package.PUBLIC_PREMARKET_REFERENCE).read_bytes()
     package._validate_text(package.PUBLIC_PREMARKET_REFERENCE, raw)
