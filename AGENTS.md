@@ -27,3 +27,5 @@
 - 0.11.0期权结构研究先读specs/OPTIONS_RESEARCH.md、docs/OPTIONS_DATA_AUDIT.md与docs/GEX_MODELS_RESEARCH.md。做市商净库存不能由OI、BUY/SELL或事后价格识别；全链Gamma与Max Pain计算器不等于预测验证。HF首版仅有安全聚合审计与明确TOY教学计算，无完整历史链、校准后验或真实OOS结果。未知时间保持null，MP冻结起点目标，期权研究execution_eligible=false；不将数据审计或情景曲线接入委托。
 
 - 本项目托管页默认English，保留中文切换与明确语言选择。HF／Cloud共用主入口；GitHub Pages无有效localStorage值或无法访问存储时默认en。修改源文案后同步检查默认界面、中文切换、媒体和既有报告保留，不能把备用Cloud／旧Sites状态等同HF。
+
+性能维护约定：仅在用户明确要求时集中做一次性能测量与优化；日常功能开发只做必要验证，不自动扩大为持续提速或启动定时优化。当前一次提速来自用户明确请求，验收完成后即结束该增量。

@@ -268,3 +268,19 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 本轮性能优化保持研究口径：首屏不再预加载AI训练与Plotly Express，只在实际训练／画图时导入；Max Pain曲线使用一次验证的精确批量支付扫描；S&R逐交易日提取对齐价量数组，替代逐bar的Pandas索引。真实1560行、延迟0／1的完整报告除代码指纹与运行时刻外完全相同。独立本机测量中，S&R延迟0中位610.57→326.40ms；合成5000合约的Max Pain计算加62点曲线4.542→0.201秒。它们不是公网端到端时延或策略成绩。完整优化后522项研究测试通过；随后仅语言／首页文案调整另复测4项导航测试。
 
 本项目各托管入口默认English，保留中文切换。HF与Community Cloud由同一入口实现；GitHub Pages在无有效保存语言时使用English，显式保存的zh／en优先，存储不可用也回到English。主站首页说明覆盖六类研究，AI模型仅是其中一个专题；语言变化不触发取数／训练，也不改已有报告字节。旧Sites教学页单独核对，不因仓库或Pages已更新就声称旧站同步完成。
+
+性能维护约定：仅在用户明确要求时集中做一次性能测量与优化；日常功能开发只做必要验证，不自动扩大为持续提速或启动定时优化。当前一次提速来自用户明确请求，验收完成后即结束该增量。
+
+研究与Trading System可分别在两个chat讨论，并以现有spec交接。用户已澄清当前在讨论chat组织；本轮没有建立新代码项目、移动执行模块或创建新的GitHub仓库。
+
+0.11.0源码已由现有GitHub App提交为9d208a85e656eb6f04bc338129b4b38b836e25cd；HF与Pages工作流成功。HF固定仓库／runtime为2daea2aeab31b573999c73160daaa9c253a4cce0，26应用源码一致、MANIFEST仅时间不同，另核纯LFS.gitattributes。当前真实S&R、中英同字节、English默认及390px已复验；Pages／备用Cloud的English默认与中文切换也实际通过，Cloud本轮不宣称完整新增研究验收。期权UI与旧Sites记录在各自实际通过后追加，不以测试脚本准备状态代替成功。
+
+期权页实际公网验收已完成：明确TOY数据的GEX与Max Pain、固定数据审计、原生下载、中英同字节、改参不重算和390px公式均通过（37事件／130检查，JS异常0）。原生GEX与MP指纹及明细见部署说明0.11.0；合格真实历史预测样本仍为0，不能把界面成功解释为真实做市商库存或预测有效。
+
+本项目四处托管入口均已实际验收默认English／中文切换：HF、Community Cloud、GitHub Pages及旧Sites教学页。旧Sites单独发布v3（源156002b064b10f1eb3b15dbc8f82708f95d5d5a3，部署succeeded），保留原PUBLIC与网址，双语媒体／交互／手机验证通过。它与仓库／HF发布分开记证据，详见部署说明。
+
+发布收尾核对到并行界面增量a17603bfc459824c945fe2de002d75022468d1ec：浏览器保存手动语言选择，新访客仍默认English。已保留该提交，并核定本机主程序与发布版仅一处空行差异；现在已对齐发布版，原工作区快照保留。新增界面以6项导航增量测试及实际浏览器偏好刷新另验；原522项核心研究结果按未改变的计算源码指纹保留，不能宣称完整524项全部重跑。云端源码仍须固定revision逐字验证，Cloud只记录已实际观察的界面行为。
+
+后续Trading System拟采用独立GitHub仓库与HF Space，研究Lab与执行系统的模块、数据、权限与消息边界已追加到specs/VEIGHNA_MOOMOO_SYSTEM.md。此处为用户确认的后续组织方向；当前没有创建新repo／Space／代码项目或迁移活动账本，真实券商模拟接入状态未改变。
+
+追加界面偏好版本已复验：发布提交a17603bfc459824c945fe2de002d75022468d1ec、HF工作流45956854531成功，当前HF仓库／runtime为c5f954328abb4af42e9bac36dfe3f69dd132d772，RUNNING／CPU Basic。26源码与新本机包逐字一致，MANIFEST仅created_at不同，纯LFS元数据单独核对。主程序SHA256为4d571abd4a3c8133786091297d459ffe3bea9dba7b2be1cfed19dc7be250dbb4。原9d208／2daea记录保留为核心研究功能验收基线；S&R／GEX／Max Pain计算及其独立UI源码未变，新增偏好另经6项导航和实际浏览器English→中文→document刷新保留中文→English→刷新保留English验收，无连续重跑或Run／取数动作。证据为state/options-research/qa/language-persistence-a176-browser-20261127T024037及当前hf-package-verification.json。

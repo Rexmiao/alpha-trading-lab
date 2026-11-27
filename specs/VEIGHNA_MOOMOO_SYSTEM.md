@@ -194,3 +194,11 @@ SQLite FULL事务COMMIT成功后才调用`sync_from_state`投射OrderData与Trad
 本机身份校正：普通工具沙箱身份不是交互桌面用户，不能直接作为凭据ACL对象。此前仅修改DACL，使签名目录／文件授权给交互桌面用户与SYSTEM并移除沙箱身份；不改密钥内容、不输出私钥。用户随后已在US Margin Paper看到虚拟资金，初始化完成；网页AppKey是否能绑定该模拟账户仍未证实。
 
 桌面Host共执行3次有界账户元信息GET：第1次错误假定环境为数值枚举且原始已丢弃，不能据此断言；第2次审计到snake_case与字符串`trd_env`，实际1条REAL／市场列表US；第3次在同证券category1范围明确need-general-sec-account后仍1条REAL／US、无SIMULATE。仅保存安全聚合，无账号／卡号或完整REAL行。结论是桌面通信成功但该路径尚未暴露可绑定paper ID，不否认APP账户存在。没有读取资产、持仓或订单，也未下单；桌面CLI帮助没有下单／改单／撤单方法，不能将帮助能力或ACL修复描述为已接通模拟执行。
+
+## 后续独立Trading System项目／仓库／Space（计划）
+
+用户希望交易系统在单独chat讨论，并为后续独立项目使用额外GitHub repo和HF Space；暂定名trading-system，尚未创建目录、远端仓库或Space，也没有迁移代码。现有Alpha Trading Lab保留研究、回测与展示；独立交易项目承接行情任务、信号服务、风控、委托／撤单、成交对账和运行监控。共享部分应形成固定版本的纯策略／信号协议，不从运行中的研究工作目录动态导入模型或将公开网页结果直接当委托。
+
+独立GitHub保存源码、测试、SPEC、依赖锁与脱敏示例；复用现有GitHub App，仅为新增个人目标仓库补必要访问，不请求组织或全部仓库权限。独立HF Space首版建议Private，展示信号、风险状态、模拟订单和成交记录；界面与执行后台分开，账户凭据、活动SQLite及持久订单账本留在本机非同步目录或后续独立常驻后台，不进入仓库／HF公开包。新仓库／Space的最终名称和公开范围在实际创建前确定，不自动开通新计费硬件。
+
+消息至少区分strategy_id/version、decision_id、symbol/timeframe、bar_end、available_at、decision_at、expires_at、数据与模型指纹及分数／目标单位。执行侧重新检查时效、交易日历、paper账户、现金／仓位／成本及幂等；提醒、半自动、自动是同一后台的可选策略。先固定paper-only及离线／影子验收，当前仍ALERT_ONLY/NONE、真实模拟认证待解决，不能以新项目计划或界面上线声称券商成交已完成。拆分时先冻结基线与回放一致性，再切入口，保留审计历史，不同时从两处运行活动执行器。

@@ -20,7 +20,7 @@
 
 框架评估见[框架优劣与执行候选研究](docs/FRAMEWORK_COMPARISON.md)。VeighNa4.5.0已在独立环境验证：真实MainEngine／BaseGateway贯通假券商提交和累计成交投射。仅映射订单与派生成交事件，未声称完整账户／持仓OMS映射；其他框架保留为研究候选。
 
-新增[动量与趋势研究](docs/MOMENTUM_TREND.md)：四种日频规则及独立5分钟正动量、均线趋势、开盘区间突破。已取得SPY／NVDA三个完整RTH日共468根真实5分钟K线，核实供方bar-end并转换为UTC bar-start。HF已用独立读取配置从Private Dataset取到同一快照，三规则运行与研究JSON下载通过；原始CSV不开放下载。配置与验收见[私有同步说明](docs/MOOMOO_CLOUD_SYNC.md)。访客仍可上传CSV或明确选择教学数据。3日结果不足以证明策略有效，OHLC成交代理也不是券商成交。
+新增[动量与趋势研究](docs/MOMENTUM_TREND.md)：四种日频规则及独立5分钟正动量、均线趋势、开盘区间突破。首轮取得SPY／NVDA三个完整RTH日468行，核实供方bar-end并转换为UTC bar-start，HF三规则首轮运行与派生JSON通过。当前私有快照扩至10个完整日1560行，本轮已重新验收S&R的9个评估日；原三规则的首轮证据保留，原始CSV不开放下载。配置与验收见[私有同步说明](docs/MOOMOO_CLOUD_SYNC.md)。访客仍可上传CSV或明确选择教学数据。3日结果不足以证明策略有效，OHLC成交代理也不是券商成交。
 
 ## 论文与接口手册
 

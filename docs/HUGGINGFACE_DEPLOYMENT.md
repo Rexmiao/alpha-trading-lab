@@ -226,4 +226,28 @@ Cloud独立请求的CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d
 
 ## 0.11.0 期权结构研究
 
-新增主内容第六个入口：真实数据可得性审计、GEX库存情景、独立Max Pain计算器与前瞻实验设计。当前真实库存不可识别，历史增量预测不可估计（有效样本0）；两类计算器仅由明确按钮运行虚构TOY数据，不自动取得真实期权链。源码／数学测试与公网验收分别记录；本段在公开运行通过后补充提交号与验证证据。原始PCR存档、OI链、凭据和账户均不进入发布包。
+新增主内容第六个入口：真实数据可得性审计、GEX库存情景、独立Max Pain计算器与前瞻实验设计。当前真实库存不可识别，历史增量预测不可估计（有效样本0）；两类计算器仅由明确按钮运行虚构TOY数据，不自动取得真实期权链。源码／数学测试与公网验收分别记录，实际记录见下文。原始PCR存档、OI链、凭据和账户均不进入发布包。
+
+### 0.11.0 已验证的发布与真实S&R
+
+应用提交`9d208a85e656eb6f04bc338129b4b38b836e25cd`，HF工作流[45954780844](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45954780844)及Pages工作流[45954780980](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45954780980)均成功。HF仓库／runtime同为`2daea2aeab31b573999c73160daaa9c253a4cce0`，RUNNING、CPU Basic；26源码逐字节一致，MANIFEST仅created_at不同。包为27文件；HF另有1519字节`.gitattributes`纯LFS仓库元数据，单独校验，不混入应用包计数。
+
+实际新访客从English首页进入S&R，再显式切中文，用相同Private Dataset revision`1166944d51191723e2b4f3ce428cb3f818cb1bd1`及1560行、CSV SHA256`8a397cb2616b66c57c143dcdf34936231b4d0e7ffd30dedb8d2aaf285c51631e`跑出9日／四组结果。中英原生研究JSON字节相同，SHA256`1c27710a1867eb0f0061011b5ff2a0083bb3505d7d9b8c5e784c2e2025e64c8f`；与当前本机代码指标符合1e-12容差，无原始行情下载、无JS异常，390px导航与数学式通过。证据位于本机`state/sr-qa/sr011-20261127T020521/summary.json`；源包证据为`state/options-research/qa/hf-package-verification.json`。
+
+GitHub Pages已实测全新English／英文媒体→中文／中文媒体→刷新仍中文→英文；第二新浏览器仍默认English。Community Cloud已实测English首页、六研究入口与双语切换保持S&R选择，本轮只验收语言／导航，没有在备用Cloud运行价格或模型。证据为`state/options-research/qa/hosteddefaultsbootstrap-20261127T070616634219Z/summary.json`。原有完整Cloud功能验收仍属历史记录，不与本轮新增期权／私有数据验收混为一谈。
+
+522项完整优化后研究测试通过；随后English默认及首页文案变更的4项导航复测通过。新GEX48项、Max Pain53项、期权UI9项；这些验证数学／界面契约，不产生真实期权库存或样本外预测成绩。本机冷首屏各3次新进程的中位10.058→6.627秒，测量对应延迟依赖加载版本，之后另改了语言／首页文字；不能外推公网耗时。S&R真实1560行暖运行610.57→326.40ms（延迟0），Max Pain虚构5000合约计算＋62点曲线4.542→0.201秒；精确结果与最小集合保持。今后的性能增量仅在用户明确请求时集中执行。
+
+### 期权页实际公网验收
+
+同一HF版本的新访客已完成English首页→中文期权页→明确TOY GEX／Max Pain计算→English切换、原生下载、参数不重算与跨页保留。37条浏览器事件、130项检查全部通过，JS异常0；390px六入口与GEX2条／Max Pain3条短数学式通过。GEX原生JSON SHA256`84b4c55a00861d13135d8c75d333baaf2cafa4a988ee97421c0f99eb8d175b87`，Max Pain为`97474b1c48da5ce36e625ca1f74355488f64f8b3df3aa8afc21c09b04806f7f6`；中英下载各自同字节。
+
+原生报告明确synthetic_demo／TOY；SPY438、QQQ514和未知OI时点只作真实固定审计，没有拿来生成行情曲线。现价变化后的Max Pain最小集合仍为冻结OI对应区间，距离另报；无原始行情／账户／下单入口。证据：`state/options-research/qa/hflive-20261127T020931/summary.json`及同目录browser-event-proof／events／checks／原生downloads。先前失败只涉及QA前端选择器假设，均保留失败证明，未据此改生产数学或冒称通过。真实做市商库存仍不可识别，历史增量预测有效样本仍为0。
+
+### 旧Sites教学地址的独立更新
+
+[原教学站](https://alpha-training-lab-guide.totalbluebell3.chatgpt.site/)保留原网址与PUBLIC访问范围，已单独发布版本3；源提交`156002b064b10f1eb3b15dbc8f82708f95d5d5a3`，部署`appgdep_6b092d8799f081918c9e501f4c0f2559`为SUCCEEDED。全新公网浏览器已核English首访、中文切换／刷新保留、双语GIF／封面／下载、EWMA／成本／阶段交互及390px布局；无runtime错误。这个版本独立于GitHub Pages的发布，证据已归档为本机`state/options-research/qa/legacy-site-defaults.json`，不将站点凭据放入源码。
+
+发布收尾核对到并行界面增量a17603bfc459824c945fe2de002d75022468d1ec：浏览器保存手动语言选择，新访客仍默认English。已保留该提交，并核定本机主程序与发布版仅一处空行差异；现在已对齐发布版，原工作区快照保留。新增界面以6项导航增量测试及实际浏览器偏好刷新另验；原522项核心研究结果按未改变的计算源码指纹保留，不能宣称完整524项全部重跑。云端源码仍须固定revision逐字验证，Cloud只记录已实际观察的界面行为。
+
+追加界面偏好版本已复验：发布提交a17603bfc459824c945fe2de002d75022468d1ec、HF工作流45956854531成功，当前HF仓库／runtime为c5f954328abb4af42e9bac36dfe3f69dd132d772，RUNNING／CPU Basic。26源码与新本机包逐字一致，MANIFEST仅created_at不同，纯LFS元数据单独核对。主程序SHA256为4d571abd4a3c8133786091297d459ffe3bea9dba7b2be1cfed19dc7be250dbb4。原9d208／2daea记录保留为核心研究功能验收基线；S&R／GEX／Max Pain计算及其独立UI源码未变，新增偏好另经6项导航和实际浏览器English→中文→document刷新保留中文→English→刷新保留English验收，无连续重跑或Run／取数动作。证据为state/options-research/qa/language-persistence-a176-browser-20261127T024037及当前hf-package-verification.json。
