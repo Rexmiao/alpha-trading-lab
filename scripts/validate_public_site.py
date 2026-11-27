@@ -2,9 +2,41 @@
 from __future__ import annotations
 
 import hashlib
+from html.parser import HTMLParser
 import json
 from pathlib import Path
 import re
+
+
+class EnglishFallback(HTMLParser):
+    """Check initial HTML independently of JavaScript or browser preferences."""
+
+    def __init__(self):
+        super().__init__()
+        self.language = None
+        self.elements = {}
+        self.description = None
+        self.in_language_button = False
+        self.unexpected_chinese_text = False
+
+    def handle_starttag(self, tag, attributes):
+        attributes = dict(attributes)
+        if tag == "html":
+            self.language = attributes.get("lang")
+        if "id" in attributes:
+            self.elements[attributes["id"]] = attributes
+        if tag == "meta" and attributes.get("name") == "description":
+            self.description = attributes.get("content", "")
+        if tag == "button" and attributes.get("id") == "language":
+            self.in_language_button = True
+
+    def handle_endtag(self, tag):
+        if tag == "button":
+            self.in_language_button = False
+
+    def handle_data(self, data):
+        if not self.in_language_button and re.search(r"[\u4e00-\u9fff]", data):
+            self.unexpected_chinese_text = True
 
 
 def main() -> None:
@@ -35,6 +67,16 @@ def main() -> None:
     html = files["index.html"].read_text(encoding="utf-8")
     if "viewport" not in html or "lang=" not in html:
         raise SystemExit("Missing language or responsive document metadata.")
+    fallback = EnglishFallback()
+    fallback.feed(html)
+    if (fallback.language != "en" or fallback.unexpected_chinese_text
+            or not fallback.description or re.search(r"[\u4e00-\u9fff]", fallback.description)
+            or "<title>Alpha Training Lab · From data to decisions</title>" not in html):
+        raise SystemExit("Fresh static HTML must display English before JavaScript runs.")
+    if (fallback.elements.get("flowImage", {}).get("src") != "assets/poster-en.png"
+            or fallback.elements.get("downloadGif", {}).get("href") != "assets/training-flow-en.gif"
+            or "docs/media/en/alpha-training-flow.gif" not in html):
+        raise SystemExit("English fallback poster, GIF download and README media are required.")
     for reference in re.findall(r'(?:src|href)="([^"#]+)"', html):
         if "://" in reference or reference.startswith("#"):
             continue
@@ -43,6 +85,8 @@ def main() -> None:
             raise SystemExit(f"Missing static reference: {target}.")
     print(json.dumps({
         "public_files": len(files),
+        "default_language": "en",
+        "english_fallback_checked": True,
         "total_bytes": sum(path.stat().st_size for path in files.values()),
         "sha256": {name: hashlib.sha256(path.read_bytes()).hexdigest()
                    for name, path in sorted(files.items())},

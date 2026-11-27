@@ -38,7 +38,12 @@ pandas and PyArrow table conversion before publishing the image.
   Published private moomoo snapshots, visitor CSV and explicit teaching inputs
   are separated. The initial session forms levels and is excluded from returns;
   short samples suppress annualized statistics.
-- Language selection and all five study links appear above the main content;
+- Study options structure through a point-in-time data audit, full-chain BSM
+  GEX scenarios and an independent exact Max Pain calculator. Only explicit,
+  fictional TOY inputs run in this first version. Unknown dealer inventory,
+  missing historical OI clocks and unavailable predictive results remain visible;
+  no actual dealer positions or GEX/Max Pain strategy performance are claimed.
+- Language selection and all six study links appear above the main content;
   data and execution parameters stay in the collapsible sidebar, with less-used
   settings grouped under Advanced settings. Language changes retain report bytes.
 - Measure daily market Beta with a predeclared 126- or 252-return OLS window.

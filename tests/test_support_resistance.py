@@ -82,6 +82,27 @@ def test_schema_four_comparisons_and_component_hashes(result):
     assert all("volume" not in r and "high" not in r and "low" not in r for r in result["signals"])
 
 
+@pytest.mark.parametrize("delay", [0, 1])
+def test_session_arrays_keep_symbol_time_alignment_and_exact_permuted_input_report(delay):
+    first = prices()
+    second = first.loc[first.symbol.eq("AAA")].copy()
+    second["symbol"] = "ZZZ"
+    second.loc[:, ["open", "high", "low", "close"]] *= 1.7
+    frame = pd.concat([first, second], ignore_index=True)
+    ordered = sr.run_sr_comparison(frame, execution_delay_bars=delay)
+    permuted = sr.run_sr_comparison(frame.sample(frac=1., random_state=712), execution_delay_bars=delay)
+    # All report fields, including data fingerprints, prices, costs, event
+    # ordering and both distinct stock ledgers, must be unchanged by row order.
+    for report in (ordered, permuted):
+        report["lineage"].pop("as_of_utc")
+    assert ordered == permuted
+    reference = frame.set_index(["timestamp", "symbol"])["open"]
+    assert {row["symbol"] for row in ordered["trades"]} == {"AAA", "ZZZ", "SPY"}
+    for trade in ordered["trades"]:
+        key = (pd.Timestamp(trade["execution_at"]), trade["symbol"])
+        assert trade["reference_price"] == float(reference.at[key])
+
+
 def test_levels_are_frozen_previous_complete_session_and_available_before_trade(result):
     first = [r for r in result["levels"] if r["session"] == "2024-03-11"]
     assert len(first) == 2

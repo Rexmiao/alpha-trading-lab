@@ -73,7 +73,7 @@ Windows真实运行修复：若从PowerShell7启动，旧实现可能让Windows 
 
 只有显式发布才更新5分钟命名空间的根目录`latest.json`及对应`snapshots/<CSV SHA256>/`两文件。它沿用专用Dataset写凭据及Space只读凭据；不修改`daily/latest.json`或`daily/snapshots/`，日K Beta快照与验收保持独立。
 
-**当前状态：10日快照真实私有上传与重读已完成。** 新revision为`1166944d51191723e2b4f3ce428cb3f818cb1bd1`，1560行及SHA256一致，daily/latest.json字节未变。Space独立读取与S&R公网运行待验收；旧3日记录属于历史。未启动watch或创建后台任务。
+**当前状态：10日快照真实私有上传与重读已完成。** 新revision为`1166944d51191723e2b4f3ce428cb3f818cb1bd1`，1560行及SHA256一致，daily/latest.json字节未变。Space新访客已独立读取相同revision／SHA并运行S&R三组及SPY基准，9日评价／派生JSON下载与中英保持通过；旧3日记录属于历史。未启动watch或创建后台任务。
 
 本次首次采集报`PROTECTED_CREDENTIAL_UNAVAILABLE`，尚未发出行情业务请求。受限重试使用绝对Windows PowerShell5路径和仅系统模块的`PSModulePath`，在配置凭据的实际Windows用户进程内解密现有行情DPAPI，并仅向当前采集子进程传递`OPENAPI_HOST_APPKEY`后成功。明文没有打印、写盘或设置为永久环境变量，结束时清理进程变量和BSTR；没有重新授权、扩大权限或修改凭据ACL。遇到同类错误先核对进程身份与PowerShell模块环境，不将行情凭据或Dataset令牌复制进源码／聊天。
 

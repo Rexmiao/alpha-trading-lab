@@ -43,11 +43,14 @@ SOURCES = (
     ("hf_space/beta_ui.py", "hf_space/beta_ui.py"),
     ("hf_space/support_resistance.py", "hf_space/support_resistance.py"),
     ("hf_space/support_resistance_ui.py", "hf_space/support_resistance_ui.py"),
+    ("hf_space/gex_scenarios.py", "hf_space/gex_scenarios.py"),
+    ("hf_space/options_research_ui.py", "hf_space/options_research_ui.py"),
     ("hf_space/streamlit_app.py", "hf_space/streamlit_app.py"),
     ("research/__init__.py", "research/__init__.py"),
     ("research/data.py", "research/data.py"),
     ("research/models.py", "research/models.py"),
     ("research/portfolio.py", "research/portfolio.py"),
+    ("research/max_pain.py", "research/max_pain.py"),
 )
 ALLOWED_FILES = frozenset(destination for _, destination in SOURCES) | {MANIFEST_NAME}
 ALLOWED_DIRECTORIES = frozenset(

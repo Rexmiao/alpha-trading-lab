@@ -19,8 +19,90 @@
     trendRunTitle:'Run actual experiments in the research app',trendRunText:'Choose your moomoo CSV, an online historical snapshot or an explicitly labeled synthetic example. This page only explains rules: it fetches no market observations and shows no actual strategy returns.',
     openHf:'Open Hugging Face app',openStreamlit:'Open Streamlit Cloud app'
   });
-  const chinese = {};
-  document.querySelectorAll('[data-i18n]').forEach(el => { chinese[el.dataset.i18n] = el.innerHTML; });
+  const chinese = {
+  "navFlow": "训练流程",
+  "navMomentum": "动量与趋势",
+  "navRisk": "风险与仓位",
+  "navMath": "数学原理",
+  "eyebrow": "AI 量化研究 · 原理教学",
+  "hero": "先理解模型怎样学习，<br>再理解分数怎样变成决策。",
+  "lead": "从日 K、历史特征与未来答案，走到深度学习、生成式增强、未见期检验和受约束仓位。每一步都要能解释、能检查。",
+  "seeFlow": "查看训练流程",
+  "tryMomentum": "探索动量与趋势",
+  "tryLab": "动手理解风险与仓位",
+  "scope": "公开教学演示 · 所有数值均为假设示例 · 不接入账户或交易服务",
+  "flowTag": "从数据到决策",
+  "flowTitle": "一张动图，串起整个研究过程",
+  "download": "下载 GIF",
+  "gifCaption": "GIF 适合 README 快速展示；下面的交互示例用于理解公式。动图没有展示真实回测收益。",
+  "step0": "日 K 与时间",
+  "step1": "历史特征",
+  "step2": "历史答案",
+  "step3": "DL 与 GenAI",
+  "step4": "未见期检验",
+  "step5": "因子到决策",
+  "trendTag": "四类日频规则",
+  "trendTitle": "动量与趋势：先让简单规则可解释",
+  "toy": "教学假设",
+  "trendIntro": "相对动量比较股票之间的强弱；趋势规则判断一只股票自身是否进入持有状态。点击一种规则，再改变教学价格，观察信号怎样变化。所有参数都是研究示例。",
+  "csTitle": "横截面动量",
+  "csBrief": "比较同一天多只股票的过去60日收益，取相对排名。",
+  "tsTitle": "时间序列动量",
+  "tsBrief": "只看自身过去60日收益是否为正，形成持有或现金状态。",
+  "maTitle": "双均线趋势过滤",
+  "maBrief": "收盘高于200日均线，且50日均线高于200日均线。",
+  "breakoutTitle": "通道突破",
+  "breakoutBrief": "突破前55日高点入场，跌破前20日低点退出；窗口排除当天。",
+  "trendPriceLabel": "资产A当前收盘（教学价）",
+  "trendMaLabel": "前49日收盘均价",
+  "trendHeldLabel": "假设当前已经持有资产A",
+  "asset": "资产",
+  "trendReturn": "过去60日收益",
+  "trendScore": "排名百分位",
+  "trendTiming": "<strong>收盘确定信号，下一交易日开盘模拟成交。</strong>60日、50/200日和55/20日是示例窗口，不是验证过的最优参数；窗口均指交易日。日频规则可回测，分钟级研究需要独立的分钟行情、成本和成交验证。",
+  "trendUnits": "排名、0/1状态和通道规则都是交易信号，不是已校准的未来收益率。不要把它们直接与以bps计的成本门槛比较；实际仓位、费用与现金要在统一回测中另行计算。",
+  "trendRunTitle": "去研究应用运行实际实验",
+  "trendRunText": "可选择自己的moomoo CSV、在线历史快照或明确标注的合成示例。本页只演示规则，不获取行情，也不展示真实策略收益。",
+  "openHf": "打开 Hugging Face 应用",
+  "openStreamlit": "打开 Streamlit Cloud 应用",
+  "labTag": "动手探索",
+  "labTitle": "波动估计改变仓位，未必改变涨跌预测",
+  "ewmaTitle": "EWMA：最近的冲击占多少权重？",
+  "ewmaIntro": "假设旧的日波动率为 2%。改变平滑系数和最近一天已发生的收益，观察下一日风险估计。",
+  "lambdaLabel": "平滑系数 λ",
+  "shockLabel": "最近一天收益率",
+  "newVol": "下一日估计波动率",
+  "ewmaCaveat": "条形表示混合系数，不是方差贡献比例。本例忽略均值；完整研究还需考虑股票之间的协方差。",
+  "weightsTitle": "从预测分数到目标仓位",
+  "weightsIntro": "三个假设资产的五日收益预测为 1.2%、0.5%、0.05%；年化波动率为 30%、20%、40%。先过成本门槛，再分配风险。",
+  "costLabel": "单边交易成本",
+  "capLabel": "单个资产仓位上限",
+  "riskLabel": "组合年化波动预算",
+  "forecast": "预测",
+  "gate": "过门槛",
+  "weight": "目标权重",
+  "cash": "剩余现金",
+  "weightCaveat": "示例固定保留至少 20% 现金、资产相关系数为 0.4。封顶后不重新分配，风险缩放只减仓；这里没有可发送的订单。",
+  "mathTag": "数学原理",
+  "mathTitle": "知道每个数字从哪里来",
+  "targetTitle": "预测目标与交易时点",
+  "targetText": "第一版 h = 5：收盘后形成信号，用 t+1 开盘到 t+6 开盘的五日收益，减去基准 SPY 同期收益。历史训练可以用后来已知的答案，实时预测不能使用尚未发生的答案。",
+  "lossTitle": "深度学习怎样更新参数",
+  "lossText": "网络先预测，再计算误差，用梯度调整参数。标准化只拟合训练期。这里展示的是基本梯度思想；实际可使用 Adam 等优化器。",
+  "genTitle": "生成式 AI 增加了什么",
+  "genText": "条件扩散模型在训练期学习收益分布，逐步去噪生成与历史条件配套的样本。合成样本不是新的真实市场证据；要与真实数据训练和重采样对照，在未见过的真实时期评价。",
+  "icTitle": "IC 与收益曲线各自说明什么",
+  "icText": "同一天比较多只股票的预测排序和实际排序。IC 衡量预测关系，净值还受到仓位、市场暴露、成本和成交时点影响。五日标签会重叠，不能把相邻日期当作独立样本。",
+  "decisionTitle": "因子如何转成决策",
+  "decisionText": "预测分数先判断是否值得交易。通过后按逆波动分配，加入单股上限、现金和组合风险约束。排名分数若没有收益单位，还需在独立验证期校准，才能与成本比较。",
+  "levyTitle": "为什么先从 EWMA 开始",
+  "levyText": "第一步先建立可检查的风险尺度。厚尾、跳跃和波动聚集是不同问题；常参数 Lévy 收益过程不会自动描述持续变化的波动。更复杂的模型应由具体研究问题和样本外检验来决定。",
+  "ewmaSource": "EWMA 官方定义",
+  "readmeTitle": "把研究过程放进项目说明",
+  "readmeText": "将 GIF 保存到仓库，再用相对路径嵌入 README。动画用于概览，这个网页用于交互探索；完整研究程序在独立环境运行。",
+  "copy": "复制 Markdown",
+  "footer": "教学示例 · 无真实行情、账户或订单 · 不构成策略有效性证明"
+};
   const stageContent = {
     zh:[
       ['先确定信息在什么时候可见','每根日 K 只代表已完成的交易日。记录来源、复权口径和市场时间，避免把稍后更新的数据提前放进输入。','已完成日 K → 可用历史'],
@@ -53,9 +135,12 @@
       breakout:{title:'Channel breakout: enter, exit or keep the state',text:'Enter when close exceeds the previous 55-session highest high. Exit when it falls below the previous 20-session lowest low. Keep the existing state between them, so the same price can imply holdings or cash.',formula:'H<sub>55,t</sub> = max(H<sub>t−1</sub>, …, H<sub>t−55</sub>)<br>L<sub>20,t</sub> = min(L<sub>t−1</sub>, …, L<sub>t−20</sub>)<br>C<sub>t</sub> &gt; H<sub>55,t</sub> → enter; C<sub>t</sub> &lt; L<sub>20,t</sub> → exit',assumptions:'Assume the previous 55-session high is 112 and the previous 20-session low is 96. Both windows exclude today; equality does not trigger a transition. Toggle the existing holding to compare outcomes inside the channel.',note:'The checkbox sets a fixed illustrative starting state. Moving the slider does not accumulate trading history: each evaluation starts from that checkbox. This is not a price-path backtest.'}
     }
   };
-  let lang = 'zh', stage = 0, strategy = 'cs';
+  function initialLanguage(){
+    try{const saved=localStorage.getItem('alpha-guide-language');if(saved==='zh'||saved==='en')return saved;}catch{}
+    return 'en';
+  }
+  let lang = initialLanguage(), stage = 0, strategy = 'cs';
   let playing = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  try { if(localStorage.getItem('alpha-guide-language')==='en')lang='en'; } catch {}
   const pct = (x,d=1) => `${(x*100).toFixed(d)}%`;
   function renderStage(){
     const values = stageContent[lang][stage];

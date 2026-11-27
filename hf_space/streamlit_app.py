@@ -11,7 +11,6 @@ from pathlib import Path
 import sys
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -21,8 +20,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from hf_space.engine import make_synthetic_prices, parse_csv, run_simulation
-from hf_space.history import fetch_history
 
 
 MODEL_NAMES = ("ridge", "mlp", "mlp_resample", "mlp_diffusion")
@@ -33,7 +30,7 @@ DEFAULT_ONLINE_SYMBOLS = "NVDA, AMD, AVGO, MU, WDC, NBIS, CRWV"
 
 
 def tr(zh: str, en: str) -> str:
-    return en if st.session_state.get("hf_language") == "English" else zh
+    return zh if st.session_state.get("hf_language") == "中文" else en
 
 
 def model_label(name: str) -> str:
@@ -117,6 +114,8 @@ def render_metrics(result: dict) -> None:
 
 
 def line_figure(frame: pd.DataFrame, value: str, title: str, *, percent=False) -> go.Figure:
+    import plotly.express as px
+
     chart = frame.copy()
     chart["date"] = pd.to_datetime(chart["date"], errors="coerce")
     chart[value] = pd.to_numeric(chart[value], errors="coerce")
@@ -259,12 +258,12 @@ def render_data_source(result: dict) -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="AI Alpha Simulation Lab", page_icon="📈", layout="wide")
+    st.set_page_config(page_title="Alpha Trading Lab", page_icon="📈", layout="wide")
     brand, language = st.columns([3, 2], vertical_alignment="center")
     with brand:
         st.markdown("**Alpha Trading Lab**")
     with language:
-        st.radio("语言 / Language", ("中文", "English"), key="hf_language", horizontal=True)
+        st.radio("Language / 语言", ("English", "中文"), key="hf_language", horizontal=True)
     # Keep navigation in non-widget state: translated labels may recreate widgets.
     memory = "_hf_study_choice"
     if memory not in st.session_state:
@@ -276,11 +275,16 @@ def main() -> None:
                     "strategies": tr("日频动量与趋势", "Daily momentum & trend"),
                     "intraday": tr("5 分钟动量与趋势", "5-minute momentum & trend"),
                     "beta": tr("Beta 测量与策略对照", "Beta measurement & comparison"),
-                    "sr": tr("支撑与阻力策略", "Support & resistance")}
-    study = st.radio(tr("研究页面", "Study page"), ("ai", "strategies", "intraday", "beta", "sr"), index=None,
+                    "sr": tr("支撑与阻力策略", "Support & resistance"),
+                    "options": tr("期权结构研究", "Options structure research")}
+    study = st.radio(tr("研究页面", "Study page"), ("ai", "strategies", "intraday", "beta", "sr", "options"), index=None,
                      format_func=study_labels.__getitem__, key="hf_study", on_change=remember_study,
                      horizontal=True)
     st.divider()
+    if study == "options":
+        from hf_space.options_research_ui import render_options_research_page
+        render_options_research_page(tr)
+        return
     if study == "sr":
         from hf_space.support_resistance_ui import render_sr_page
         render_sr_page(tr)
@@ -297,7 +301,10 @@ def main() -> None:
         from hf_space.strategy_ui import render_strategy_page
         render_strategy_page(tr, render_data_source, input_coverage, render_online_downloads)
         return
-    st.title(tr("AI Alpha 模拟实验室", "AI Alpha Simulation Lab"))
+    st.title(tr("Alpha量化研究实验室", "Alpha Trading Research Lab"))
+    st.write(tr("研究日频AI Alpha、动量／趋势、Beta、支撑／阻力与期权结构；在上方切换专题。",
+                "Explore daily AI alpha, momentum and trend, Beta, support and resistance, and options structure. Choose a study above."))
+    st.subheader(tr("AI Alpha：四模型对照", "AI alpha: four-model comparison"))
     st.write(tr("比较四种预测方法，并观察交易成本、仓位上限与风险预算如何改变模拟结果。",
                 "Compare four prediction methods and see how execution costs, position limits and risk budgets change simulated results."))
     st.caption(tr("Ridge · MLP · 重采样 MLP · 条件 DDPM 增强 MLP。这是有限研究对照，并非相关论文的完整复现。",
@@ -373,6 +380,10 @@ def main() -> None:
                        "cost_bps": int(cost_bps), "max_weight": max_weight_pct / 100,
                        "target_vol": target_vol_pct / 100}
             with st.spinner(tr("正在校验数据、训练并评估，请等待本次运行结束。", "Validating, training and evaluating; please wait for this run to finish.")):
+                # Keep training dependencies out of the first screen and other studies.
+                from hf_space.engine import make_synthetic_prices, parse_csv, run_simulation
+                from hf_space.history import fetch_history
+
                 external_data = None
                 if mode == "synthetic":
                     prices = make_synthetic_prices(seed=int(seed), periods=400, n_assets=6)

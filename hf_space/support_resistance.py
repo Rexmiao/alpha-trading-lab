@@ -267,6 +267,13 @@ def _run(bars, benchmark, source, cfg):
         prior = frame.loc[frame.timestamp.isin(previous["timestamps"])]
         tables = {field: day.pivot(index="timestamp", columns="symbol", values=field).reindex(stamps)
                   for field in ("open", "high", "low", "close")}
+        # Preserve the explicit schedule/symbol order, then avoid pandas row
+        # indexing inside the bar loop. These arrays expose the same supplied
+        # bars as the existing tables; decision availability is unchanged.
+        stock_opens = tables["open"].loc[:, symbols].to_numpy(float)
+        stock_closes = tables["close"].loc[:, symbols].to_numpy(float)
+        benchmark_opens = tables["open"][benchmark].to_numpy(float)
+        benchmark_closes = tables["close"][benchmark].to_numpy(float)
         paths, pending = {}, {s: {} for s in STRATEGY_IDS}
         for symbol in symbols:
             history = prior.loc[prior.symbol.eq(symbol)].copy()
@@ -284,11 +291,11 @@ def _run(bars, benchmark, source, cfg):
         day_start = {s: a["cash"] for s, a in accounts.items()}
         starts = {s: (a["total_cost"], a["trade_count"]) for s, a in accounts.items()}
         for index, stamp in enumerate(stamps):
-            opening = tables["open"].loc[stamp, symbols].to_numpy(float)
-            closing = tables["close"].loc[stamp, symbols].to_numpy(float)
+            opening = stock_opens[index]
+            closing = stock_closes[index]
             terminal = index == len(stamps) - 1
             bench = accounts["benchmark_rth"]
-            benchmark_open = float(tables["open"].at[stamp, benchmark])
+            benchmark_open = float(benchmark_opens[index])
             if index == 0 or terminal:
                 quantity = math.floor(bench["cash"] / (benchmark_open * (1 + rate))) if index == 0 else -bench["quantities"][0]
                 trade = base._trade(bench, benchmark, 0, quantity, benchmark_open, cfg,
@@ -341,7 +348,7 @@ def _run(bars, benchmark, source, cfg):
                         pending[strategy][execute_index] = selected.copy(), base._iso(stamp + base.BAR_DURATION), ids
                 selected_before[strategy] = selected
             for strategy, account in accounts.items():
-                valuation = [float(tables["close"].at[stamp, benchmark])] if strategy == "benchmark_rth" else closing
+                valuation = [float(benchmark_closes[index])] if strategy == "benchmark_rth" else closing
                 equity = base._equity(account, valuation)
                 if not math.isfinite(equity) or equity <= 0:
                     raise SRError("Non-finite research equity; no result is returned.")

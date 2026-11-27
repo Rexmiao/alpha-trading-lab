@@ -1,12 +1,14 @@
 # Alpha Lab
 
-美股日频DL／GenAI alpha研究，并有独立5分钟动量／趋势基线与本机VeighNa＋moomoo执行试点。研究界面支持中文与English及数学原理页；公开HF不提交订单，本机暂只允许影子／券商模拟，没有实盘路径。
+美股日频DL／GenAI alpha研究，并有独立5分钟动量／趋势基线与本机VeighNa＋moomoo执行试点。托管研究界面默认English，可切换中文，并提供数学原理页；公开HF不提交订单，本机暂只允许影子／券商模拟，没有实盘路径。
 
 第一版比较Ridge、两隐藏层MLP、重采样MLP及条件DDPM增强MLP。另有ADNN平滑IC目标的核心机制实验。这里的MLP与条件收益生成是研究设计，不是ADNN或DARL论文完整复现。
 
 新增独立[Beta测量与五组对照](specs/BETA_RESEARCH_PLAN.md)：moomoo真实历史日K、126／252日OLS、高／低Beta与全池等权，以及80%／100% SPY控制组；月末信号、次日开盘、整数股与交易成本。Hugging Face主内容顶部选择「Beta测量与策略对照」，可查看曲线、个股测量、数学原理与审计JSON；私有快照不开放原始行情下载。低Beta为主题池内相对排名，仍可能大于1；这是历史研究，不是市场中性alpha或券商下单功能。真实运行与发布记录见[部署验收](docs/HUGGINGFACE_DEPLOYMENT.md#090-beta日频测量与五组对照)。
 
-0.10.0新增[5分钟支撑／阻力研究](specs/SUPPORT_RESISTANCE.md)：以前一完整RTH日的冻结高低区域，分别比较支撑反弹、阻力突破、突破后回踩。默认使用已发布moomoo私有5分钟快照，也支持访客CSV和明确标记的教学输入；提供价位／事件图、含成本回测、数学原理及派生JSON。语言切换与五个研究入口位于主内容顶部，数据／参数／运行留在可折叠侧栏，高级参数收起。原始行情不开放下载，研究页不下单；实际发布证据见[HF部署记录](docs/HUGGINGFACE_DEPLOYMENT.md)。
+0.10.0新增[5分钟支撑／阻力研究](specs/SUPPORT_RESISTANCE.md)：以前一完整RTH日的冻结高低区域，分别比较支撑反弹、阻力突破、突破后回踩。默认使用已发布moomoo私有5分钟快照，也支持访客CSV和明确标记的教学输入；提供价位／事件图、含成本回测、数学原理及派生JSON。语言切换与研究入口位于主内容顶部，数据／参数／运行留在可折叠侧栏，高级参数收起。原始行情不开放下载，研究页不下单；实际发布证据见[HF部署记录](docs/HUGGINGFACE_DEPLOYMENT.md)。
+
+0.11.0新增独立[期权结构研究](specs/OPTIONS_RESEARCH.md)：先看[真实数据审计](docs/OPTIONS_DATA_AUDIT.md)，再比较[做市商库存与GEX模型路线](docs/GEX_MODELS_RESEARCH.md)。页面提供逐股价重算的GEX教学情景、期限分解与墙位集中峰，以及保留平坦区间的Max Pain计算器。现有资料缺少可获知时点明确的完整历史期权链；真实做市商库存不可识别，增量预测样本数为0。计算按钮仅使用明确标记的虚构TOY数据，不把教学曲线当真实市场信号。六个研究入口和语言位于主内容顶部，参数保留侧栏；新研究尚不能进入交易执行器。
 
 ## 每日采集与自动交易系统规格
 
@@ -49,7 +51,7 @@ GitHub Pages已启用并发布，部署配置见[操作说明](docs/GITHUB_WORKF
 
 真实历史行情使用左侧 **Upload CSV / 上传 CSV**，基准填写CSV中的代码；本机已准备moomoo固定快照，数据与来源记录保留在`data/cloud-inputs/`，不发布到源码仓库。步骤与口径见[真实历史数据说明](docs/HISTORICAL_DATA.md)。
 
-目前以HF为主；侧栏选择“5分钟动量与趋势”。已发布moomoo快照来源使用固定私有Dataset和独立只读Secret，公开页面只提供研究JSON，不提供原始快照CSV下载。缺少配置时明确停止，不转教学数据。Cloud是可选备用，本轮未重新验收。发布与浏览器验收记录见[部署说明](docs/HUGGINGFACE_DEPLOYMENT.md)，本机后台的运行命令和认证边界见[执行SPEC](specs/VEIGHNA_MOOMOO_SYSTEM.md)。
+目前以HF为主；主内容顶部选择“5分钟动量与趋势”。已发布moomoo快照来源使用固定私有Dataset和独立只读Secret，公开页面只提供研究JSON，不提供原始快照CSV下载。缺少配置时明确停止，不转教学数据。Cloud是可选备用，本轮未重新验收。发布与浏览器验收记录见[部署说明](docs/HUGGINGFACE_DEPLOYMENT.md)，本机后台的运行命令和认证边界见[执行SPEC](specs/VEIGHNA_MOOMOO_SYSTEM.md)。
 
 使用单独Python3.12环境安装云端依赖，再启动：
 

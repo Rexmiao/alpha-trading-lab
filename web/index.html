@@ -1,116 +1,116 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="从日K到可检验的AI alpha：中英双语训练流程、数学原理与交互教学。">
+  <meta name="description" content="From daily bars to testable AI alpha: bilingual training principles, momentum and trend, risk and sizing examples.">
   <meta name="color-scheme" content="light">
-  <title>Alpha Training Lab · 从数据到决策</title>
+  <title>Alpha Training Lab · From data to decisions</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="topbar"><a class="brand" href="#top"><span class="brand-mark">α</span> Alpha Training Lab</a><nav id="topnav" class="topnav" aria-label="页面导航"><a href="#animation" data-i18n="navFlow">训练流程</a><a href="#momentum" data-i18n="navMomentum">动量与趋势</a><a href="#lab" data-i18n="navRisk">风险与仓位</a><a href="#math" data-i18n="navMath">数学原理</a></nav><button id="language" type="button" aria-label="Switch language">English</button></header>
+<header class="topbar"><a class="brand" href="#top"><span class="brand-mark">α</span> Alpha Training Lab</a><nav id="topnav" class="topnav" aria-label="Page navigation"><a href="#animation" data-i18n="navFlow">Training flow</a><a href="#momentum" data-i18n="navMomentum">Momentum & trend</a><a href="#lab" data-i18n="navRisk">Risk & sizing</a><a href="#math" data-i18n="navMath">Mathematics</a></nav><button id="language" type="button" aria-label="Switch to Chinese">中文</button></header>
 <main id="top">
   <section class="hero">
-    <div class="eyebrow" data-i18n="eyebrow">AI 量化研究 · 原理教学</div>
-    <h1 data-i18n="hero">先理解模型怎样学习，<br>再理解分数怎样变成决策。</h1>
-    <p class="lead" data-i18n="lead">从日 K、历史特征与未来答案，走到深度学习、生成式增强、未见期检验和受约束仓位。每一步都要能解释、能检查。</p>
-    <div class="hero-actions"><a class="primary" href="#animation" data-i18n="seeFlow">查看训练流程</a><a href="#momentum" data-i18n="tryMomentum">探索动量与趋势</a><a href="#lab" data-i18n="tryLab">动手理解风险与仓位</a></div>
-    <p class="scope" data-i18n="scope">公开教学演示 · 所有数值均为假设示例 · 不接入账户或交易服务</p>
+    <div class="eyebrow" data-i18n="eyebrow">AI quantitative research · learn the principles</div>
+    <h1 data-i18n="hero">Understand how models learn.<br>Then connect scores to decisions.</h1>
+    <p class="lead" data-i18n="lead">From daily bars, past-only features and historical targets to deep learning, generative augmentation, real held-out evaluation and constrained portfolios. Make every step explainable and testable.</p>
+    <div class="hero-actions"><a class="primary" href="#animation" data-i18n="seeFlow">Explore the training flow</a><a href="#momentum" data-i18n="tryMomentum">Explore momentum & trend</a><a href="#lab" data-i18n="tryLab">Try the risk and allocation lab</a></div>
+    <p class="scope" data-i18n="scope">Public teaching demo · all numbers are illustrative · no account or trading connection</p>
   </section>
 
   <section id="animation" class="section">
-    <div class="section-head"><div><div class="eyebrow" data-i18n="flowTag">从数据到决策</div><h2 data-i18n="flowTitle">一张动图，串起整个研究过程</h2></div><div class="actions"><button id="motion" type="button"></button><a id="downloadGif" href="assets/training-flow.gif" download data-i18n="download">下载 GIF</a></div></div>
-    <div class="animation-surface"><img id="flowImage" src="assets/poster.png" width="1200" height="600" alt="AI alpha训练流程的中英双语教学示意"></div>
-    <p class="caption" data-i18n="gifCaption">GIF 适合 README 快速展示；下面的交互示例用于理解公式。动图没有展示真实回测收益。</p>
+    <div class="section-head"><div><div class="eyebrow" data-i18n="flowTag">From data to decisions</div><h2 data-i18n="flowTitle">One animation, the whole research process</h2></div><div class="actions"><button id="motion" type="button" aria-pressed="false">Play animation</button><a id="downloadGif" href="assets/training-flow-en.gif" download="alpha-training-flow-en.gif" data-i18n="download">Download GIF</a></div></div>
+    <div class="animation-surface"><img id="flowImage" src="assets/poster-en.png" width="1200" height="600" alt="Illustrative AI alpha research workflow in English"></div>
+    <p class="caption" data-i18n="gifCaption">Use the GIF for a quick README overview. Explore the formulas interactively below. The animation contains no actual backtest performance.</p>
     <div class="steps" role="group" aria-label="Training stages">
-      <button type="button" class="selected" data-stage="0" aria-pressed="true" data-i18n="step0">日 K 与时间</button>
-      <button type="button" data-stage="1" aria-pressed="false" data-i18n="step1">历史特征</button>
-      <button type="button" data-stage="2" aria-pressed="false" data-i18n="step2">历史答案</button>
-      <button type="button" data-stage="3" aria-pressed="false" data-i18n="step3">DL 与 GenAI</button>
-      <button type="button" data-stage="4" aria-pressed="false" data-i18n="step4">未见期检验</button>
-      <button type="button" data-stage="5" aria-pressed="false" data-i18n="step5">因子到决策</button>
+      <button type="button" class="selected" data-stage="0" aria-pressed="true" data-i18n="step0">Bars and time</button>
+      <button type="button" data-stage="1" aria-pressed="false" data-i18n="step1">Past-only features</button>
+      <button type="button" data-stage="2" aria-pressed="false" data-i18n="step2">Historical targets</button>
+      <button type="button" data-stage="3" aria-pressed="false" data-i18n="step3">DL and GenAI</button>
+      <button type="button" data-stage="4" aria-pressed="false" data-i18n="step4">Held-out checks</button>
+      <button type="button" data-stage="5" aria-pressed="false" data-i18n="step5">Factor to decision</button>
     </div>
     <div class="stage-detail" aria-live="polite"><span class="stage-number" id="stageNumber">01</span><div><h3 id="stageTitle"></h3><p id="stageText"></p><div class="formula" id="stageFormula"></div></div></div>
   </section>
 
   <section id="momentum" class="section">
-    <div class="section-head"><div><div class="eyebrow" data-i18n="trendTag">四类日频规则</div><h2 data-i18n="trendTitle">动量与趋势：先让简单规则可解释</h2></div><span class="example-tag" data-i18n="toy">教学假设</span></div>
-    <p class="section-intro" data-i18n="trendIntro">相对动量比较股票之间的强弱；趋势规则判断一只股票自身是否进入持有状态。点击一种规则，再改变教学价格，观察信号怎样变化。所有参数都是研究示例。</p>
-    <div id="strategyChoices" class="strategy-cards" role="group" aria-label="选择策略示例">
-      <button type="button" class="strategy-card selected" data-strategy="cs" aria-pressed="true" aria-controls="strategyDetail"><span class="strategy-code">01 · CS</span><span class="strategy-name" data-i18n="csTitle">横截面动量</span><span class="strategy-description" data-i18n="csBrief">比较同一天多只股票的过去60日收益，取相对排名。</span></button>
-      <button type="button" class="strategy-card" data-strategy="ts" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">02 · TS</span><span class="strategy-name" data-i18n="tsTitle">时间序列动量</span><span class="strategy-description" data-i18n="tsBrief">只看自身过去60日收益是否为正，形成持有或现金状态。</span></button>
-      <button type="button" class="strategy-card" data-strategy="ma" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">03 · MA</span><span class="strategy-name" data-i18n="maTitle">双均线趋势过滤</span><span class="strategy-description" data-i18n="maBrief">收盘高于200日均线，且50日均线高于200日均线。</span></button>
-      <button type="button" class="strategy-card" data-strategy="breakout" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">04 · BREAKOUT</span><span class="strategy-name" data-i18n="breakoutTitle">通道突破</span><span class="strategy-description" data-i18n="breakoutBrief">突破前55日高点入场，跌破前20日低点退出；窗口排除当天。</span></button>
+    <div class="section-head"><div><div class="eyebrow" data-i18n="trendTag">Four daily rules</div><h2 data-i18n="trendTitle">Momentum & trend: make simple rules explainable</h2></div><span class="example-tag" data-i18n="toy">Illustrative assumptions</span></div>
+    <p class="section-intro" data-i18n="trendIntro">Cross-sectional momentum compares assets with one another. Trend rules decide whether an asset itself is eligible to hold. Choose a rule and change an illustrative price to inspect its signal. All parameters are research examples.</p>
+    <div id="strategyChoices" class="strategy-cards" role="group" aria-label="Choose a strategy example">
+      <button type="button" class="strategy-card selected" data-strategy="cs" aria-pressed="true" aria-controls="strategyDetail"><span class="strategy-code">01 · CS</span><span class="strategy-name" data-i18n="csTitle">Cross-sectional momentum</span><span class="strategy-description" data-i18n="csBrief">Rank multiple stocks by their past 60-session return on the same date.</span></button>
+      <button type="button" class="strategy-card" data-strategy="ts" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">02 · TS</span><span class="strategy-name" data-i18n="tsTitle">Time-series momentum</span><span class="strategy-description" data-i18n="tsBrief">Check whether the asset’s own past 60-session return is positive: hold or stay in cash.</span></button>
+      <button type="button" class="strategy-card" data-strategy="ma" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">03 · MA</span><span class="strategy-name" data-i18n="maTitle">Moving-average trend filter</span><span class="strategy-description" data-i18n="maBrief">Close above the 200-session SMA, with the 50-session SMA above the 200-session SMA.</span></button>
+      <button type="button" class="strategy-card" data-strategy="breakout" aria-pressed="false" aria-controls="strategyDetail"><span class="strategy-code">04 · BREAKOUT</span><span class="strategy-name" data-i18n="breakoutTitle">Channel breakout</span><span class="strategy-description" data-i18n="breakoutBrief">Enter above the previous 55-session high; exit below the previous 20-session low. Exclude today.</span></button>
     </div>
     <article id="strategyDetail" class="trend-lab">
       <div class="trend-controls">
         <h3 id="trendRuleTitle"></h3><p id="trendRuleText"></p>
-        <label for="trendPrice"><span data-i18n="trendPriceLabel">资产A当前收盘（教学价）</span><output id="trendPriceOut" for="trendPrice"></output></label><input id="trendPrice" type="range" min="80" max="130" step="1" value="110">
-        <div id="trendMaControl" hidden><label for="trendMaPast"><span data-i18n="trendMaLabel">前49日收盘均价</span><output id="trendMaOut" for="trendMaPast"></output></label><input id="trendMaPast" type="range" min="90" max="115" step="1" value="105"></div>
-        <div id="trendHeldControl" hidden><label class="check-label" for="trendHeld"><input id="trendHeld" type="checkbox"><span data-i18n="trendHeldLabel">假设当前已经持有资产A</span></label></div>
+        <label for="trendPrice"><span data-i18n="trendPriceLabel">Asset A’s current close (illustrative)</span><output id="trendPriceOut" for="trendPrice"></output></label><input id="trendPrice" type="range" min="80" max="130" step="1" value="110">
+        <div id="trendMaControl" hidden><label for="trendMaPast"><span data-i18n="trendMaLabel">Mean close over the previous 49 sessions</span><output id="trendMaOut" for="trendMaPast"></output></label><input id="trendMaPast" type="range" min="90" max="115" step="1" value="105"></div>
+        <div id="trendHeldControl" hidden><label class="check-label" for="trendHeld"><input id="trendHeld" type="checkbox"><span data-i18n="trendHeldLabel">Assume asset A is already held</span></label></div>
         <p id="trendAssumptions" class="caption"></p>
       </div>
       <div class="trend-explanation" aria-live="polite" aria-atomic="true">
         <div id="trendFormula" class="formula"></div>
         <div class="result-line"><span id="trendResultLabel"></span><strong id="trendResult" class="number"></strong></div>
         <p id="trendOutcome" class="detail"></p>
-        <div id="trendComparison" class="table-wrap"><table><thead><tr><th data-i18n="asset">资产</th><th data-i18n="trendReturn">过去60日收益</th><th data-i18n="trendScore">排名百分位</th></tr></thead><tbody id="trendRows"></tbody></table></div>
+        <div id="trendComparison" class="table-wrap"><table><thead><tr><th data-i18n="asset">Asset</th><th data-i18n="trendReturn">Past 60-session return</th><th data-i18n="trendScore">Rank percentile</th></tr></thead><tbody id="trendRows"></tbody></table></div>
         <p id="trendScoreNote" class="caption"></p>
       </div>
     </article>
-    <div class="trend-boundary"><p data-i18n="trendTiming"><strong>收盘确定信号，下一交易日开盘模拟成交。</strong>60日、50/200日和55/20日是示例窗口，不是验证过的最优参数；窗口均指交易日。日频规则可回测，分钟级研究需要独立的分钟行情、成本和成交验证。</p><p data-i18n="trendUnits">排名、0/1状态和通道规则都是交易信号，不是已校准的未来收益率。不要把它们直接与以bps计的成本门槛比较；实际仓位、费用与现金要在统一回测中另行计算。</p></div>
-    <div class="research-links"><div><h3 data-i18n="trendRunTitle">去研究应用运行实际实验</h3><p data-i18n="trendRunText">可选择自己的moomoo CSV、在线历史快照或明确标注的合成示例。本页只演示规则，不获取行情，也不展示真实策略收益。</p></div><div class="actions"><a class="primary" href="https://rexymiao-alpha-trading-lab.hf.space" target="_blank" rel="noopener" data-i18n="openHf">打开 Hugging Face 应用</a><a href="https://alpha-trading-lab-rnb8nqgww7tgbdvgdcysxm.streamlit.app/" target="_blank" rel="noopener" data-i18n="openStreamlit">打开 Streamlit Cloud 应用</a></div></div>
+    <div class="trend-boundary"><p data-i18n="trendTiming"><strong>Determine the signal after close; simulate execution at the next session’s open.</strong> The 60, 50/200 and 55/20-session windows are examples, not validated optimal parameters. Daily rules can be backtested; minute-level research requires separate intraday data, costs and execution checks.</p><p data-i18n="trendUnits">Rankings, binary states and channel rules are trading signals, not calibrated future-return forecasts. Do not compare them directly with a cost threshold measured in bps. Position sizing, fees and cash still need a common backtest.</p></div>
+    <div class="research-links"><div><h3 data-i18n="trendRunTitle">Run actual experiments in the research app</h3><p data-i18n="trendRunText">Choose your moomoo CSV, an online historical snapshot or an explicitly labeled synthetic example. This page only explains rules: it fetches no market observations and shows no actual strategy returns.</p></div><div class="actions"><a class="primary" href="https://rexymiao-alpha-trading-lab.hf.space" target="_blank" rel="noopener" data-i18n="openHf">Open Hugging Face app</a><a href="https://alpha-trading-lab-rnb8nqgww7tgbdvgdcysxm.streamlit.app/" target="_blank" rel="noopener" data-i18n="openStreamlit">Open Streamlit Cloud app</a></div></div>
   </section>
 
   <section id="lab" class="section">
-    <div class="section-head"><div><div class="eyebrow" data-i18n="labTag">动手探索</div><h2 data-i18n="labTitle">波动估计改变仓位，未必改变涨跌预测</h2></div><span class="example-tag" data-i18n="toy">教学假设</span></div>
+    <div class="section-head"><div><div class="eyebrow" data-i18n="labTag">Explore the mechanics</div><h2 data-i18n="labTitle">Risk estimates change sizing, not necessarily direction forecasts</h2></div><span class="example-tag" data-i18n="toy">Illustrative assumptions</span></div>
     <div class="lab-grid">
       <article class="lab-panel">
-        <h3 data-i18n="ewmaTitle">EWMA：最近的冲击占多少权重？</h3>
-        <p data-i18n="ewmaIntro">假设旧的日波动率为 2%。改变平滑系数和最近一天已发生的收益，观察下一日风险估计。</p>
-        <label for="lambda"><span data-i18n="lambdaLabel">平滑系数 λ</span><output id="lambdaOut" for="lambda"></output></label><input id="lambda" type="range" min="0.80" max="0.99" step="0.01" value="0.94">
-        <label for="shock"><span data-i18n="shockLabel">最近一天收益率</span><output id="shockOut" for="shock"></output></label><input id="shock" type="range" min="-8" max="8" step="0.5" value="-3">
+        <h3 data-i18n="ewmaTitle">EWMA: how much weight goes to the latest shock?</h3>
+        <p data-i18n="ewmaIntro">Assume an old daily volatility of 2%. Change the smoothing coefficient and the latest observed return to inspect the next-day risk estimate.</p>
+        <label for="lambda"><span data-i18n="lambdaLabel">Smoothing coefficient λ</span><output id="lambdaOut" for="lambda"></output></label><input id="lambda" type="range" min="0.80" max="0.99" step="0.01" value="0.94">
+        <label for="shock"><span data-i18n="shockLabel">Latest observed daily return</span><output id="shockOut" for="shock"></output></label><input id="shock" type="range" min="-8" max="8" step="0.5" value="-3">
         <div class="formula">σ²<sub>new</sub> = λ · σ²<sub>old</sub> + (1 − λ) · r²</div>
-        <div class="result-line"><span data-i18n="newVol">下一日估计波动率</span><strong id="volOut" class="number"></strong></div>
+        <div class="result-line"><span data-i18n="newVol">Estimated next-day volatility</span><strong id="volOut" class="number"></strong></div>
         <div class="mix-track" aria-hidden="true"><span id="oldMix"></span><span id="newMix"></span></div>
         <div class="mix-legend"><span><i class="old-dot"></i><span id="oldWeight"></span></span><span><i class="new-dot"></i><span id="newWeight"></span></span></div>
         <p id="ewmaDetail" class="detail" aria-live="polite"></p>
-        <p class="caption" data-i18n="ewmaCaveat">条形表示混合系数，不是方差贡献比例。本例忽略均值；完整研究还需考虑股票之间的协方差。</p>
+        <p class="caption" data-i18n="ewmaCaveat">The bar shows mixing coefficients, not shares of total variance. This example assumes zero mean; a full portfolio also needs cross-asset covariances.</p>
       </article>
       <article class="lab-panel">
-        <h3 data-i18n="weightsTitle">从预测分数到目标仓位</h3>
-        <p data-i18n="weightsIntro">三个假设资产的五日收益预测为 1.2%、0.5%、0.05%；年化波动率为 30%、20%、40%。先过成本门槛，再分配风险。</p>
-        <label for="cost"><span data-i18n="costLabel">单边交易成本</span><output id="costOut" for="cost"></output></label><input id="cost" type="range" min="0" max="100" step="5" value="10">
-        <label for="cap"><span data-i18n="capLabel">单个资产仓位上限</span><output id="capOut" for="cap"></output></label><input id="cap" type="range" min="10" max="50" step="5" value="20">
-        <label for="risk"><span data-i18n="riskLabel">组合年化波动预算</span><output id="riskOut" for="risk"></output></label><input id="risk" type="range" min="5" max="30" step="1" value="15">
-        <div class="table-wrap"><table><thead><tr><th data-i18n="asset">资产</th><th data-i18n="forecast">预测</th><th data-i18n="gate">过门槛</th><th data-i18n="weight">目标权重</th></tr></thead><tbody id="weightRows"></tbody></table></div>
+        <h3 data-i18n="weightsTitle">From forecast scores to target weights</h3>
+        <p data-i18n="weightsIntro">Three hypothetical assets have five-day excess-return forecasts of 1.2%, 0.5%, and 0.05%, and annual volatility of 30%, 20%, and 40%. Apply the cost gate before sizing risk.</p>
+        <label for="cost"><span data-i18n="costLabel">One-way trading cost</span><output id="costOut" for="cost"></output></label><input id="cost" type="range" min="0" max="100" step="5" value="10">
+        <label for="cap"><span data-i18n="capLabel">Maximum weight per asset</span><output id="capOut" for="cap"></output></label><input id="cap" type="range" min="10" max="50" step="5" value="20">
+        <label for="risk"><span data-i18n="riskLabel">Annual portfolio-volatility budget</span><output id="riskOut" for="risk"></output></label><input id="risk" type="range" min="5" max="30" step="1" value="15">
+        <div class="table-wrap"><table><thead><tr><th data-i18n="asset">Asset</th><th data-i18n="forecast">Forecast</th><th data-i18n="gate">Pass gate</th><th data-i18n="weight">Target weight</th></tr></thead><tbody id="weightRows"></tbody></table></div>
         <div class="allocation-track" id="allocationTrack" aria-hidden="true"></div>
-        <div class="result-line"><span data-i18n="cash">剩余现金</span><strong id="cashOut" class="number"></strong></div>
+        <div class="result-line"><span data-i18n="cash">Residual cash</span><strong id="cashOut" class="number"></strong></div>
         <p class="detail" id="weightDetail" aria-live="polite"></p>
-        <p class="caption" data-i18n="weightCaveat">示例固定保留至少 20% 现金、资产相关系数为 0.4。封顶后不重新分配，风险缩放只减仓；这里没有可发送的订单。</p>
+        <p class="caption" data-i18n="weightCaveat">Assume a minimum cash reserve of 20% and pairwise correlation of 0.4. Caps are not redistributed; risk scaling only reduces positions. No executable orders exist here.</p>
       </article>
     </div>
   </section>
 
   <section id="math" class="section">
-    <div class="section-head"><div><div class="eyebrow" data-i18n="mathTag">数学原理</div><h2 data-i18n="mathTitle">知道每个数字从哪里来</h2></div></div>
+    <div class="section-head"><div><div class="eyebrow" data-i18n="mathTag">The mathematics</div><h2 data-i18n="mathTitle">Know where each number comes from</h2></div></div>
     <div class="math-grid">
-      <details open><summary data-i18n="targetTitle">预测目标与交易时点</summary><div class="formula">y<sub>i,t</sub> = O<sub>i,t+h+1</sub> / O<sub>i,t+1</sub> − O<sub>b,t+h+1</sub> / O<sub>b,t+1</sub></div><p data-i18n="targetText">第一版 h = 5：收盘后形成信号，用 t+1 开盘到 t+6 开盘的五日收益，减去基准 SPY 同期收益。历史训练可以用后来已知的答案，实时预测不能使用尚未发生的答案。</p></details>
-      <details><summary data-i18n="lossTitle">深度学习怎样更新参数</summary><div class="formula">ŷ = f<sub>θ</sub>(X)　 L = mean[(ŷ − y)²]<br>θ ← θ − η · ∇<sub>θ</sub>L</div><p data-i18n="lossText">网络先预测，再计算误差，用梯度调整参数。标准化只拟合训练期。这里展示的是基本梯度思想；实际可使用 Adam 等优化器。</p></details>
-      <details><summary data-i18n="genTitle">生成式 AI 增加了什么</summary><div class="formula">y<sub>k</sub> = √ᾱ<sub>k</sub> y<sub>0</sub> + √(1 − ᾱ<sub>k</sub>) ε<br>p<sub>θ</sub>(y | X<sub>past</sub>)</div><p data-i18n="genText">条件扩散模型在训练期学习收益分布，逐步去噪生成与历史条件配套的样本。合成样本不是新的真实市场证据；要与真实数据训练和重采样对照，在未见过的真实时期评价。</p></details>
-      <details><summary data-i18n="icTitle">IC 与收益曲线各自说明什么</summary><div class="formula">Rank IC<sub>t</sub> = corr(rank(ŷ<sub>i,t</sub>), rank(y<sub>i,t</sub>))</div><p data-i18n="icText">同一天比较多只股票的预测排序和实际排序。IC 衡量预测关系，净值还受到仓位、市场暴露、成本和成交时点影响。五日标签会重叠，不能把相邻日期当作独立样本。</p></details>
-      <details><summary data-i18n="decisionTitle">因子如何转成决策</summary><div class="formula">w̃<sub>i</sub> ∝ 1 / σ<sub>i</sub><br>σ<sub>p</sub> = √(wᵀΣw)<br>s = min(1, budget / σ<sub>p</sub>)</div><p data-i18n="decisionText">预测分数先判断是否值得交易。通过后按逆波动分配，加入单股上限、现金和组合风险约束。排名分数若没有收益单位，还需在独立验证期校准，才能与成本比较。</p></details>
-      <details><summary data-i18n="levyTitle">为什么先从 EWMA 开始</summary><p data-i18n="levyText">第一步先建立可检查的风险尺度。厚尾、跳跃和波动聚集是不同问题；常参数 Lévy 收益过程不会自动描述持续变化的波动。更复杂的模型应由具体研究问题和样本外检验来决定。</p><a href="https://arch.readthedocs.io/en/stable/univariate/generated/arch.univariate.EWMAVariance.html" target="_blank" rel="noopener" data-i18n="ewmaSource">EWMA 官方定义</a></details>
+      <details open><summary data-i18n="targetTitle">Prediction targets and execution timing</summary><div class="formula">y<sub>i,t</sub> = O<sub>i,t+h+1</sub> / O<sub>i,t+1</sub> − O<sub>b,t+h+1</sub> / O<sub>b,t+1</sub></div><p data-i18n="targetText">Version one uses h = 5: form a signal after close, measure the five-session return from the t+1 open to the t+6 open, and subtract the same SPY return. Historical training can use outcomes known later; a live forecast cannot use outcomes that have not happened.</p></details>
+      <details><summary data-i18n="lossTitle">How deep learning updates parameters</summary><div class="formula">ŷ = f<sub>θ</sub>(X)　 L = mean[(ŷ − y)²]<br>θ ← θ − η · ∇<sub>θ</sub>L</div><p data-i18n="lossText">The network predicts, measures its error, then adjusts parameters using gradients. Fit preprocessing only on training data. This is the basic gradient idea; an implementation may use an optimizer such as Adam.</p></details>
+      <details><summary data-i18n="genTitle">What generative AI adds</summary><div class="formula">y<sub>k</sub> = √ᾱ<sub>k</sub> y<sub>0</sub> + √(1 − ᾱ<sub>k</sub>) ε<br>p<sub>θ</sub>(y | X<sub>past</sub>)</div><p data-i18n="genText">A conditional diffusion model learns from training-period outcomes and gradually denoises samples paired with historical inputs. Synthetic samples are not new market evidence. Compare against real-data training and resampling on the same real held-out period.</p></details>
+      <details><summary data-i18n="icTitle">What IC and portfolio equity each measure</summary><div class="formula">Rank IC<sub>t</sub> = corr(rank(ŷ<sub>i,t</sub>), rank(y<sub>i,t</sub>))</div><p data-i18n="icText">Within the same date, compare forecast rankings with realized-return rankings across stocks. IC measures predictive association. Equity also depends on position sizing, market exposure, costs and timing. Overlapping five-day labels are not independent observations.</p></details>
+      <details><summary data-i18n="decisionTitle">How factors become decisions</summary><div class="formula">w̃<sub>i</sub> ∝ 1 / σ<sub>i</sub><br>σ<sub>p</sub> = √(wᵀΣw)<br>s = min(1, budget / σ<sub>p</sub>)</div><p data-i18n="decisionText">Forecast scores first pass a cost gate. Eligible assets receive inverse-volatility weights, position caps, cash reserves and portfolio-risk limits. A unitless ranking score must be calibrated on separate validation data before comparison with return costs.</p></details>
+      <details><summary data-i18n="levyTitle">Why start with EWMA</summary><p data-i18n="levyText">Start with a risk scale that can be checked. Heavy tails, jumps and volatility clustering are different questions; a constant-parameter Lévy return process does not automatically model persistent volatility. Add complexity when a research question and held-out evidence justify it.</p><a href="https://arch.readthedocs.io/en/stable/univariate/generated/arch.univariate.EWMAVariance.html" target="_blank" rel="noopener" data-i18n="ewmaSource">Official EWMA definition</a></details>
     </div>
   </section>
 
   <section class="section readme-section">
-    <div><div class="eyebrow">README</div><h2 data-i18n="readmeTitle">把研究过程放进项目说明</h2><p data-i18n="readmeText">将 GIF 保存到仓库，再用相对路径嵌入 README。动画用于概览，这个网页用于交互探索；完整研究程序在独立环境运行。</p></div>
-    <div class="snippet"><code id="readmeSnippet">![AI alpha training flow](docs/media/alpha-training-flow.gif)</code><button id="copy" type="button" data-i18n="copy">复制 Markdown</button><span id="copyStatus" aria-live="polite"></span></div>
+    <div><div class="eyebrow">README</div><h2 data-i18n="readmeTitle">Put the research process in your project README</h2><p data-i18n="readmeText">Save the GIF in a repository and embed it using a relative path. The animation gives an overview; this page supports interaction. The full research program runs in a separate environment.</p></div>
+    <div class="snippet"><code id="readmeSnippet">![AI alpha training flow](docs/media/en/alpha-training-flow.gif)</code><button id="copy" type="button" data-i18n="copy">Copy Markdown</button><span id="copyStatus" aria-live="polite"></span></div>
   </section>
 </main>
-<footer><span>Alpha Training Lab</span><span data-i18n="footer">教学示例 · 无真实行情、账户或订单 · 不构成策略有效性证明</span></footer>
-<script src="main.js?v=3"></script>
+<footer><span>Alpha Training Lab</span><span data-i18n="footer">Illustrative teaching · no real market observations, accounts or orders · not evidence of strategy effectiveness</span></footer>
+<script src="main.js?v=4"></script>
 </body>
 </html>
