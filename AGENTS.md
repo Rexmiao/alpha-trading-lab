@@ -22,4 +22,4 @@
 
 - 提醒、半自动与全自动是同一策略引擎的可选执行策略；automation_mode与execution_environment、workflow_kind分开。模式切换不重写信号、不补执行旧提醒，不自动迁移在途订单或升级为真钱账户；M1仍固定CAPTURE＋ALERT_ONLY＋NONE。
 - 用户已确认SNR指Support & Resistance（支撑／阻力），不是Signal-to-Noise Ratio。原始研究、开源实现与因果时点要求见docs/MOMENTUM_TREND.md的SNR章节；目前仅研究与候选设计，没有新增SNR策略、HF页面或券商委托能力。不能将现有ORB或未来确认的pivot回填描述为完整SNR实现。
-- Beta专题原始研究与当前指数方法见docs/BETA_STRATEGIES_RESEARCH.md，待实现实验契约见specs/BETA_RESEARCH_PLAN.md。当前没有真实Beta估计、高／低Beta策略、Beta-cap或指数对冲；合成数据里的beta系数不等于已估计真实Beta。股票收益减SPY不是Beta调整alpha，低波动不是低Beta，原BAB也不是仅买低Beta。后续先做日频测量和无杠杆基线，不能把研究中的杠杆／空头权重接入当前多头执行器。
+- Beta专题原始研究见docs/BETA_STRATEGIES_RESEARCH.md，实施契约见specs/BETA_RESEARCH_PLAN.md。0.9.0实现真实日K的126／252日测量及高／低Beta、全池等权、80%与100% SPY五组无杠杆对照；HF日K使用独立daily/私有命名空间，原始行情不开放下载。Beta-cap、动态Beta、指数对冲与BAB未实现；股票收益减SPY不是Beta调整alpha，低波动不是低Beta，池内低Beta不保证Beta<1，截距不是Jensen alpha。不得将研究结果接入执行器或将杠杆／空头权重传入现有多头账本；部署、私有读取、历史回测与券商成交分别验收。

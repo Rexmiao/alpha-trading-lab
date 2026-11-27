@@ -52,6 +52,51 @@ $env:ALPHA_SNAPSHOT_TOKEN_DPAPI = 'C:\Users\Rexy\Documents\ChatGPT\量化准备\
 
 Windows真实运行修复：若从PowerShell7启动，旧实现可能让Windows PowerShell5继承不兼容PSModulePath，从而报LOCAL_PROTECTED_TOKEN_UNAVAILABLE，即使DPAPI凭据有效。当前发布器对子进程使用绝对powershell.exe路径和仅系统模块环境，已通过真实凭据再读取。不要仅因该旧错误重新生成或转存明文令牌。
 
+## 日K私有快照与Beta研究
+
+本节使用同一个Private Dataset `Rexymiao/alpha-trading-snapshots`，但与5分钟快照采用独立命名空间。日K发布器只提交以下三个文件，不修改旧的根目录`latest.json`或`snapshots/`五分钟历史：
+
+```text
+daily/latest.json
+daily/snapshots/<CSV SHA256>/bars.csv
+daily/snapshots/<CSV SHA256>/manifest.json
+```
+
+管理者沿用已配置的本机Dataset专用写凭据；HF沿用`ALPHA_SNAPSHOT_DATASET`与独立的`ALPHA_SNAPSHOT_READ_TOKEN`。不用另建Dataset，不替换GitHub的`HF_TOKEN`，也不需要券商凭据。HF加载时先核实仓库仍为Private，再固定到一个commit revision，逐项检查日K指针、路径、字节数和SHA256；同次研究使用固定快照，不在参数对比中静默更换数据。日K原始OHLCV只保留在服务端会话，访客不获得原始CSV下载，研究结果JSON可以保存。
+
+### 数据契约与本机准备
+
+日K CSV严格为UTF-8七列`date,symbol,open,high,low,close,volume`。`date`是`YYYY-MM-DD`的交易所交易日，不是5分钟UTC开盘时间。当前口径标为`session=provider_daily`、`price_basis=moomoo_forward_adjusted_ohlcv`、`rehab_type=1`；它是供方前复权日K，不宣称已验证为纯RTH或独立总收益序列。价格、成交量、重复键、实际XNYS交易日、最终收盘后20分钟缓冲及已知上市／重启边界都会检查，不补上市前数据或缺失价格。
+
+上限为12MiB、80,000行、1260个日期、60只股票加SPY，日期跨度不超过3653个日历日。源manifest还须包含`source=moomoo`、`status=success`、`interval=1d`、`read_only=true`、`benchmark=SPY`、收集时间及CSV哈希／字节数／行数；`normalization`明确XNYS、完成交易日验证、配置边界已应用及当前证券起点。已知边界为SNDK 2025-02-24、CRWV 2025-03-28、NBIS 2024-10-21，仅列入快照包含的证券。发布的manifest只保留白名单字段及来源文件指纹，不带完整collector响应、本机路径、账户或密钥。
+
+先在项目目录运行本机准备器。它校验现有`data/manifest.json`及每份来源文件哈希，沿用日K加载器的清洗和证券边界，输出到新的忽略目录，不采集行情、不读取令牌、不联网，也不覆盖旧快照。使用含pandas、NumPy、exchange-calendars及发布SDK的独立环境；新机器按项目固定依赖建立环境，不将缺包误报为HF认证错误。
+
+```powershell
+& '.\state\intraday-venv\Scripts\python.exe' '.\scripts\prepare_moomoo_daily_snapshot.py'
+```
+
+2026-11-26美东已准备的本机快照为`data/daily/20261127T034215Z_ceeb07491434/`；目录时间使用UTC，因此日期可与美东不同。其CSV为43,907行、46个证券（45只股票加SPY）、SPY覆盖1000个交易日，整体日期为2022-12-01至2026-11-25，3,186,590字节。CSV SHA256为`ceeb074914341a862c5c640f8d0ef8a3a9678a5ca98d1b17211f2e510a21f9bf`。证券历史长度不必相同，实际Beta资格仍由每个当时窗口决定，不能把这些总行数当作所有股票都有1000日历史。
+
+### 本机校验和显式发布
+
+下面首个命令只做本机验证，未加`--publish`时不读取令牌或访问HF：
+
+```powershell
+& '.\state\intraday-venv\Scripts\python.exe' '.\scripts\sync_moomoo_daily_snapshot.py' --csv '.\data\daily\20261127T034215Z_ceeb07491434\bars.csv' --source-manifest '.\data\daily\20261127T034215Z_ceeb07491434\source-manifest.json'
+
+$env:ALPHA_SNAPSHOT_TOKEN_DPAPI = 'C:\Users\Rexy\Documents\ChatGPT\量化准备\alpha-paper-runtime\hf-snapshot-write-token.dpapi'
+& '.\state\intraday-venv\Scripts\python.exe' '.\scripts\sync_moomoo_daily_snapshot.py' --csv '.\data\daily\20261127T034215Z_ceeb07491434\bars.csv' --source-manifest '.\data\daily\20261127T034215Z_ceeb07491434\source-manifest.json' --publish
+```
+
+发布前再次核验固定私有目标，采用预期父提交把三个日K文件原子提交。内容寻址CSV及manifest已存在时拒绝覆盖；上传结果不明时先核对远端，不盲重试。DPAPI须在实际配置凭据的Windows用户进程使用，不把令牌写入命令、永久环境、源码或聊天。
+
+### 日K云端验收状态
+
+**当前状态：本机日K准备已完成；真实日K私有上传、Space独立读取及公网Beta回测尚待验收。** 已有5分钟上传／读取成功记录不代替日K链路验收，离线测试通过也不表示日K已在公网可用。没有创建日K常驻同步或任务计划。
+
+验收应分别记录日KDataset revision、Space实际读取的相同revision与CSV哈希／行数／截至交易日、Beta五组真实数据结果、双语切换及JSON下载行为，并确认没有原始CSV下载或失败转教学数据。原5分钟入口和指针还须继续可读；日KBeta研究与本机券商下单流程分别验收。
+
 ## 与本机交易的分工
 
 本机交易运行器按交易日历在5分钟bar完成后采集、生成信号并记录状态；券商模拟委托在本机经独立风控与认证处理。HF读取的是有来源的历史研究快照，首版研究仍要求共同完整交易日，未完成当天不会被悄悄当作完整日加入收益评价。

@@ -229,7 +229,7 @@ score_kind 必须区分 raw_factor、rank_score、expected_excess_return。直�
 
 相对收益预测也不是绝对上涨预测；未来组合层须明确跟踪基准、市场／行业风险及现金政策。当前真实历史实验不支持直接宣称已发现有效 alpha，M1 工程验收与盈利检验分别进行。
 
-2026-11-26新增[Beta专题研究](../docs/BETA_STRATEGIES_RESEARCH.md)及[待实现实验契约](BETA_RESEARCH_PLAN.md)：明确估计器／收益口径、共同日历、已知时点、缺历史失败、预测／实现Beta、无杠杆高低Beta基线与现金减仓覆盖层。当前日频标签与M1执行约束不变；Beta调整标签须独立版本与purge，BAB／指数对冲另需多空、融资和借券账本，尚未实现。
+2026-11-26新增[Beta专题研究](../docs/BETA_STRATEGIES_RESEARCH.md)及[实施契约](BETA_RESEARCH_PLAN.md)。0.9.0独立HF研究实现126／252日OLS、高／低Beta、全池等权及80%／100% SPY五组历史对照，明确共同日历、已知时点、缺历史失败、事前／实现Beta与含成本整数股账本。该研究未接入M1或执行适配器，现金减仓Beta-cap仍待实现。当前日频标签与M1执行约束不变；Beta调整标签须独立版本与purge，BAB／指数对冲另需多空、融资和借券账本，尚未实现。
 
 ## 9. 持久化、标识与恢复
 

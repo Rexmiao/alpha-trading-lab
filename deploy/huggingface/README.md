@@ -30,6 +30,17 @@ pandas and PyArrow table conversion before publishing the image.
 - Run bounded simulations and public history requests only after an explicit user action.
 - Download a session-only online price CSV snapshot and source JSON for repeatability; provider errors are explicit and never replaced with synthetic data.
 - Compare Ridge, MLP, resampling and conditional-DDPM augmentation.
+- Measure daily market Beta with a predeclared 126- or 252-return OLS window.
+  Compare high/low Beta, eligible-universe equal weight, 80% SPY/cash and 100%
+  SPY over one common evaluation window, with next-open integer-share execution
+  and per-side costs. Stock baskets target 80% stocks/20% cash; Beta ranks are
+  relative to this thematic universe, not official indices or BAB replication.
+  A bilingual mathematics tab separates Beta, total volatility and alpha.
+- The Beta page reads published daily bars from the independent `daily/`
+  namespace of the same private dataset, with the same dataset-only read secret;
+  visitors can alternatively upload a bounded daily CSV. Original private daily
+  OHLCV is not downloadable. Derived research JSON includes provenance, settings,
+  measurements, holdings and curves, with no brokerage or order interface.
 - Explore four daily rules or a separate 5-minute momentum/trend page with
   UTC bar-start CSV inputs, exchange-calendar RTH validation, daily aggregation
   and bilingual mathematical explanations. Intraday fills are OHLC proxies;

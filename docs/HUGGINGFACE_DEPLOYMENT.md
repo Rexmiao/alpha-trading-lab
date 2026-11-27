@@ -1,6 +1,6 @@
 # Hugging Face Docker 发布准备
 
-最新0.8.1进度：Private Dataset已实际上传468行真实moomoo快照并核对hash，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；用户完成Space独立读取配置后，新访客已读通并实际运行三种策略，来源／行数／hash／as_of全部一致，研究JSON可下载、无原始CSV下载。自动watch未启动。设置入口为[本Space的Settings](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab/settings)，详细值见[操作说明](MOOMOO_CLOUD_SYNC.md)。历史0.8.0验收保留文末。[新鲜测试展示与命令](ACCEPTANCE_DEMO.md)
+历史0.8.1进度（最新Beta见文末0.9.0）：Private Dataset已实际上传468行真实moomoo快照并核对hash，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；用户完成Space独立读取配置后，新访客已读通并实际运行三种策略，来源／行数／hash／as_of全部一致，研究JSON可下载、无原始CSV下载。自动watch未启动。设置入口为[本Space的Settings](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab/settings)，详细值见[操作说明](MOOMOO_CLOUD_SYNC.md)。历史0.8.0验收保留文末。[新鲜测试展示与命令](ACCEPTANCE_DEMO.md)
 
 这是云端 Python 研究界面的发布说明。Hugging Face是主要交互入口，GitHub Pages保留静态教学页，Streamlit Cloud是可选备用。0.8.0新增私有快照读取，最新验收见文末；前面版本的记录属于历史里程碑。容器启动、页面交互和源码上传分别核对，应用本身不包含发布凭据。
 
@@ -88,11 +88,11 @@ docker run --rm -p 7860:7860 alpha-lab-simulator
 
 上传前会检查：
 
-- 当前本地包必须恰好是19个允许文件（18源码及MANIFEST），路径、字节数与所有SHA256一致；符号链接、额外内容、缺失或变动中的包均拒绝。
+- 当前本地包必须恰好是22个允许文件（21源码及MANIFEST），路径、字节数与所有SHA256一致；符号链接、额外内容、缺失或变动中的包均拒绝。
 - `whoami`确认个人身份与目标owner一致；目标必须已存在、为Docker且公开。
 - 从Space资料和最新runtime核对硬件：所有明确值只能是`cpu-basic`，至少一项明确为`cpu-basic`。首次构建允许current未知但requested为basic；未设置requested时允许current为basic。两项仍全未知或任何一项是其他硬件均停止，不自动改设置。
 - 远端文件只能是同一发布包的白名单文件或平台生成的`.gitattributes`；发现其他项目文件时停止，不删除或覆盖它们。
-- 使用明确的19个`CommitOperationAdd`和已读取的`parent_commit`提交，不使用全目录上传、不删除远端文件。若远端有并发提交，停止并重新核对，不强制覆盖。
+- 使用明确的22个`CommitOperationAdd`和已读取的`parent_commit`提交，不使用全目录上传、不删除远端文件。若远端有并发提交，停止并重新核对，不强制覆盖。
 
 完成后的输出包含 `code_uploaded`、Space仓库网址及commit。只有收到有效commit标识时，`code_uploaded`才为`true`；这仅证明代码上传，即使观察到runtime为RUNNING，也未证明新commit对应的应用已构建完成。实际上线仍须核对该commit的构建日志、App页面和交互功能。上传后读取runtime失败时会分别保留“代码已上传”和状态查询错误，不能误报为没有发生上传。提交请求报错、响应丢失或回应缺少有效commit标识时，`code_uploaded`为`null`，表示结果未确认；应先核对远端commit，不能认定没有写入或盲目重试。
 
@@ -174,3 +174,27 @@ Cloud独立请求的CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d
 用户保存独立Dataset变量和只读Secret后，fresh访客实际从私有revision `81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`取到468行／28908字节、截至2026-11-25T21:00:00Z的SPY／NVDA数据，SHA256与本机一致。source=moomoo_snapshot，没有教学回退，3个共同完整／可执行日、9条逐日结果，三规则均success。JSON原生下载并在英文切换后保持相同字节，SHA256为`7fb87ddb0fc521b29a25961458b893c0a544e9adb0aa6c3a7ba3311bd825002d`；无原始CSV下载。证据仅留本机`state/hf-real-qa/savedconfig-20261126T145207/`。
 
 三日含成本总收益分别约−1.2467%（正动量）、−1.0642%（均线趋势）、−0.3407%（开盘区间突破）。这次用于链路与策略实现验证，短样本不展示夏普，不据此选最优策略或证明alpha。实际运行Python3.12.16／NumPy1.26.4／pandas2.2.2／Streamlit1.67.0／PyArrow25.0.1。真实行情研究、真实券商模拟成交及常驻同步是三种独立验收；后两项未完成，Cloud备用入口未重新验收。
+
+## 0.9.0 Beta日频测量与五组对照
+
+应用新增第四个独立页面「Beta测量与策略对照」，默认读取moomoo私有日K，也支持访客七列CSV。原AI、日频规则及5分钟页面保留；Beta研究没有接入账户或执行器。上传传输上限提高为12MiB以容纳Beta输入，各原页面的更小解析限制保留。Docker包为22文件（21源码＋MANIFEST），增加beta.py、beta_ui.py、daily_snapshot_source.py；本机准备／发布脚本不进入HF包。
+
+真实采集46个成功响应、0错误。规范化43907行、45只主题股加SPY、1000个基准交易日，2022-12-01至2026-11-25；最后交易日为11月25日，11月26日美股假日。身份起点已应用，2093个股票缺行保留；27个超过30%的日变动保留告警。口径为moomoo前复权provider_daily价格收益，未验证为RTH原价或总收益，当前主题池并非历史完整可投资池。
+
+日K单独发布到同一Private Dataset的daily/命名空间，revision为`3b4a403d9696cb2e690b3e2f9b39c8e7cd2c437b`。CSV为3186590字节，SHA256 `ceeb074914341a862c5c640f8d0ef8a3a9678a5ca98d1b17211f2e510a21f9bf`，as_of `2026-11-25T21:00:00Z`；实际上传后重新下载核对成功，旧5分钟latest指针字节未变。沿用现有Space独立只读Secret，不使用部署HF_TOKEN或券商凭据。没有启动自动采集／上传任务。
+
+本地真实五组回测全部success：默认126日估计窗、252日评估（2025-11-25至2026-11-25），初始资本100000，单边10bps，股票篮子80%目标／20%现金、单股上限20%，整数股、月末信号下一开盘。默认13次目标形成均45只合格股；首日使用此前已知收盘初始化，之后按真实交易所月末。以下是该固定数据的研究结果，非券商成交或未来收益证明：
+
+| 组合 | 含成本总收益 | 最大回撤 | 年化波动 | 实现Beta | 模拟成本 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 高Beta | 15.70% | -51.23% | 59.22% | 2.740 | 864.71 |
+| 低Beta | 25.60% | -5.30% | 9.06% | 0.251 | 217.20 |
+| 全池等权 | 34.32% | -27.73% | 31.91% | 1.712 | 233.89 |
+| 80% SPY＋现金 | 6.65% | -9.17% | 11.84% | 0.794 | 84.42 |
+| 100% SPY | 8.24% | -11.46% | 14.92% | 1.000 | 99.89 |
+
+实现Beta使用251个净账户收盘至收盘收益，首个开盘至收盘片段不参与回归；收益本身包含该首日。SPY100实现Beta约0.999865，整数股与费用使其略偏离1。不是Jensen alpha；现金收益为0，未模拟盘口、冲击或供方数据交付延迟。
+
+252日估计窗口独立敏感性运行也五组成功；初始43只、随后44／45只合格，不根据未来资格做统一交集。该窗高Beta／低Beta／等权总收益约8.11%／19.81%／30.49%，两SPY基准相同。两个窗口未按测试收益择优；没有匹配波动、行业归因、Beta-cap或BAB。软件修复了轮换调仓后零持仓残留被误要求提供价格的问题，回归测试覆盖三次不相交选股；真实持仓缺价仍明确失败。
+
+发布验收：待本轮源码部署与公网实际读取／运行后补录。离线结果不能冒充Space独立只读成功；备用Streamlit Cloud本轮未重新验收。

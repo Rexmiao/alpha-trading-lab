@@ -4,6 +4,8 @@
 
 第一版比较Ridge、两隐藏层MLP、重采样MLP及条件DDPM增强MLP。另有ADNN平滑IC目标的核心机制实验。这里的MLP与条件收益生成是研究设计，不是ADNN或DARL论文完整复现。
 
+新增独立[Beta测量与五组对照](specs/BETA_RESEARCH_PLAN.md)：moomoo真实历史日K、126／252日OLS、高／低Beta与全池等权，以及80%／100% SPY控制组；月末信号、次日开盘、整数股与交易成本。Hugging Face侧栏选择「Beta测量与策略对照」，可查看曲线、个股测量、数学原理与审计JSON；私有快照不开放原始行情下载。低Beta为主题池内相对排名，仍可能大于1；这是历史研究，不是市场中性alpha或券商下单功能。真实运行与发布记录见[部署验收](docs/HUGGINGFACE_DEPLOYMENT.md#090-beta日频测量与五组对照)。
+
 ## 每日采集与自动交易系统规格
 
 [查看验收展示与可复跑命令](docs/ACCEPTANCE_DEMO.md)：2026-11-26重新执行342项Python基线与26项采集测试，另有3项真实DPAPI问题回归。先落盘、超时恢复、成交去重、模式切换及回放隔离分别列出具体测试；这些不等于真实券商成交或策略盈利证明。[模拟账户接入入口](docs/PAPER_ACCOUNT_SETUP.md)
