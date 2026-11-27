@@ -93,9 +93,9 @@ $env:ALPHA_SNAPSHOT_TOKEN_DPAPI = 'C:\Users\Rexy\Documents\ChatGPT\量化准备\
 
 ### 日K云端验收状态
 
-**当前状态：本机日K准备已完成；真实日K私有上传、Space独立读取及公网Beta回测尚待验收。** 已有5分钟上传／读取成功记录不代替日K链路验收，离线测试通过也不表示日K已在公网可用。没有创建日K常驻同步或任务计划。
+**当前状态：日K私有上传、Space独立读取及公网Beta回测均已实际验收。** Dataset revision `3b4a403d9696cb2e690b3e2f9b39c8e7cd2c437b`，Space使用独立只读Secret取到相同43907行／SHA256／as_of，默认五组均success。旧5分钟latest字节未变。没有创建日K常驻同步或任务计划。
 
-验收应分别记录日KDataset revision、Space实际读取的相同revision与CSV哈希／行数／截至交易日、Beta五组真实数据结果、双语切换及JSON下载行为，并确认没有原始CSV下载或失败转教学数据。原5分钟入口和指针还须继续可读；日KBeta研究与本机券商下单流程分别验收。
+公网研究JSON原生下载、中英相同字节及无原始行情下载已核对；6条数学式在390px内，无JS异常。默认252日评估为2025-11-25至2026-11-25；详细实际收益、回撤、Beta、源码commit与依赖见[0.9.0部署验收](HUGGINGFACE_DEPLOYMENT.md#090-beta日频测量与五组对照)。日KBeta研究与本机券商下单流程分别验收，后者没有因此接通。
 
 ## 与本机交易的分工
 

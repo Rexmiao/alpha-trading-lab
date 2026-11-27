@@ -240,3 +240,5 @@ MCP目录中的8个`sim_trade_*`工具映射服务器模拟业务，不能据此
 `scripts/prepare_moomoo_daily_snapshot.py`读取并核对本机原始文件哈希，输出不可覆盖的日K包；`sync_moomoo_daily_snapshot.py`只向现有私有Dataset写`daily/latest.json`及内容寻址CSV／净化manifest三文件。CSV SHA256为`ceeb074914341a862c5c640f8d0ef8a3a9678a5ca98d1b17211f2e510a21f9bf`，3186590字节；实际上传与重读核对成功，Dataset revision为`3b4a403d9696cb2e690b3e2f9b39c8e7cd2c437b`。原5分钟`latest.json`字节未变。HF以现有专用只读Secret按固定revision读取，路径／长度／hash／交易日／已完成时点与身份边界全部校验；同会话复用快照，刷新不重算旧结果。原始数据仍为私有；应用包为22文件（21源码＋MANIFEST），不携带价格、账户、数据库、券商凭据或本机发布器。没有启动常驻采集／上传任务。
 
 本地及公网的最终回测、测试与发布验收记录见[HF部署说明](docs/HUGGINGFACE_DEPLOYMENT.md#090-beta日频测量与五组对照)。部署和真实数据运行分别验收，不能以离线测试或容器RUNNING代替实际页面结果。
+
+0.9.0最终验收：345项研究相关测试通过（96项新增），固定私有日K已由新HF访客独立读取并运行五组；21源码与本地哈希一致，HF runtime `edf0847ef2951d2d26c19b8bdcf52d713d958921`。中英下载JSON字节相同、四图及390px六条公式通过；本地与HF数值满足1e-12容差，未声称跨OS位级完全相同。源码由现有GitHub App发布，工作流45937075386成功；原始价格不在公开包／源ZIP或下载中。详细结果及证据见上述部署说明。

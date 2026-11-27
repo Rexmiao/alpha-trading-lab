@@ -197,4 +197,6 @@ Cloud独立请求的CSV SHA256为`98680c14fbbe5ee5bbbb76ead6ea38bb35ddb1b920552d
 
 252日估计窗口独立敏感性运行也五组成功；初始43只、随后44／45只合格，不根据未来资格做统一交集。该窗高Beta／低Beta／等权总收益约8.11%／19.81%／30.49%，两SPY基准相同。两个窗口未按测试收益择优；没有匹配波动、行业归因、Beta-cap或BAB。软件修复了轮换调仓后零持仓残留被误要求提供价格的问题，回归测试覆盖三次不相交选股；真实持仓缺价仍明确失败。
 
-发布验收：待本轮源码部署与公网实际读取／运行后补录。离线结果不能冒充Space独立只读成功；备用Streamlit Cloud本轮未重新验收。
+应用源码`99cdb7236dd3b83cb3d398f374e2285bedfb441a`，[同步工作流45937075386](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45937075386)成功；HF仓库与runtime均为`edf0847ef2951d2d26c19b8bdcf52d713d958921`，RUNNING、CPU Basic。21源码逐字节／SHA256相同；MANIFEST只有created_at不同，其余语义一致。新访客从私有日Krevision `3b4a403d9696cb2e690b3e2f9b39c8e7cd2c437b`读取43907行并完成默认五组；四张图实际渲染（净值／回撤／事前Beta各5条曲线，另有个股散点）。原生研究JSON下载成功，英文切换后保持相同字节，SHA256 `cb1359de94ed091b3568940fc01cbf042f649a3a6b9a400d91b7c38a553ba2d9`；没有原始行情下载。390px手机视口关闭侧栏后，6条短公式均在视口内、无页面横溢，JS异常0。本机与HF使用相同数值库版本；Windows／Linux少数回归统计有浮点尾数差异，最大约3.33e-16，均满足绝对／相对1e-12容差，不声称跨系统JSON完全相同。证据保留本机`state/beta-qa/hf-20261126T230258/summary.json`及`state/beta-qa/hf-package-verification.json`。
+
+本轮研究相关345项Python测试通过，0失败／0跳过；其中Beta核心29、Beta UI 7、日K读取／发布60项为新增，原AI／规则／分钟／快照与数据／持仓测试同时回归。另有旧测试注入非法字段触发1个pandas FutureWarning，不影响断言。没有将此前执行器测试重新计为本轮已跑。备用Streamlit Cloud源码随同一GitHub仓库更新，但本轮未重新验收该备用站点。
