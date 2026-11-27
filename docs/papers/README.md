@@ -72,3 +72,7 @@
 ## 后续专题：Support & Resistance
 
 2026-11-26用户确认SNR为支撑／阻力。已补充Osler的机构价位／订单研究、Chung与Bellotti的区域发现和事件统计、Garzarelli等的价格记忆研究，以及官方通道／pivot／成交量分布和作者聚类源码。具体方法、可见时点、研究局限与候选实施顺序见[支撑／阻力研究](../MOMENTUM_TREND.md#snr支撑阻力的量化研究)。这些属于后续独立专题，不计入最初三篇论文，也不表示本项目已实现SNR策略或验证其收益。
+
+## 后续专题 Beta策略
+
+2026-11-26补充Beta研究：Frazzini与Pedersen的BAB、Baker等低风险解释、Novy-Marx与Velikov的BAB批评、Asness等相关性分解，以及Moreira与Muir、Cederburg等、Daniel与Moskowitz的动态风险证据。现行S&P／MSCI方法与French／AQR参考数据入口也一并记录。原文链接、版本差异、成本与实时可实施限制见[Beta策略研究](../BETA_STRATEGIES_RESEARCH.md)，项目变体与验收见[实验规格](../../specs/BETA_RESEARCH_PLAN.md)。这些是后续专题，不属于原始三篇论文，也不是新增策略已经上线的证明。
