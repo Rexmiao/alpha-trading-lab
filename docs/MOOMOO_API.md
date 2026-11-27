@@ -131,9 +131,49 @@ python run.py collect
 
 API 调用费用、某市场的行情权限、订阅额度、历史 K 线额度是不同事项。官网有基础行情免费或推广限免的说明，但地区、账户资格、专业/非专业身份、市场品种及订阅政策会影响实际可用数据。不能承诺任何账户都免费获取全部实时行情、深度、期权或完整历史；客户端能看到的行情也不必然能通过 API 取得。[官方权限与额度](https://openapi.moomoo.com/moomoo-api-doc/en/intro/authority.html)、[官方行情权限问答](https://openapi.moomoo.com/moomoo-api-doc/qa/quote.html)
 
-把 `bars` 改成 5000 不会让当前适配器返回 5000 根，因为请求会截到 1000。官方传统 OpenD 的 `request_history_kline` 是另一条接口，支持起止日期和分页；本项目还没有实现它的历史回补适配。截至本次核对，该官方页面列出日 K 最近 20 年、分 K 最近 8 年，并附历史证券额度和请求限频。它不代表每只股票都有这么长历史；上市日期、证券历史、权限和数据缺口仍会限制结果。[官方历史 K 线及限制](https://openapi.moomoo.com/moomoo-api-doc/quote/request-history-kline.html)
+把 `bars` 改成 5000 不会让原日K的`get-kline`适配器返回5000根，因为该路径截到1000。另有已实现的桌面CLI `request-history-kl`独立历史分钟采集器，支持起止日期和分页；新增盘前1m路径见下节，并非改动原日K入口。官方传统OpenD的`request_history_kline`是另一套调用形式，参数和认证不能直接互换。截至本次核对，该官方页面列出日K最近20年、分K最近8年，并附历史证券额度和请求限频；非常规时段可能不足两年。它不代表每只股票都有这么长历史。[官方历史 K 线及限制](https://openapi.moomoo.com/moomoo-api-doc/quote/request-history-kline.html)
 
-需要更长窗口时，应单独实现并验证历史适配器：明确选择 OpenD 或其他正式支持的路线，保留分页键、起止日期、频率和复权口径，处理其专属额度，再输出相同的归一化数据契约。新 REST 手册的历史参数和认证不能直接塞进当前本机 `get-kline`；现有脚本也不会自动跨路线拼接数据或补齐新股上市前历史。
+需要其他市场、频率或窗口时，应明确选择并验证历史路线，保留分页键、起止日期、频率和复权口径，处理其专属额度。新REST手册的历史参数和认证不能直接塞进本机`get-kline`；现有脚本不自动跨路线拼接数据或补齐新股上市前历史。
+
+## 独立盘前1分钟历史采集与365日研究（2026-11-27）
+
+`scripts/collect_premarket_history.py`固定研究QQQ／SPY，目标2025-11-27至2026-11-26，不含今天；采集起点提前到11-20以取真实前收。该实验日期被冻结，不是每天自动滚动任务。它只调用桌面CLI的`request-history-kl --rehab-type 0 --kl-type 1 --session all --extended-time`，成功分页每页5000行；不会订阅、查询账户、下单或购买权限。与本节上方日K适配器的1000条上限是不同接口。
+
+凭据复用本机已有行情AppKey／当前用户DPAPI，经`audit_moomoo_option_data.py`的安全封装仅传子进程环境；同时解析stdout与stderr中的业务响应，原始错误不打印。仅连接已核验的127.0.0.1:22222，不能把HF的令牌用于券商。
+
+在项目根目录，先做有界探测，再用其输出目录续取：
+
+```powershell
+& '.\state\intraday-venv\Scripts\python.exe' '.\scripts\collect_premarket_history.py' --probe
+# --probe在本脚本中是真实行情请求：每只至多一页，不是仅检查配置。
+& '.\state\intraday-venv\Scripts\python.exe' '.\scripts\collect_premarket_history.py' --resume '<探测输出目录>'
+```
+
+每标的限制500页／500000行，单次请求25秒和8MB、约0.65秒节流。数据写`data/premarket-history/<时间>/`，页面不覆写，保留hash、请求／收到时间、分页和实际源码。同步软件曾锁住原清单替换；现采用`progress/`追加不可变检查点，续取读取最新JSON，不能只看原`manifest.json`。所有历史已归档页须在续取前核对SHA，失败时不访问凭据或请求新页。凭据与账户不写进检查点。
+
+本次实际两标的各74页366841行，含暖机、夜盘及目标外端点；ALL含夜盘不是只含04:00—20:00。盘前另筛04:00—09:30，美东字符串与Unix时间逐行一致。按已验证的bar-end口径，首30分钟为09:31至10:00结束标签；昨收取前一真实session最终RTH收盘，不使用每分钟的`last_close_price`。
+
+离线复算只读取冻结采集目录和其中的`calendar.json`，不访问券商：
+
+```powershell
+& '.\state\intraday-venv\Scripts\python.exe' '.\scripts\run_premarket_365.py' --capture '.\data\premarket-history\20261127T194111274054Z'
+```
+
+最终已验收报告位于`state/premarket-365/20261127T195356236821Z/`：English默认／中文按钮、全部事件和同覆盖基线、缺口、JSON／CSV及源码指纹。37项相关测试通过，独立算法逐日复核0差异。这里是小样本历史价格事件统计；没有重建历史实际交付时刻、公司行动或成交成本，不能称可交易的策略回测。没有新HF发布、原始行情上传或后台采集任务。详细契约和真实结果见[盘前研究SPEC](../specs/PREMARKET_OPENING_DRAWDOWN.md)。
+
+### 三ETF与可调阈值增量（0.4）
+
+当前采集器允许显式不重复的QQQ／SPY／DIA子集，默认仍为QQQ／SPY；增加DIA无需重新采集旧源。`--resume`默认读取原清单的标的，拒绝改变已保存的采集范围。DIA新源为`data/premarket-history/20261127T200044460984Z/`，74页366841行，全部分页成功，原始清单与源码保留。新源`calendar.json`与旧源一致，离线报告器合并前拒绝不同日历或重复标的。
+
+```powershell
+& '.\state\intraday-venv\Scripts\python.exe' '.\scripts\collect_premarket_history.py' --symbols DIA --probe
+# 完整续取后，以两份不重复快照离线复算；此处示例主阈值为1.25%。
+& '.\state\intraday-venv\Scripts\python.exe' '.\scripts\run_premarket_365.py' --capture '.\data\premarket-history\20261127T194111274054Z' --capture '.\data\premarket-history\20261127T200044460984Z' --premarket-threshold-pct 1.25 --threshold-grid-pct '0.5,1,1.5,2,2.5,3'
+```
+
+参数单位是百分数，1.25表示1.25%，不是125%；允许大于0至10%，最多六位小数。调的是盘前涨幅筛选，开盘下探档仍为0.5%／1%／2%。浏览器复用派生充分统计和精确整数比值，本地变更阈值不请求API或训练；可下载当前派生聚合JSON。非法值不会改变上次结果，n=0或合格日为0时均不伪造0%概率。
+
+三ETF最终报告为`state/premarket-365/20261127T200955569265Z/`，旧报告保留。DIA开盘窗口250日完整，但固定09:25只有236日有正成交量；整段盘前严格合格窗为0，曾触发主结果不可估计，已观察的部分窗口触发另列。70项相关测试、独立算法及实际浏览器自定义阈值验收通过，详见专题SPEC。该增量没有公开上传分钟行情或部署到HF，没有新增账户／委托接口、付费订阅或自动采集任务。
 
 ## 常见失败怎么排查
 

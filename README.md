@@ -1,8 +1,12 @@
 # Alpha Lab
 
+[打开独立应用](https://rexymiao-alpha-trading-lab.hf.space/) · [Hugging Face项目页](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)
+
 研究应用首次访问固定使用English，不跟随浏览器语言。手动选择中文或English后，仅在本浏览器记住语言，刷新和重访会恢复；浏览器禁止本地存储时，选择仍在当前会话有效。语言切换不重新训练、获取行情或提交交易。
 
 美股日频DL／GenAI alpha研究，并有独立5分钟动量／趋势基线与本机VeighNa＋moomoo执行试点。托管研究界面默认English，可切换中文，并提供数学原理页；公开HF不提交订单，本机暂只允许影子／券商模拟，没有实盘路径。
+
+0.12.0新增[盘前涨幅与开盘下探](specs/PREMARKET_OPENING_DRAWDOWN.md)：QQQ／SPY／DIA、moomoo真实1分钟行情的冻结365日派生统计。顶部选择“Premarket & opening downside”，可自行输入例如1.25%的盘前涨幅阈值，查看样本数、开盘半小时最大下探分布、逐日事件和同覆盖基线。页面默认English，可切中文；只公开经审计的无量纲派生结果，不公开原始分钟OHLCV。DIA整段盘前覆盖不足时显示不可估计，未验证交易收益或稳定未来概率。应用直达：[Alpha Trading Lab](https://rexymiao-alpha-trading-lab.hf.space/)；部署验收状态见[发布记录](docs/HUGGINGFACE_DEPLOYMENT.md)。
 
 第一版比较Ridge、两隐藏层MLP、重采样MLP及条件DDPM增强MLP。另有ADNN平滑IC目标的核心机制实验。这里的MLP与条件收益生成是研究设计，不是ADNN或DARL论文完整复现。
 

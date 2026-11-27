@@ -71,7 +71,7 @@ def test_language_and_study_navigation_are_in_main_and_preserve_page():
     assert {"hf_language", "hf_study"} <= {item.key for item in app.main.radio}
     assert app.radio(key="hf_language").value == "English"
     assert app.title[0].value == "Alpha Trading Research Lab"
-    assert len(app.radio(key="hf_study").options) == 6
+    assert len(app.radio(key="hf_study").options) == 7
     app.radio(key="hf_language").set_value("中文").run()
     assert "支撑与阻力策略" in app.radio(key="hf_study").options
     app.radio(key="hf_study").set_value("beta").run()
@@ -140,3 +140,33 @@ def test_initial_screen_and_options_navigation_do_not_load_training_or_express(m
     app.radio(key="hf_study").set_value("options").run()
     assert not app.exception
     assert not app.get("plotly_chart")
+
+
+def test_premarket_navigation_is_lazy_and_language_keeps_the_route(monkeypatch):
+    from hf_space import premarket_ui
+    def forbidden():
+        raise AssertionError("Navigation must not load or calculate the research reference")
+    monkeypatch.setattr(premarket_ui, "load_reference", forbidden)
+    app = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
+    app.radio(key="hf_study").set_value("premarket").run()
+    assert not app.exception
+    assert app.title[0].value == "Premarket Gains & Opening Downside"
+    assert "premarket_result" not in app.session_state
+    app.radio(key="hf_language").set_value("中文").run()
+    assert not app.exception and app.radio(key="hf_study").value == "premarket"
+    assert app.title[0].value == "盘前涨幅与开盘半小时下探"
+    assert "premarket_result" not in app.session_state
+    assert app.number_input(key="premarket_threshold").value == 2.5
+
+
+def test_standalone_app_and_hugging_face_project_have_separate_entries():
+    app = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
+    assert not app.exception
+    links = {item.proto.label: item.proto.url for item in app.get("link_button")}
+    assert links["Open app"] == "https://rexymiao-alpha-trading-lab.hf.space/"
+    assert links["Hugging Face project"] == "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
+    app.radio(key="hf_language").set_value("中文").run()
+    assert not app.exception
+    links = {item.proto.label: item.proto.url for item in app.get("link_button")}
+    assert links["打开应用"] == "https://rexymiao-alpha-trading-lab.hf.space/"
+    assert links["Hugging Face项目页"] == "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"

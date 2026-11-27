@@ -12,6 +12,13 @@ short_description: Bilingual, bounded AI alpha learning simulations
 
 # Alpha Lab Simulator
 
+[Open app](https://rexymiao-alpha-trading-lab.hf.space/) ·
+[Hugging Face project](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)
+
+These are two entrypoints to the same application. The standalone app URL opens
+the research interface directly; the project page also provides Files and the
+Space's deployment information.
+
 The interface starts in English. A manual English/中文 choice is saved only in
 this browser and restored on later visits. If browser storage is blocked, the
 choice still works for the current session. Changing language does not train
@@ -33,6 +40,15 @@ pandas and PyArrow table conversion before publishing the image.
 ## Scope
 
 - Run bounded simulations and public history requests only after an explicit user action.
+- Study frozen QQQ, SPY and DIA premarket gains and first-30-minute opening
+  downside using audited, dimensionless daily statistics derived from moomoo
+  one-minute history. The reference covers 2025-11-27 through 2026-11-26 and is
+  not a live feed. Choose ETFs, enter a custom gain cutoff such as 1.25%, and
+  explicitly compare sample counts, downside distributions, every event date
+  and a baseline using the same eligible days. Only derived research JSON is
+  downloadable; no original minute OHLCV or absolute prices are included.
+  Missing coverage and zero-event cases remain unavailable, not zero-probability
+  forecasts. Threshold comparisons are exploratory, not a profitable strategy.
 - Download a session-only online price CSV snapshot and source JSON for repeatability; provider errors are explicit and never replaced with synthetic data.
 - Compare Ridge, MLP, resampling and conditional-DDPM augmentation.
 - Study three independent 5-minute support/resistance rules: support bounce,
@@ -53,7 +69,7 @@ pandas and PyArrow table conversion before publishing the image.
   exchange samples and derived contract flows are not part of this public
   package. The page offers a fictional initial-inventory sensitivity example,
   with no calibrated MM probabilities or inferred real positions.
-- Language selection and all six study links appear above the main content;
+- Language selection and all seven study links appear above the main content;
   data and execution parameters stay in the collapsible sidebar, with less-used
   settings grouped under Advanced settings. Language changes retain report bytes.
 - Measure daily market Beta with a predeclared 126- or 252-return OLS window.

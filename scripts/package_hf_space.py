@@ -23,6 +23,10 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_NAME = "MANIFEST.json"
 ARTIFACT = "alpha-lab-huggingface-docker"
+PUBLIC_PREMARKET_REFERENCE = "hf_space/assets/premarket_reference_365.json"
+# This single audited derived result is explicitly authorized for publication.
+# A newly collected reference requires a new audit and an intentional pin update.
+PUBLIC_PREMARKET_SHA256 = "1b93af7a00e7c241ca9e2c76a9ae6234475c77c12170ba2d2ca086ed6cee7b60"
 # Source -> path at the root of the uploaded Space. No recursive source copy.
 SOURCES = (
     ("deploy/huggingface/Dockerfile", "Dockerfile"),
@@ -45,6 +49,9 @@ SOURCES = (
     ("hf_space/support_resistance_ui.py", "hf_space/support_resistance_ui.py"),
     ("hf_space/gex_scenarios.py", "hf_space/gex_scenarios.py"),
     ("hf_space/options_research_ui.py", "hf_space/options_research_ui.py"),
+    ("hf_space/premarket.py", "hf_space/premarket.py"),
+    ("hf_space/premarket_ui.py", "hf_space/premarket_ui.py"),
+    (PUBLIC_PREMARKET_REFERENCE, PUBLIC_PREMARKET_REFERENCE),
     ("hf_space/streamlit_app.py", "hf_space/streamlit_app.py"),
     ("research/__init__.py", "research/__init__.py"),
     ("research/data.py", "research/data.py"),
@@ -124,6 +131,15 @@ def _validate_text(relative: str, contents: bytes) -> None:
         raise PackagingError(f"Source must be UTF-8 text: {relative}") from None
     if re.search(r"\bhf_[A-Za-z0-9]{20,}\b", text):
         raise PackagingError(f"Possible authentication material in source: {relative}")
+    if relative == PUBLIC_PREMARKET_REFERENCE:
+        if len(contents) > 2_000_000 or sha256(contents) != PUBLIC_PREMARKET_SHA256:
+            raise PackagingError("The public derived premarket reference differs from its audited hash.")
+        try:
+            reference = json.loads(text)
+        except (ValueError, TypeError):
+            raise PackagingError("The public derived premarket reference must be valid JSON.") from None
+        if not isinstance(reference, dict) or reference.get("schema_version") != "premarket-public-derived/1":
+            raise PackagingError("Unexpected public derived premarket schema.")
     if relative.endswith(".py"):
         try:
             ast.parse(text, filename=relative)

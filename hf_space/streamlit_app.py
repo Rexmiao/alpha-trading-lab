@@ -319,6 +319,11 @@ def main() -> None:
     with language:
         st.radio("Language / 语言", ("English", "中文"), key="hf_language", horizontal=True,
                  on_change=_remember_language_preference)
+    app_entry, project_entry = st.columns(2)
+    with app_entry:
+        st.link_button(tr("打开应用", "Open app"), "https://rexymiao-alpha-trading-lab.hf.space/", use_container_width=True)
+    with project_entry:
+        st.link_button(tr("Hugging Face项目页", "Hugging Face project"), "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab", use_container_width=True)
     # Keep navigation in non-widget state: translated labels may recreate widgets.
     memory = "_hf_study_choice"
     if memory not in st.session_state:
@@ -331,11 +336,16 @@ def main() -> None:
                     "intraday": tr("5 分钟动量与趋势", "5-minute momentum & trend"),
                     "beta": tr("Beta 测量与策略对照", "Beta measurement & comparison"),
                     "sr": tr("支撑与阻力策略", "Support & resistance"),
-                    "options": tr("期权结构研究", "Options structure research")}
-    study = st.radio(tr("研究页面", "Study page"), ("ai", "strategies", "intraday", "beta", "sr", "options"), index=None,
+                    "options": tr("期权结构研究", "Options structure research"),
+                    "premarket": tr("盘前涨幅与开盘下探", "Premarket & opening downside")}
+    study = st.radio(tr("研究页面", "Study page"), ("ai", "strategies", "intraday", "beta", "sr", "options", "premarket"), index=None,
                      format_func=study_labels.__getitem__, key="hf_study", on_change=remember_study,
                      horizontal=True)
     st.divider()
+    if study == "premarket":
+        from hf_space.premarket_ui import render_premarket_page
+        render_premarket_page(tr)
+        return
     if study == "options":
         from hf_space.options_research_ui import render_options_research_page
         render_options_research_page(tr)
@@ -357,8 +367,8 @@ def main() -> None:
         render_strategy_page(tr, render_data_source, input_coverage, render_online_downloads)
         return
     st.title(tr("Alpha量化研究实验室", "Alpha Trading Research Lab"))
-    st.write(tr("研究日频AI Alpha、动量／趋势、Beta、支撑／阻力与期权结构；在上方切换专题。",
-                "Explore daily AI alpha, momentum and trend, Beta, support and resistance, and options structure. Choose a study above."))
+    st.write(tr("研究日频AI Alpha、动量／趋势、Beta、支撑／阻力、期权结构与盘前涨幅后的开盘下探；在上方切换专题。",
+                "Explore daily AI alpha, momentum and trend, Beta, support and resistance, options structure, and opening downside after premarket gains. Choose a study above."))
     st.subheader(tr("AI Alpha：四模型对照", "AI alpha: four-model comparison"))
     st.write(tr("比较四种预测方法，并观察交易成本、仓位上限与风险预算如何改变模拟结果。",
                 "Compare four prediction methods and see how execution costs, position limits and risk budgets change simulated results."))

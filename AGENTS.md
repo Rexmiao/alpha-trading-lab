@@ -5,6 +5,7 @@
 - GitHub 返回 `Resource not accessible by integration` 时，先检查现有 App 的 Selected repositories 是否包含目标仓库；保留其他现有授权，不重新申请组织权限或索取令牌。
 - 使用现有连接器上传文本和二进制资源。保留远端 LICENSE 与提交历史，核对文件哈希，用预期旧提交号更新分支，不强制覆盖别人提交。
 - 只上传源代码、规格、说明、教学媒体和静态网页。`data/`、`runs/`、`state/`、凭据、账户、聊天截图与本机模型权重留在本地。
+- 用户已明确授权将QQQ／SPY／DIA盘前事件统计公开到HF。0.12.0唯一新增派生数据发布项为`hf_space/assets/premarket_reference_365.json`，只含冻结365日的无量纲日级充分统计、覆盖与净化指纹；打包器固定其审计SHA。原始分钟OHLCV、绝对价格、成交量、本机路径、分页游标及账号／凭据仍不发布。后续换数据先重做来源与字段审计，不能泛化为允许上传data／state或原报告。
 - 论文原文入口与实现偏离写入 `docs/papers/README.md`；moomoo 接口和认证边界写入 `docs/MOOMOO_API.md`；GitHub 操作方法写入 `docs/GITHUB_WORKFLOW.md`。
 - 更新网页动画时，同步检查中英文 GIF、暂停封面、下载文件、README 路径及 `web/` 导出内容。教学示例不能被描述为真实回测结果。
 - 云端研究使用 `hf_space/streamlit_app.py`，不部署根app.py或execution_lab。HF可用独立只读Secret从固定Private Dataset读取已净化moomoo快照，原始OHLCV只在服务端会话，不提供原始下载；公开包不携带行情、账户、券商密钥或模型。合成、访客CSV与已发布快照必须分别标记，禁止失败回退成合成。

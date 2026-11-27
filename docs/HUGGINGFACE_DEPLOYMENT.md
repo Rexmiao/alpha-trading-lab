@@ -1,5 +1,7 @@
 # Hugging Face Docker 发布准备
 
+0.12.0新增盘前事件研究与双入口，当前正在部署验收；最新证据追加在本文末尾。应用直达为[rexymiao-alpha-trading-lab.hf.space](https://rexymiao-alpha-trading-lab.hf.space/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。
+
 历史0.8.1进度（最新Beta见文末0.9.0）：Private Dataset已实际上传468行真实moomoo快照并核对hash，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；用户完成Space独立读取配置后，新访客已读通并实际运行三种策略，来源／行数／hash／as_of全部一致，研究JSON可下载、无原始CSV下载。自动watch未启动。设置入口为[本Space的Settings](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab/settings)，详细值见[操作说明](MOOMOO_CLOUD_SYNC.md)。历史0.8.0验收保留文末。[新鲜测试展示与命令](ACCEPTANCE_DEMO.md)
 
 这是云端 Python 研究界面的发布说明。Hugging Face是主要交互入口，GitHub Pages保留静态教学页，Streamlit Cloud是可选备用。0.8.0新增私有快照读取，最新验收见文末；前面版本的记录属于历史里程碑。容器启动、页面交互和源码上传分别核对，应用本身不包含发布凭据。
