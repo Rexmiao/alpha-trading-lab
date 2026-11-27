@@ -1,6 +1,6 @@
 # moomoo 官方文档入口与本项目接入手册
 
-核对日期：2026-11-26。本文说明只读日K、独立5分钟采集，以及本机模拟执行代码的认证边界。已实测的行情链路是 Windows moomoo 桌面端 CLI 加本机 HTTP Host；已有受限SDK／REST模拟适配代码，但真实US paper认证与执行尚未验收。官网 OpenD 手册和新 REST 手册的认证方式不能直接套到桌面Host链路上。
+核对日期：2026-11-27。本文说明只读日K、独立5分钟采集、期权方向研究数据审计，以及本机模拟执行代码的认证边界。已实测的行情链路是 Windows moomoo 桌面端 CLI 加本机 HTTP Host；已有受限SDK／REST模拟适配代码，但真实US paper认证与执行尚未验收。官网 OpenD 手册和新 REST 手册的认证方式不能直接套到桌面Host链路上。
 
 ## 官方 manual book 从哪里看
 
@@ -37,7 +37,13 @@
 
 CSV SHA256为`5b126b01d9bf29d4d1bb7e63735f0994b15193b3ac1792fb0b29bb130794ff14`，468行、最后可用时点2026-11-25T21:00:00Z。原始响应页和完整本机来源manifest留在本机；规范化CSV及净化来源文件已通过独立凭据发布到私有HF Dataset，公网研究界面已实际读取并运行三策略，数据行数／哈希／截至时间一致。公开的是研究结果，不提供原始OHLCV下载，也不将HF读写令牌用于券商认证。配置、每日完整窗口同步与验收见[私有快照说明](MOOMOO_CLOUD_SYNC.md)。
 
-执行后台与历史研究分开：`execution_lab/marketdata.py`按XNYS日历读取当天已完成5分钟bar，并要求共同连续时段；即时参考报价需供方时间戳且严格小于5秒，迟到、未来或无时间戳明确拒绝。今天休市，开市实时链路尚未实测。11111与22222当前均由OpenAPIHost持有；传统SDK初始化11111超时，不能称独立OpenD已完成接入，也不能把桌面AppKey当作SDK认证。新REST模拟适配与认证边界见[本机执行SPEC](../specs/VEIGHNA_MOOMOO_SYSTEM.md)。
+执行后台与历史研究分开：`execution_lab/marketdata.py`按XNYS日历读取当天已完成5分钟bar，并要求共同连续时段；即时参考报价需供方时间戳且严格小于5秒，迟到、未来或无时间戳明确拒绝。2026-11-26休市时未完成开市执行链路验收；11/27期权只读审计不等于该执行路径或模拟账户验收。11111与22222当前均由OpenAPIHost持有；传统SDK初始化11111超时，不能称独立OpenD已完成接入，也不能把桌面AppKey当作SDK认证。新REST模拟适配与认证边界见[本机执行SPEC](../specs/VEIGHNA_MOOMOO_SYSTEM.md)。
+
+### 期权动态字段与持仓方向审计
+
+2026-11-27前台只读审计25次调用：24协议成功含3次订阅，1次`get-security-snapshot`超时。`subscribe basic → get-basic-qot`已取得SPY／QQQ共8份所选合约的OI／IV／Greeks及乘数字段；`get-ticker`取得4份各100笔，`get-order-book`共8次各Bid／Ask1档。没有据此称全链、历史NBBO或MM库存，实际字段、非空率、时点与原始哈希见[最新审计](MOOMOO_DEALER_INVENTORY_AUDIT.md)。
+
+[审计器](../scripts/audit_moomoo_option_data.py)只使用loopback及明确行情命令白名单，既有DPAPI密钥仅进内存／子进程环境；不读取新REST签名配置或账户。最近N笔BUY／SELL是供方主动方向，不是MM侧或开平。实际盘口未给源时间，不能为此前成交补同步报价。文档的`option_net_open_interest`不定义US MM净仓，旧官方快照明确港股限定。OI有效／公布时间保持未知；当前q=null，不把主动流取反写入库存。
 
 ### 新模拟API的授权仍待确认
 

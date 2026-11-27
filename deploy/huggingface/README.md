@@ -48,6 +48,11 @@ pandas and PyArrow table conversion before publishing the image.
   fictional TOY inputs run in this first version. Unknown dealer inventory,
   missing historical OI clocks and unavailable predictive results remain visible;
   no actual dealer positions or GEX/Max Pain strategy performance are claimed.
+- Compare nine inventory-direction methods and their data gates. A separate
+  local-only Cboe sample audit checks observed MM buy/sell accounting; those
+  exchange samples and derived contract flows are not part of this public
+  package. The page offers a fictional initial-inventory sensitivity example,
+  with no calibrated MM probabilities or inferred real positions.
 - Language selection and all six study links appear above the main content;
   data and execution parameters stay in the collapsible sidebar, with less-used
   settings grouped under Advanced settings. Language changes retain report bytes.

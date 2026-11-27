@@ -41,7 +41,7 @@ def test_first_render_only_static_audit_and_no_auto_calculation(monkeypatch):
     monkeypatch.setattr(ui, "run_demo_gex", forbidden)
     monkeypatch.setattr(ui, "run_demo_max_pain", forbidden)
     app = _app()
-    assert len(app.tabs) == 4
+    assert len(app.tabs) == 5
     assert not app.error and len(app.get("plotly_chart")) == 0
     assert len(app.get("download_button")) == 0
     assert len(app.get("file_uploader")) == 0
@@ -177,3 +177,29 @@ def test_zero_oi_teaching_does_not_claim_a_unique_target():
     core = app.session_state["options_mp_report"]["result"]
     assert core["status"] != "success"
     assert core.get("minimizer") is None
+
+
+def test_inventory_methods_require_action_and_keep_prior_uncertainty():
+    app = _app()
+    assert "q0" not in app.session_state
+    app.button(key="options_inventory_run").click().run()
+    assert not app.exception and not app.error
+    report = app.session_state["options_inventory_report"]
+    assert report["source_kind"] == "synthetic_demo"
+    assert report["result"]["q"] is None
+    saved = app.session_state["options_inventory_json"]
+    app.number_input(key="options_inventory_delta").set_value(100.).run()
+    app.radio(key="hf_language").set_value("English").run()
+    assert not app.exception and app.session_state["options_inventory_json"] == saved
+    assert "local computer" in _text(app)
+    assert not app.get("file_uploader")
+
+
+def test_inventory_reversed_bounds_fail_without_losing_last_good_report():
+    app = _app()
+    app.button(key="options_inventory_run").click().run()
+    saved = app.session_state["options_inventory_json"]
+    app.number_input(key="options_inventory_q0_low").set_value(300.).run()
+    app.button(key="options_inventory_run").click().run()
+    assert not app.exception and app.error
+    assert app.session_state["options_inventory_json"] == saved

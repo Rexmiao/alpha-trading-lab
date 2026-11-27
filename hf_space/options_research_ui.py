@@ -149,6 +149,11 @@ def _audit_tab(tr):
                "Historical incremental prediction: NOT_ESTIMABLE. Real self-computed Max Pain / GEX: BLOCKED. Actual dealer inventory: NOT_IDENTIFIABLE. Teaching calculators do not change these statuses."))
     st.caption(tr("updated_at是供方计算更新时间；不能替代OI有效日、公布时间或研究中真正可得时间。未知值保持未知。",
                   "updated_at is a vendor calculation/update time. It cannot replace OI effective date, publication time or actual research availability. Unknown values stay unknown."))
+    st.markdown(tr("**后续有界审计：2026-11-27 12:08—12:09美东**", "**Later bounded audit: 2026-11-27 12:08–12:09 ET**"))
+    st.write(tr("订阅basic后，8份所选合约成功返回OI／IV／Greeks；两到期日共2118份静态合约，4合约共400条最近成交。它们不是完整动态链或连续历史。盘口仍缺源时间，部分逐笔／接收时间有时钟差异，不能据此做严格历史报价匹配。",
+        "After subscribing to basic quotes, 8 selected contracts returned OI/IV/Greeks; two expiries contain 2,118 static contracts, with 400 recent prints across 4 contracts. This is not a full dynamic chain or continuous history. Books lack source timestamps and some print/receipt clocks disagree, preventing a verified historical quote join."))
+    st.caption(tr("免费Cboe旧日分类样本另在本机核验；不是上述moomoo成交的同期MM标签。两者同日逐笔标签匹配仍为0，当前净库存q未知。",
+        "Free Cboe historical capacity samples are audited separately on the local computer. They are not contemporaneous MM labels for these moomoo prints. Same-date cross-source labeled print matches remain zero, and current net inventory q is unknown."))
     with st.expander(tr("来源指纹与请求范围", "Source fingerprints and request scope")):
         st.json(AUDIT)
         st.caption(tr("只展示安全汇总与哈希；不含原始期权链、文件路径、凭据或账户。", "Safe aggregates and hashes only; no raw option chain, file paths, credentials or accounts."))
@@ -159,7 +164,7 @@ def _model_table(tr):
         ("A", "不使用GEX的基线", "Baseline without GEX", "波动、趋势、时段、事件", "Volatility, trend, time of day, events", "尚无样本外指标", "No out-of-sample score yet"),
         ("B", "固定Call正／Put负", "Fixed call-positive / put-negative", "明确符号假设的对照", "A declared sign-assumption comparison", "不是实际库存", "Not actual inventory"),
         ("C", "概率库存先验", "Prior inventory", "改变净多概率与做市商份额", "Vary net-long prior and dealer share", "无标签校准，非置信区间", "No label calibration; not a confidence interval"),
-        ("D", "有MM标签的库存递推", "MM-labeled inventory updates", "需真实身份、买卖、覆盖和初始库存", "Needs actual identity, side, coverage and initial inventory", "当前数据不支持", "Unavailable with current data"),
+        ("D", "有MM标签的库存递推", "MM-labeled inventory updates", "本机可核分类样本买减卖；存量另需初仓与覆盖", "Local classified samples support side accounting; stock needs starting inventory and coverage", "抽样流不识别完整净库存", "Sampled flow does not identify complete net inventory"),
         ("U", "无符号集中度", "Unsigned concentration", "研究绝对Gamma聚集", "Study absolute gamma concentration", "无对冲方向，不称净GEX", "No hedge direction; not net GEX"),
     ]
     st.dataframe(pd.DataFrame([{tr("模型", "Model"): key, tr("定义", "Definition"): tr(zh, en),
@@ -307,12 +312,70 @@ def _design_tab(tr):
         "[OIC Gamma](https://www.optionseducation.org/advancedconcepts/gamma)")
 
 
+def run_demo_inventory_update(*, delta_q, q0_lower, q0_upper):
+    """A conditional TOY accounting example, independent of exchange samples."""
+    from research.dealer_methods import initial_inventory_sensitivity
+    result = initial_inventory_sensitivity(delta_q, q0_lower=q0_lower, q0_upper=q0_upper,
+        inventory_scope="TOY_one_contract", flow_scope="TOY_one_contract",
+        assume_no_other_changes=True)
+    return {"kind": "inventory_teaching", "source_kind": "synthetic_demo", "underlying": "TOY",
+        "inputs": {"delta_q": delta_q, "q0_lower": q0_lower, "q0_upper": q0_upper},
+        "result": result, "claims": {"market_observation": False,
+            "dealer_inventory_estimated_from_labels": False, "confidence_interval": False,
+            "orders_submitted": False}}
+
+
+def _inventory_methods_tab(tr):
+    from research.dealer_methods import method_catalog
+    st.subheader(tr("持仓方向：方法、证据和当前可运行范围", "Inventory direction: methods, evidence and availability"))
+    st.write(tr("把此前讨论的方法放在一起，区分固定符号、流量识别、库存估计和尾部风险。每种方法的可运行状态取决于实际数据；研究框架不等于已经拟合的模型。",
+        "Compare the discussed methods across sign assumptions, observed flow, inventory estimation and tail risk. Availability depends on actual data; a research framework is not a fitted model."))
+    catalog = method_catalog(language="zh" if tr("zh", "en") == "zh" else "en")
+    st.dataframe(pd.DataFrame([{
+        tr("方法", "Method"): row["label"], tr("状态", "Availability"): row["status_label"],
+        tr("用途", "Purpose"): row["description"],
+        tr("边界", "Limit"): " ".join(row["limitations"]),
+    } for row in catalog]), hide_index=True, use_container_width=True)
+    with st.expander(tr("各方法所需字段与原文", "Required fields and original sources")):
+        for row in catalog:
+            st.markdown("**" + row["label"] + "**")
+            st.caption(", ".join(row["required_fields"]))
+            for source in row["evidence"]:
+                st.markdown("[" + tr("原始来源", "Original source") + "](" + source + ")")
+    st.info(tr("免费Cboe样本的解析和真实MM侧会计在本机独立运行。本公开页不读取或上传该样本，不展示其逐合约行情／净流；外部数据及派生展示许可另行验收。",
+        "The free Cboe sample parser and observed MM-side accounting run separately on the local computer. This public page does not load or upload those samples or display their contract data/flows. External-data and derived-display licensing need separate acceptance."))
+    st.latex(r"\Delta q_{\mathrm{trade}}=Q_{\mathrm{MM,buy}}-Q_{\mathrm{MM,sell}}")
+    st.latex(r"q_t=q_0+\sum\Delta q_{\mathrm{trade}}+\mathrm{adjustments}")
+    st.write(tr("买平也增加净库存；卖平也减少净库存。买卖双方同属目标MM群体时相抵。Call和Put的普通多头Gamma均为正，贡献符号由净库存决定；MM净买Put不自动表示其存量已净多，也不自动看涨或看跌。",
+        "Buying to close also increases net inventory; selling to close decreases it. Two MM sides cancel within the target group. Ordinary long calls and puts both have positive gamma: inventory determines the contribution sign. Net put buying does not establish a net-long stock of puts or a bullish/bearish forecast."))
+    with st.expander(tr("TOY：同样的净买入，为什么可能仍然净空？", "TOY: why can net buying leave inventory net short?")):
+        st.caption(tr("以下输入完全是假设。仅在初仓范围、同一合约和无遗漏／其他调整假设下计算情景区间；不是统计置信区间。",
+            "These inputs are entirely hypothetical. Compute a scenario range conditional on the stated starting range, same contract and no missing flow/other adjustments; this is not a confidence interval."))
+        delta = _input("number_input", "options_inventory_delta", 30., tr("TOY MM买减卖（张）", "TOY MM buys minus sells (contracts)"), min_value=-100000., max_value=100000., step=10.)
+        low = _input("number_input", "options_inventory_q0_low", -200., tr("TOY初始净库存下界", "TOY starting-inventory lower bound"), min_value=-100000., max_value=100000., step=10.)
+        high = _input("number_input", "options_inventory_q0_high", 200., tr("TOY初始净库存上界", "TOY starting-inventory upper bound"), min_value=-100000., max_value=100000., step=10.)
+        if st.button(tr("运行TOY库存变化示例", "Run TOY inventory update"), key="options_inventory_run"):
+            try:
+                report = run_demo_inventory_update(delta_q=float(delta), q0_lower=float(low), q0_upper=float(high))
+                _save_demo("options_inventory", report)
+                st.session_state["options_inventory_error"] = False
+            except Exception:
+                st.session_state["options_inventory_error"] = True
+        if st.session_state.get("options_inventory_error"):
+            st.error(tr("库存区间输入无效，请检查上下界；没有推断真实库存。", "Invalid inventory-range inputs: check the bounds. No real inventory was inferred."))
+        if st.session_state.get("options_inventory_report"):
+            st.caption(tr("显示上次点击运行的假设；切换语言和修改参数不重算。", "Showing the last-run assumptions; language and input changes do not recalculate."))
+            st.json(st.session_state["options_inventory_report"])
+    st.markdown("[Cboe TBT](https://datashop.cboe.com/enhanced-us-options-trade-by-trade-execution-detail) · "
+        "[Cboe Open-Close](https://datashop.cboe.com/cboe-options-open-close-volume-summary)")
+
+
 def render_options_research_page(tr):
     st.title(tr("期权结构研究：GEX与最大痛苦", "Options Structure: GEX & Max Pain"))
     st.write(tr("区分实际观测、库存假设和可检验预测；先看数据边界，再运行明确标记的TOY教学计算。", "Separate observations, inventory assumptions and testable prediction. Check the data limits, then explicitly run labeled TOY calculations."))
     st.caption(tr("离线研究页；不联网取数、不读取私人文件、不连接券商或提交订单。", "Offline research page: no data fetching, private-file access, brokerage connection or orders."))
-    tabs = st.tabs([tr("数据审计", "Data audit"), tr("GEX情景", "GEX scenarios"),
+    tabs = st.tabs([tr("数据审计", "Data audit"), tr("持仓方向方法", "Inventory methods"), tr("GEX情景", "GEX scenarios"),
                     tr("最大痛苦计算器", "Max Pain calculator"), tr("实验设计", "Experiment design")])
-    for tab, render in zip(tabs, (_audit_tab, _gex_tab, _max_pain_tab, _design_tab)):
+    for tab, render in zip(tabs, (_audit_tab, _inventory_methods_tab, _gex_tab, _max_pain_tab, _design_tab)):
         with tab:
             render(tr)

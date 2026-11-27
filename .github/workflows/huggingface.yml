@@ -10,6 +10,7 @@ on:
       - "research/models.py"
       - "research/portfolio.py"
       - "research/max_pain.py"
+      - "research/dealer_methods.py"
       - "deploy/huggingface/**"
       - "scripts/package_hf_space.py"
       - "scripts/upload_hf_space.py"

@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.11.0（期权结构研究：数据审计与受约束数学演示）；更新日期：2026-11-27（America/New_York）。研究主线仍为美股日频DL／GenAI alpha预测，另有独立日频／5分钟规则、Beta及S&R研究。公开HF只负责研究，不提供委托入口；本机VeighNa＋moomoo真实券商模拟认证与成交验收尚未完成，没有实盘路径。历史版本验收记录保留，当前增量以文末0.11.0节与专题SPEC为准，S&R真实数据验收保留于0.10.0记录。
+版本：0.11.0（已发布应用：期权结构研究与受约束数学演示）；更新日期：2026-11-27（America/New_York）。本机新增做市商持仓方向数据审计与研究契约，未发布新应用版本。研究主线仍为美股日频DL／GenAI alpha预测，另有独立日频／5分钟规则、Beta及S&R研究。公开HF只负责研究，不提供委托入口；本机VeighNa＋moomoo真实券商模拟认证与成交验收尚未完成，没有实盘路径。历史版本验收记录保留，当前增量以文末0.11.0节与专题SPEC为准，S&R真实数据验收保留于0.10.0记录。
 
 ## 系统实施路线与当前增量
 
@@ -261,6 +261,13 @@ MCP目录中的8个`sim_trade_*`工具映射服务器模拟业务，不能据此
 
 当前真实最小实验是准入审计：SPY／QQQ静态链438／514条已取得；当前完整OI／Greeks未取得，旧Cboe单点OI的时间／乘数／完整性未核，MM身份与开平仓标签缺失。完整GEX／MP自建及历史样本外预测为NOT_ESTIMABLE，合格历史预测样本N=0；真实库存NOT_IDENTIFIABLE。没有把旧链、今天静态乘数、异动列表或未知OI日期拼成历史。
 
+2026-11-27 12:08—12:09美东新增有界实测：SPY／QQQ在11/27、11/30两个到期日共2118份静态合约；其中8份近现价Call／Put的OI、IV、Greeks动态字段成功返回，另有4合约共400笔最新成交和8次1档盘口。动态路径为订阅basic后get-basic-qot，全量snapshot小批仍15秒超时。本次非空有限字段不等于独立经济有效性或全链验证；盘口缺源时间，MM侧、q0、开平及完整历史仍缺。供应商净主动流代理已对真实窗口离线计算，q保持null，不冒充MM净流或GEX符号。细表见[最新审计](docs/MOOMOO_DEALER_INVENTORY_AUDIT.md)。
+
+做市商持仓方向研究按[独立识别SPEC](specs/DEALER_INVENTORY_IDENTIFICATION.md)执行：分别验主动方、MM买卖侧、库存增量、库存存量、Call／Put／总GEX；手动p_long仅教学情景，无符号集中度不参加方向准确率比较。没有独立capacity标签不训练声称恢复q的模型；有分类增量仍需初仓、覆盖及调整才可识别存量。新增前台只读审计脚本与20项离线检查，不启动后台任务、不改HF教学应用或券商路径。
+
+2026-11-27外部MM分类来源研究已补充[免费与付费比较](docs/MM_CLASSIFIED_DATA_SOURCES.md)，识别SPEC更新至0.2。实际C1 TBT免费旧日样本113,018条参与者侧记录、58,293条MM，抽样多数缺对侧，不等于完整成交或净库存；Open-Close样本具有MM买卖数量，累计日内文件须差分。OCC免费日级MM活动无买卖／行权价；NYSE旧示例日期未核、JFE复现包为伪数据，均不作为真实历史标签。当前moomoo同期逐笔真标签匹配仍N=0，未训练／校准F2或恢复q；仅完成下载审计、官方费用与许可核对及接入设计，没有付费订阅、申请试用、新HF发布或原始样本外传。
+
+
 独立research/max_pain.py做精确单期理论支付最小集合，保留平底／无界、拒绝缺OI／未知乘数／不完整链／非标准条款；提供冻结目标、未来观察可得时间及目标迁移函数。hf_space/gex_scenarios.py对全链逐点重算欧式BSM Gamma，比较固定符号、启发式库存先验、无符号集中度与极端压力；使用.01*S²共同单位，IV／时间情景与库存推断区分，情景包络不是置信区间。其数学与TOY演示不代表真实库存、已校准概率或预测准确率。
 
 HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只在明确的TOY演示按钮后计算，中文／English切换保留报告字节。不从HF读取本机PCR数据库／原始链／凭据，也不上传这些文件。公开包为27文件（26源码＋MANIFEST），仅新增两个研究UI／GEX模块及独立Max Pain源文件，无券商执行器或新采集任务。预测／交易用途须先通过真实point-in-time归档、强基线及独立留出；未通过仅作结构参考。实际测试和公网证据另行补录。
@@ -284,3 +291,12 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 后续Trading System拟采用独立GitHub仓库与HF Space，研究Lab与执行系统的模块、数据、权限与消息边界已追加到specs/VEIGHNA_MOOMOO_SYSTEM.md。此处为用户确认的后续组织方向；当前没有创建新repo／Space／代码项目或迁移活动账本，真实券商模拟接入状态未改变。
 
 追加界面偏好版本已复验：发布提交a17603bfc459824c945fe2de002d75022468d1ec、HF工作流45956854531成功，当前HF仓库／runtime为c5f954328abb4af42e9bac36dfe3f69dd132d772，RUNNING／CPU Basic。26源码与新本机包逐字一致，MANIFEST仅created_at不同，纯LFS元数据单独核对。主程序SHA256为4d571abd4a3c8133786091297d459ffe3bea9dba7b2be1cfed19dc7be250dbb4。原9d208／2daea记录保留为核心研究功能验收基线；S&R／GEX／Max Pain计算及其独立UI源码未变，新增偏好另经6项导航和实际浏览器English→中文→document刷新保留中文→English→刷新保留English验收，无连续重跑或Run／取数动作。证据为state/options-research/qa/language-persistence-a176-browser-20261127T024037及当前hf-package-verification.json。
+
+## 0.11.1准备：免费MM样本核验与方法目录
+
+按用户新授权实现本机`research/cboe_mm_sample.py`与`scripts/run_cboe_mm_validation.py`，只用已下载免费C1样本；不采购付费数据、不申请试用、不新增持续采集。严格解析真实MM侧买卖量，隔离507条非期权／未证腿、未知side与capacity，保留原始root和精确行权价，未知乘数／交付物不填100。执行与组合分组、重复拒绝、累计差分修订及来源哈希明确；不对抽样放大，不把数据量当独立证据。真实结果与反例在本机ignored state的英文默认／中文可切换HTML及JSON，具体见[复跑说明](docs/CBOE_MM_SAMPLE_VALIDATION.md)。
+
+样本可核MM买减卖和双MM相抵，但不识别q0或完整区间；真实q、净存量GEX、校准概率和预测准确率仍未知。与同日EOD的精确合约交集只作抽样范围诊断，调整root单列；EOD完整性未验，不称完整库存真值。2025样本没有同期Gamma，不能配2026 moomoo Greeks；同期逐笔标签匹配仍0。
+
+新增九种方法的`research/dealer_methods.py`能力目录与门槛，包含此前固定符号、先验、集中度、NBP、capacity流、需求框架、隐状态、组合及有限风险重定价。公开期权页增加Inventory methods／持仓方向方法Tab及独立TOY初仓敏感性；不上传真实Cboe样本／逐合约净流，原教学GEX／MP机制保留。完整状态契约更新至[库存识别0.3](specs/DEALER_INVENTORY_IDENTIFICATION.md)。HF白名单只增加无行情方法目录一个模块，预期28文件（27源码＋MANIFEST），不包含本机Cboe适配器或结果。此处是实现与发布准备，实际部署／新访客验收另记，不以本机测试当公网成功。
+

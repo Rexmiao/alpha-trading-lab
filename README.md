@@ -14,6 +14,8 @@
 
 ## 每日采集与自动交易系统规格
 
+新增[免费Cboe样本的MM方向核验](docs/CBOE_MM_SAMPLE_VALIDATION.md)与[九种持仓方向方法目录](research/dealer_methods.py)：本机解析真实分类侧记录，隔离非期权／未知腿，核对MM买减卖和抽样净流翻转。原始样本及数据驱动结果仅留本机；公开期权页新增「Inventory methods／持仓方向方法」与独立TOY初仓敏感性，未实现方法明确标注。库存变化不等于库存存量，尚无真实净GEX改善或样本外准确率证明；[分类来源及费用比较](docs/MM_CLASSIFIED_DATA_SOURCES.md)与[识别SPEC](specs/DEALER_INVENTORY_IDENTIFICATION.md)保留缺口，本轮不购买付费数据。
+
 [查看验收展示与可复跑命令](docs/ACCEPTANCE_DEMO.md)：2026-11-26重新执行342项Python基线与26项采集测试，另有3项真实DPAPI问题回归。先落盘、超时恢复、成交去重、模式切换及回放隔离分别列出具体测试；这些不等于真实券商成交或策略盈利证明。[模拟账户接入入口](docs/PAPER_ACCOUNT_SETUP.md)
 
 完整路线见[每日系统SPEC](specs/DAILY_SIGNAL_SYSTEM.md)，当前代码见[VeighNa＋moomoo试点SPEC](specs/VEIGHNA_MOOMOO_SYSTEM.md)。本机已实现行情采集→持久信号→受约束提案→提醒／确认／自动模拟委托→成交对账；SQLite放本机非同步目录。UNKNOWN提交不盲重试，模式切换不补执行旧信号。真实券商模拟认证与成交仍待验收，尚未启动常驻任务；每日M1全量验收未完成。

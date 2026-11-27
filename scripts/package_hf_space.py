@@ -51,6 +51,7 @@ SOURCES = (
     ("research/models.py", "research/models.py"),
     ("research/portfolio.py", "research/portfolio.py"),
     ("research/max_pain.py", "research/max_pain.py"),
+    ("research/dealer_methods.py", "research/dealer_methods.py"),
 )
 ALLOWED_FILES = frozenset(destination for _, destination in SOURCES) | {MANIFEST_NAME}
 ALLOWED_DIRECTORIES = frozenset(

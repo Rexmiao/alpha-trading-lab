@@ -76,3 +76,9 @@
 ## 后续专题 Beta策略
 
 2026-11-26补充Beta研究：Frazzini与Pedersen的BAB、Baker等低风险解释、Novy-Marx与Velikov的BAB批评、Asness等相关性分解，以及Moreira与Muir、Cederburg等、Daniel与Moskowitz的动态风险证据。现行S&P／MSCI方法与French／AQR参考数据入口也一并记录。原文链接、版本差异、成本与实时可实施限制见[Beta策略研究](../BETA_STRATEGIES_RESEARCH.md)，项目变体与验收见[实验规格](../../specs/BETA_RESEARCH_PLAN.md)。这些是后续专题，不属于原始三篇论文，也不是新增策略已经上线的证明。
+
+## 后续专题 做市商库存方向与GEX
+
+2026-11-27补充[24个研究家族的原文核读综述](../GEX_MAXPAIN_DECISION_RESEARCH_2026-11-27.md)，逐篇区分实际阅读版本、数据标签、方法、预测与执行边界；直接Max Pain论文未取得完整稿者单列，不计全文数量。共享样本和同家族修订不当作独立复制。
+
+库存识别重点对应Amaya等2026的容量分类递推、Demand-Based Option Pricing的真实分参与者持仓、Bollen／Whaley的主动买压、Options Market Makers的账户净额化。逐项数据可复现性见[moomoo实测与论文映射](../MOOMOO_DEALER_INVENTORY_AUDIT.md)，具体schema、q0、标签和误差验收见[库存方向SPEC](../../specs/DEALER_INVENTORY_IDENTIFICATION.md)。当前只实现安全数据审计与供应商主动流代理；不是复现私有容量数据、校准隐状态或恢复真实MM持仓。现有手动GEX先验仍属数学情景。
