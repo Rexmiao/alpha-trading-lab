@@ -21,5 +21,5 @@
 - 每日信号／自动交易的后续实现先读specs/DAILY_SIGNAL_SYSTEM.md。用户最终希望全自动实盘，M1范围先为采集、因子、信号及审计；计划与已实现状态分开。活动SQLite放本机非同步目录，REPLAY与CAPTURE发布键隔离，不能把未来实盘目标误当作当前下单授权。
 
 - 提醒、半自动与全自动是同一策略引擎的可选执行策略；automation_mode与execution_environment、workflow_kind分开。模式切换不重写信号、不补执行旧提醒，不自动迁移在途订单或升级为真钱账户；M1仍固定CAPTURE＋ALERT_ONLY＋NONE。
-- 用户已确认SNR指Support & Resistance（支撑／阻力），不是Signal-to-Noise Ratio。原始研究、开源实现与因果时点要求见docs/MOMENTUM_TREND.md的SNR章节；目前仅研究与候选设计，没有新增SNR策略、HF页面或券商委托能力。不能将现有ORB或未来确认的pivot回填描述为完整SNR实现。
+- 用户已确认SNR指Support & Resistance（支撑／阻力），不是Signal-to-Noise Ratio。0.10.0新增独立5分钟支撑反弹／阻力突破／突破回踩研究页，实施契约先读specs/SUPPORT_RESISTANCE.md。前一紧邻完整XNYS RTH日高低形成冻结区域，严格后续bar确认，下一可执行开盘代理及收盘失效／尾盘清仓；不推定同bar先后，不含盘中止损／OCO或券商接线。原始方法与未实现的swing／聚类／Volume Profile仍见docs/MOMENTUM_TREND.md。私有读取、真实回测和公网部署分别验收，无事件允许零交易，禁止教学结果替代真实数据。
 - Beta专题原始研究见docs/BETA_STRATEGIES_RESEARCH.md，实施契约见specs/BETA_RESEARCH_PLAN.md。0.9.0实现真实日K的126／252日测量及高／低Beta、全池等权、80%与100% SPY五组无杠杆对照；HF日K使用独立daily/私有命名空间，原始行情不开放下载。Beta-cap、动态Beta、指数对冲与BAB未实现；股票收益减SPY不是Beta调整alpha，低波动不是低Beta，池内低Beta不保证Beta<1，截距不是Jensen alpha。不得将研究结果接入执行器或将杠杆／空头权重传入现有多头账本；部署、私有读取、历史回测与券商成交分别验收。

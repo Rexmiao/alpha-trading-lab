@@ -30,6 +30,17 @@ pandas and PyArrow table conversion before publishing the image.
 - Run bounded simulations and public history requests only after an explicit user action.
 - Download a session-only online price CSV snapshot and source JSON for repeatability; provider errors are explicit and never replaced with synthetic data.
 - Compare Ridge, MLP, resampling and conditional-DDPM augmentation.
+- Study three independent 5-minute support/resistance rules: support bounce,
+  resistance breakout and breakout-retest confirmation. Frozen zones come from
+  the immediately preceding complete XNYS RTH session, never today's final range
+  or future pivots. Confirm on completed bars, execute at a later open, charge
+  costs and flatten at the scheduled final-bar open; no intrabar stops or OCO.
+  Published private moomoo snapshots, visitor CSV and explicit teaching inputs
+  are separated. The initial session forms levels and is excluded from returns;
+  short samples suppress annualized statistics.
+- Language selection and all five study links appear above the main content;
+  data and execution parameters stay in the collapsible sidebar, with less-used
+  settings grouped under Advanced settings. Language changes retain report bytes.
 - Measure daily market Beta with a predeclared 126- or 252-return OLS window.
   Compare high/low Beta, eligible-universe equal weight, 80% SPY/cash and 100%
   SPY over one common evaluation window, with next-open integer-share execution

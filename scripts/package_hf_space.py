@@ -41,6 +41,8 @@ SOURCES = (
     ("hf_space/daily_snapshot_source.py", "hf_space/daily_snapshot_source.py"),
     ("hf_space/beta.py", "hf_space/beta.py"),
     ("hf_space/beta_ui.py", "hf_space/beta_ui.py"),
+    ("hf_space/support_resistance.py", "hf_space/support_resistance.py"),
+    ("hf_space/support_resistance_ui.py", "hf_space/support_resistance_ui.py"),
     ("hf_space/streamlit_app.py", "hf_space/streamlit_app.py"),
     ("research/__init__.py", "research/__init__.py"),
     ("research/data.py", "research/data.py"),

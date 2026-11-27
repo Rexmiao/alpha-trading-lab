@@ -4,7 +4,9 @@
 
 第一版比较Ridge、两隐藏层MLP、重采样MLP及条件DDPM增强MLP。另有ADNN平滑IC目标的核心机制实验。这里的MLP与条件收益生成是研究设计，不是ADNN或DARL论文完整复现。
 
-新增独立[Beta测量与五组对照](specs/BETA_RESEARCH_PLAN.md)：moomoo真实历史日K、126／252日OLS、高／低Beta与全池等权，以及80%／100% SPY控制组；月末信号、次日开盘、整数股与交易成本。Hugging Face侧栏选择「Beta测量与策略对照」，可查看曲线、个股测量、数学原理与审计JSON；私有快照不开放原始行情下载。低Beta为主题池内相对排名，仍可能大于1；这是历史研究，不是市场中性alpha或券商下单功能。真实运行与发布记录见[部署验收](docs/HUGGINGFACE_DEPLOYMENT.md#090-beta日频测量与五组对照)。
+新增独立[Beta测量与五组对照](specs/BETA_RESEARCH_PLAN.md)：moomoo真实历史日K、126／252日OLS、高／低Beta与全池等权，以及80%／100% SPY控制组；月末信号、次日开盘、整数股与交易成本。Hugging Face主内容顶部选择「Beta测量与策略对照」，可查看曲线、个股测量、数学原理与审计JSON；私有快照不开放原始行情下载。低Beta为主题池内相对排名，仍可能大于1；这是历史研究，不是市场中性alpha或券商下单功能。真实运行与发布记录见[部署验收](docs/HUGGINGFACE_DEPLOYMENT.md#090-beta日频测量与五组对照)。
+
+0.10.0新增[5分钟支撑／阻力研究](specs/SUPPORT_RESISTANCE.md)：以前一完整RTH日的冻结高低区域，分别比较支撑反弹、阻力突破、突破后回踩。默认使用已发布moomoo私有5分钟快照，也支持访客CSV和明确标记的教学输入；提供价位／事件图、含成本回测、数学原理及派生JSON。语言切换与五个研究入口位于主内容顶部，数据／参数／运行留在可折叠侧栏，高级参数收起。原始行情不开放下载，研究页不下单；实际发布证据见[HF部署记录](docs/HUGGINGFACE_DEPLOYMENT.md)。
 
 ## 每日采集与自动交易系统规格
 

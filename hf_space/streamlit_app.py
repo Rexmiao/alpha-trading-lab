@@ -260,7 +260,11 @@ def render_data_source(result: dict) -> None:
 
 def main() -> None:
     st.set_page_config(page_title="AI Alpha Simulation Lab", page_icon="📈", layout="wide")
-    st.sidebar.radio("语言 / Language", ("中文", "English"), key="hf_language", horizontal=True)
+    brand, language = st.columns([3, 2], vertical_alignment="center")
+    with brand:
+        st.markdown("**Alpha Trading Lab**")
+    with language:
+        st.radio("语言 / Language", ("中文", "English"), key="hf_language", horizontal=True)
     # Keep navigation in non-widget state: translated labels may recreate widgets.
     memory = "_hf_study_choice"
     if memory not in st.session_state:
@@ -271,9 +275,16 @@ def main() -> None:
     study_labels = {"ai": tr("AI 模型对照", "AI model comparison"),
                     "strategies": tr("日频动量与趋势", "Daily momentum & trend"),
                     "intraday": tr("5 分钟动量与趋势", "5-minute momentum & trend"),
-                    "beta": tr("Beta 测量与策略对照", "Beta measurement & comparison")}
-    study = st.sidebar.radio(tr("研究页面", "Study page"), ("ai", "strategies", "intraday", "beta"), index=None,
-                             format_func=study_labels.__getitem__, key="hf_study", on_change=remember_study)
+                    "beta": tr("Beta 测量与策略对照", "Beta measurement & comparison"),
+                    "sr": tr("支撑与阻力策略", "Support & resistance")}
+    study = st.radio(tr("研究页面", "Study page"), ("ai", "strategies", "intraday", "beta", "sr"), index=None,
+                     format_func=study_labels.__getitem__, key="hf_study", on_change=remember_study,
+                     horizontal=True)
+    st.divider()
+    if study == "sr":
+        from hf_space.support_resistance_ui import render_sr_page
+        render_sr_page(tr)
+        return
     if study == "beta":
         from hf_space.beta_ui import render_beta_page
         render_beta_page(tr)
@@ -303,7 +314,7 @@ def main() -> None:
     if mode == "uploaded_csv":
         st.sidebar.caption(tr("主要使用 moomoo 导出的历史日 K，也接受访客提供的标准 CSV；请先整理为下方 7 列。这里不连接 moomoo 登录或账户。",
                               "Primarily use historical daily bars exported from moomoo; visitor-supplied standard CSV is also accepted. Map it to the seven columns below. No moomoo login or account is connected."))
-        st.sidebar.info(tr("CSV 会发送到运行此模拟的云端环境临时处理。请勿上传账户、个人信息或密钥；请确认有权用于云端处理。",
+        st.sidebar.caption(tr("CSV 会发送到运行此模拟的云端环境临时处理。请勿上传账户、个人信息或密钥；请确认有权用于云端处理。",
                            "CSV files are sent to the server hosting this simulation for temporary processing. Exclude account details, personal information and secrets, and ensure you have the right to process the data in the cloud."))
         uploaded = st.sidebar.file_uploader(tr("选择日 K CSV", "Choose a daily OHLCV CSV"), type=["csv"], key="hf_uploaded_csv")
         with st.sidebar.expander(tr("CSV 格式要求", "CSV requirements")):
@@ -340,11 +351,12 @@ def main() -> None:
                                           "Sets both the return-label holding period and the rebalance interval; longer horizons leave fewer usable labels and observed rebalances."))
         st.caption(tr("建议从 5 个交易日开始，初期在 10 个交易日以内研究；可输入 1–20 的整数。这是教学起点，并非经验证的最优周期。",
                       "Start with 5 trading days; use 10 or fewer for initial experiments. Enter an integer from 1–20. This is a teaching starting point, not a validated optimal horizon."))
-        seed = st.number_input(tr("随机种子", "Random seed"), min_value=0, max_value=2147483647,
-                               value=42, step=1, key="hf_seed")
-        cost_bps = st.slider(tr("单边成交成本（bps）", "Execution cost per side (bps)"), 0, 50, 10, 1, key="hf_cost_bps")
-        max_weight_pct = st.slider(tr("单股仓位上限 %", "Per-stock position cap %"), 10, 40, 20, 5, key="hf_max_weight_pct")
-        target_vol_pct = st.slider(tr("组合年化波动预算 %", "Annualized portfolio volatility budget %"), 5, 30, 15, 1, key="hf_target_vol_pct")
+        with st.expander(tr("高级设置", "Advanced settings")):
+            seed = st.number_input(tr("随机种子", "Random seed"), min_value=0, max_value=2147483647,
+                                   value=42, step=1, key="hf_seed")
+            cost_bps = st.slider(tr("单边成交成本（bps）", "Execution cost per side (bps)"), 0, 50, 10, 1, key="hf_cost_bps")
+            max_weight_pct = st.slider(tr("单股仓位上限 %", "Per-stock position cap %"), 10, 40, 20, 5, key="hf_max_weight_pct")
+            target_vol_pct = st.slider(tr("组合年化波动预算 %", "Annualized portfolio volatility budget %"), 5, 30, 15, 1, key="hf_target_vol_pct")
         submitted = st.form_submit_button(tr("运行模拟", "Run simulation"), type="primary", use_container_width=True)
     st.sidebar.caption(tr("只在点击运行后计算。结果保存在当前会话，切换语言无需重新训练；可下载 JSON 自行保存。",
                           "Computation starts only when you click Run. Results stay in this session; switching language does not retrain. Download JSON to keep a copy."))

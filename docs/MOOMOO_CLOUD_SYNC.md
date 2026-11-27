@@ -52,6 +52,31 @@ $env:ALPHA_SNAPSHOT_TOKEN_DPAPI = 'C:\Users\Rexy\Documents\ChatGPT\量化准备\
 
 Windows真实运行修复：若从PowerShell7启动，旧实现可能让Windows PowerShell5继承不兼容PSModulePath，从而报LOCAL_PROTECTED_TOKEN_UNAVAILABLE，即使DPAPI凭据有效。当前发布器对子进程使用绝对powershell.exe路径和仅系统模块环境，已通过真实凭据再读取。不要仅因该旧错误重新生成或转存明文令牌。
 
+## 支撑／阻力研究的10日5分钟快照
+
+2026-11-27 UTC已通过现有桌面Host只读采集SPY／NVDA最近10个完整XNYS交易日：2026-11-12、13、16至20、23至25。每个证券每天78根RTH五分钟K线，每个证券780行，共1,560行、96,516字节；`as_of=2026-11-25T21:00:00Z`。11月26日为休市，27日尚未完成，均未混入本次历史窗口。
+
+- CSV：`data/intraday/moomoo-5m-rth-2026-11-27T05-35-42-433Z-69568/moomoo-5m-rth.csv`。
+- 本机来源审计：同目录`manifest.json`；16页原始行情响应保留在本机忽略目录，不随公开源码上传。
+- CSV SHA256：`8a397cb2616b66c57c143dcdf34936231b4d0e7ffd30dedb8d2aaf285c51631e`。
+- 本机完整交易日网格、重复键、有限值、正价格、OHLC范围及非负成交量检查通过，发布器本机准备返回`COLLECTED_PREPARED`。与已验收旧3日快照重叠的468行，其open／high／low／close／volume逐数值全部一致；旧快照与原始审计保留。
+
+仍使用已验证的CLI `16.40.27608.11182326`、`rehab_type=0`未复权OHLCV。供方标签为bar-end，减5分钟后存为UTC bar-start；1分钟聚合的78组OHLC及高精度成交量核对依据仍为既有本机报告。新10日manifest记录该已知版本的时间口径声明，本次没有重新对全部新数据执行1分钟聚合核对，也没有独立第三方行情验证；不能将468行重叠一致扩大为全部1,560行已重新交叉验证。
+
+该窗口用于5分钟支撑／阻力三种规则的工程验收：默认先用第一个完整共同交易日预热，再评价剩余9个共同交易日；可用日仍由实际参数与完整性检查决定。这是短窗口历史研究，不据此认定策略长期有效，也不接入券商执行。行情源、预热和评价日期须写入研究结果，原始CSV仍无公开下载入口。
+
+重复采集使用独立的本机检查点目录，不覆盖现有3日窗口状态；默认只采集和准备：
+
+```powershell
+& '.\state\snapshot-sync-venv\Scripts\python.exe' '.\scripts\run_snapshot_sync.py' --runtime-dir 'C:\Users\Rexy\Documents\ChatGPT\量化准备\alpha-paper-runtime\sr-study-10sessions' --symbols SPY,NVDA --sessions 10
+```
+
+只有显式发布才更新5分钟命名空间的根目录`latest.json`及对应`snapshots/<CSV SHA256>/`两文件。它沿用专用Dataset写凭据及Space只读凭据；不修改`daily/latest.json`或`daily/snapshots/`，日K Beta快照与验收保持独立。
+
+**当前状态：10日快照真实私有上传与重读已完成。** 新revision为`1166944d51191723e2b4f3ce428cb3f818cb1bd1`，1560行及SHA256一致，daily/latest.json字节未变。Space独立读取与S&R公网运行待验收；旧3日记录属于历史。未启动watch或创建后台任务。
+
+本次首次采集报`PROTECTED_CREDENTIAL_UNAVAILABLE`，尚未发出行情业务请求。受限重试使用绝对Windows PowerShell5路径和仅系统模块的`PSModulePath`，在配置凭据的实际Windows用户进程内解密现有行情DPAPI，并仅向当前采集子进程传递`OPENAPI_HOST_APPKEY`后成功。明文没有打印、写盘或设置为永久环境变量，结束时清理进程变量和BSTR；没有重新授权、扩大权限或修改凭据ACL。遇到同类错误先核对进程身份与PowerShell模块环境，不将行情凭据或Dataset令牌复制进源码／聊天。
+
 ## 日K私有快照与Beta研究
 
 本节使用同一个Private Dataset `Rexymiao/alpha-trading-snapshots`，但与5分钟快照采用独立命名空间。日K发布器只提交以下三个文件，不修改旧的根目录`latest.json`或`snapshots/`五分钟历史：
