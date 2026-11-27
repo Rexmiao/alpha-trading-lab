@@ -1,6 +1,26 @@
 # Hugging Face Docker 发布准备
 
-0.12.0新增盘前事件研究与双入口，当前正在部署验收；最新证据追加在本文末尾。应用直达为[rexymiao-alpha-trading-lab.hf.space](https://rexymiao-alpha-trading-lab.hf.space/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。
+0.12.0盘前事件研究与双入口已发布并通过实际浏览器验收；最新证据见下一节。应用直达为[rexymiao-alpha-trading-lab.hf.space](https://rexymiao-alpha-trading-lab.hf.space/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。
+
+## 0.12.0 盘前统计：实际发布与验收
+
+2026-11-27，经现有GitHub App发布应用代码`9e6cbbb080a73b9de1580c12af07c887ec203c95`，并以`48f6ba03f508780520cbe7dfc99207a4997d21d2`补齐Docker构建上下文的显式允许文件。[最终同步工作流46065758842](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/46065758842)成功；HF仓库与runtime均为`25ebe7014fcc5f331aff99872183314812367394`，RUNNING，当前／请求硬件均CPU Basic。没有改变Space、付费配置或凭据范围。
+
+入口为“Premarket & opening downside／盘前涨幅与开盘下探”。全局另有Open app／打开应用及Hugging Face project／项目页两个链接，默认English，中文可切换。选择QQQ／SPY／DIA、自定义盘前涨幅（如1.25%）和观察口径，显式点击Compare historical events后查看n、最大下探分布、全部事件日、同覆盖基线与派生JSON。冻结范围2025-11-27至2026-11-26，不含今天，不是实时数据。
+
+发布包为30份源码／派生资产加MANIFEST，共31文件；全部远端文件逐字与本机一致，MANIFEST逐项hash通过。唯一新增公开派生参考集SHA256为`1b93af7a00e7c241ca9e2c76a9ae6234475c77c12170ba2d2ca086ed6cee7b60`，750标的日，仅无量纲充分统计和净化指纹，不含分钟OHLCV、绝对价格、成交量、路径、游标或凭据。它作为公开文件可读取；原始行情和本机报告没有发布。
+
+115项相关测试通过，随后新增Docker清单一致性用例，打包组3项通过（覆盖116个不同用例，未宣称全项目历史测试重跑）。本机同步盘metadata波动时，采用显式白名单复制到非同步临时stage，逐字复读核验后生成最终31文件包；GitHub Linux工作流又独立打包成功，没有移除稳定源校验。
+
+公开应用实际浏览器验收通过：
+
+- 新访客English、两个访问链接正确。
+- 输入1.25%，QQQ／SPY／DIA事件数18／4／5，原生下载逐结构等于本机纯计算。
+- 修改参数未提交不重算；切中文后原生JSON同字节，SHA256为`735b5a2b8a96a8403cbd3e8da53cbacef4dc3052b74aea5a286855b5f1cdff38`。
+- DIA完整盘前无合格窗显示不可估计，并保留3个已观察部分窗口触发；不显示0%预测。
+- 两次场景均通过390px无页面横溢出及JS异常0。
+
+证据在ignored `state/hf-premarket-review/`：`reference-audit.json`、`hf-package-verification-final.json`、`public-custom-20261127T204637Z-f4b4f8/qa.json`和`public-dia-20261127T204637Z-a1b76d/qa.json`。部署、数据来源、计算一致性和预测用途分开；没有新增行情采集、券商连接、订单、后台任务或盈利声称。备用Cloud／Pages本轮未单独验收。
 
 历史0.8.1进度（最新Beta见文末0.9.0）：Private Dataset已实际上传468行真实moomoo快照并核对hash，revision为`81acd7bef19dcfc890b71bc9a70ca7d5a7208c20`；用户完成Space独立读取配置后，新访客已读通并实际运行三种策略，来源／行数／hash／as_of全部一致，研究JSON可下载、无原始CSV下载。自动watch未启动。设置入口为[本Space的Settings](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab/settings)，详细值见[操作说明](MOOMOO_CLOUD_SYNC.md)。历史0.8.0验收保留文末。[新鲜测试展示与命令](ACCEPTANCE_DEMO.md)
 
