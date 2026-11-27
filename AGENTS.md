@@ -21,3 +21,4 @@
 - 每日信号／自动交易的后续实现先读specs/DAILY_SIGNAL_SYSTEM.md。用户最终希望全自动实盘，M1范围先为采集、因子、信号及审计；计划与已实现状态分开。活动SQLite放本机非同步目录，REPLAY与CAPTURE发布键隔离，不能把未来实盘目标误当作当前下单授权。
 
 - 提醒、半自动与全自动是同一策略引擎的可选执行策略；automation_mode与execution_environment、workflow_kind分开。模式切换不重写信号、不补执行旧提醒，不自动迁移在途订单或升级为真钱账户；M1仍固定CAPTURE＋ALERT_ONLY＋NONE。
+- 用户已确认SNR指Support & Resistance（支撑／阻力），不是Signal-to-Noise Ratio。原始研究、开源实现与因果时点要求见docs/MOMENTUM_TREND.md的SNR章节；目前仅研究与候选设计，没有新增SNR策略、HF页面或券商委托能力。不能将现有ORB或未来确认的pivot回填描述为完整SNR实现。

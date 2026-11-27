@@ -81,7 +81,7 @@ timestamp,symbol,open,high,low,close,volume
 node scripts/collect-moomoo-intraday.mjs --symbols SPY,NVDA --start 2026-11-24 --end 2026-11-25
 ```
 
-沿用已安装桌面CLI／Host22222、进程内密钥及本机DPAPI方式；不改变旧日K采集器或manifest。默认未核时间标签时只留raw；本版本经78组5分钟与1分钟聚合对齐后，使用`--timestamp-label bar-end --verification-source "核验依据"`导出，减5分钟得到UTC bar-start；可用时点仍是原bar-end。已取得11月23–25日SPY／NVDA各234根，合计468行；end日期为排他边界。原始页、整数volume差异审计及来源清单只留`data/intraday/`，不进入公开包。HF只从固定私有Dataset服务端读取，首次上传／读取仍待账号配置验收。[接口边界](MOOMOO_API.md)、[私有同步](MOOMOO_CLOUD_SYNC.md)。
+沿用已安装桌面CLI／Host22222、进程内密钥及本机DPAPI方式；不改变旧日K采集器或manifest。默认未核时间标签时只留raw；本版本经78组5分钟与1分钟聚合对齐后，使用`--timestamp-label bar-end --verification-source "核验依据"`导出，减5分钟得到UTC bar-start；可用时点仍是原bar-end。已取得11月23–25日SPY／NVDA各234根，合计468行；end日期为排他边界。原始页、整数volume差异审计及来源清单只留`data/intraday/`，不进入公开包。HF已从固定私有Dataset服务端实际读取该快照并运行三规则研究；没有常驻同步任务，也不提供原始行情下载。[接口边界](MOOMOO_API.md)、[私有同步](MOOMOO_CLOUD_SYNC.md)。
 
 ## 其他分钟数据候选，尚未接入
 
@@ -92,3 +92,48 @@ node scripts/collect-moomoo-intraday.mjs --symbols SPY,NVDA --start 2026-11-24 -
 分钟研究需另定UTC时间戳、交易时段、半日市、缺bar、收盘竞价及信号可见时间；只凭OHLC不能知道同根K线内高低点先后。实际执行还需报价、延迟和滑点检验。当前不会因此自动开通订阅、读取账户或提交订单。
 
 论文仅提供原文链接，不下载或重新分发全文。相关方法与原始三篇论文的区别见 [论文索引](papers/README.md)；真实日K入口和冻结快照原则见 [历史数据说明](HISTORICAL_DATA.md)。
+
+## SNR支撑／阻力的量化研究
+
+核对日期2026-11-26。用户已确认SNR指Support & Resistance。本节是研究和候选设计，**没有实现新的SNR策略或部署新页面**。现有开盘区间突破只是相关基线，不能代表完整的支撑／阻力系统。
+
+### 先定义价位，再定义如何交易
+
+| 方法 | 怎样形成候选价位 | 实时使用的关键约束 |
+| --- | --- | --- |
+| 前日／前期固定水平 | 前一完整RTH高低；传统Pivot用`P=(H+L+C)/3`、`R1=2P-L`、`S1=2P-H` | 前期完成后才可用，统一RTH／扩展时段与复权口径。[TradingView公式与时段](https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/) |
+| 历史滚动通道 | `R_t=max(H[t-N:t])`、`S_t=min(L[t-N:t])`，切片上限排除当前根 | 用本根收盘判断突破时，必须读上一根通道；LEAN默认更新会纳入当前High／Low，不能误称库已自动shift。[LEAN源码](https://github.com/QuantConnect/Lean/blob/master/Indicators/DonchianChannel.cs) |
+| 已确认的swing高低点 | 以左、右指定根数判断局部高低 | 右侧r根结束后才知道pivot，分别保留pivot_at和available_at；不按画回历史的标签提前交易。[TradingView重绘说明](https://www.tradingview.com/pine-script-docs/concepts/repainting/#plotting-in-the-past) |
+| 多价位合并／聚类 | 历史转折点中距离接近的价格合为区域，中心可用中位数 | 作者开源例子采用AgglomerativeClustering及ZigZag／高低点；属于找线工具，完整样本fit或未确认ZigZag不能直接作历史信号。[作者仓库](https://github.com/day0market/support_resistance) |
+| Volume Profile | 根据价位成交量分布得到POC和价值区间 | 官方工具使用更低周期数据；单根5分钟总量无法唯一还原价位成交量，近似需标明假设。当日最终POC不能提前用于早盘。[官方方法](https://www.tradingview.com/support/solutions/43000502040-volume-profile-indicators-basic-concepts/) |
+
+SciPy的`find_peaks`可筛选突出程度和峰间距，但不是现成的实时交易信号；prominence会向左右寻找基底，wlen也不会自动消除未来依赖。若使用此类工具，须在当时可见的前缀数据上确认，并冻结已经发布的结果，不能全样本计算再回填。[find_peaks](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html)、[prominence](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.peak_prominences.html)
+
+### 原始研究提供了什么证据
+
+- [Osler，2000，纽约联储原文](https://www.newyorkfed.org/medialibrary/media/research/epr/00v06n2/0007osle.pdf)：用机构事先公布的价位与随机价位比较反弹频率；这是外汇事件预测检验，不提供统一自动找线算法，也不是扣成本策略验收。
+- [Chung与Bellotti，2021](https://arxiv.org/html/2101.07410v1)：滚动极值加减宽度形成区域，价格进入后冻结至反弹／穿透完成，研究历史反弹次数与时间衰减。样本为2018年EURUSD、LLOY和BRENT的一分钟价格。原文带宽使用全序列平均绝对增量；交易研究应改为训练期固定或截至当时估计，并记录这一偏离，不能借未来波动。
+- [Garzarelli等，2014，Scientific Reports](https://pmc.ncbi.nlm.nih.gov/articles/PMC3967202/)：用伦敦股票逐笔价格研究已有反弹次数与再次反弹的关系；其统计记忆证据不等于费用、延迟与流动性之后可获利。
+- [Osler，2001／2003，纽约联储](https://www.newyorkfed.org/research/staff_reports/sr125)：订单在特定价位聚集，为区域附近反转及穿越后加速提供外汇微观结构解释，不能直接外推成美股5分钟优势。
+
+### 三种事件应分别实现和评价
+
+下面是候选规则，属于本项目研究设计，参数和收益均未验证：
+
+1. **支撑反弹**：价位已知，价格从上方进入支撑带；后续已完成bar收盘重新站到上沿之上才确认。跌破的失效标准、等待期限、独立触碰之间须离开多远，均需预先规定。
+2. **阻力突破**：已有阻力带被收盘越过上沿及预设缓冲才确认；若加成交量条件，比较对象只能来自当时已知历史，跨时段比较还需处理日内成交量季节性。下一可执行时点入场，不把盘中影线触碰直接当收盘突破。
+3. **突破后回踩**：顺序为`等待突破 → 收盘确认 → 限期等待后续bar回踩 → 收盘守住原区域 → 下一可执行时点`。同一bar不能凭OHLC自行断定先突破再回踩；跌破失效边界或超时则取消，突破时冻结所用level版本。
+
+一个研究示例可将价格100附近设为99.8–100.2的区域，分别观察反弹、收盘越过和后续回踩。该数值纯为解释规则，不是真实证券价格、下单建议或验证过的区间宽度。
+
+### 我们建议的实施顺序与验收
+
+先比较前一完整RTH高低与冻结开盘区间的反弹、直接突破和突破回踩；这些来源较容易审核已知时点。随后再试已确认swing的区域合并。带宽可比较固定bps、tick与历史ATR尺度，但只在训练／验证窗口选取；不因测试收益漂亮反复调参。ATR是波动尺度，不证明区域会生效。
+
+每个区域拟记录`level_id／source／pivot_at／available_at／lower／upper／version／独立触碰次数／失效时刻`。同一次停留五根bar不计五次反弹，必须完成离开与重新进入的独立事件；不将某次反弹事后作为该次交易前已知的区域强度。事件开始后不能追着价格移动边界。
+
+先评价触碰后反弹／穿透概率、事件数量和不确定性，并设随机价位对照；再评价扣成本收益、回撤、换手、延迟敏感性，与现有ORB／动量采用同输入和成本。前者是事件预测，后者才是交易策略，不可互代。滚动留出按交易日进行，防止重叠事件／标签跨界；追加未来bar后，历史已发布level、signal与成交记录应不变。
+
+现有5分钟框架可复用XNYS、完成bar时点、next-open代理、额外一根延迟及费用。它没有通用盘中止损／止盈／OCO或按止损距离分配仓位；若增加这些，须另定同bar先后、跳空、未成交和风险预算规则，不能用OHLC挑有利路径。已有三日SPY／NVDA快照只够检验工程，不能评价SNR稳定性。
+
+后续DL可使用距最近区域的ATR标准化距离、区域年龄、此前独立反弹次数、突破幅度等**当时已知特征**，检验是否改善预测。GenAI仍须只在训练期增强，效果看真实留出期；目前没有将SNR特征接入模型，也没有通过公开研究页向券商下单。
