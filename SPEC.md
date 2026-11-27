@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.11.0（已发布应用：期权结构研究与受约束数学演示）；更新日期：2026-11-27（America/New_York）。本机新增做市商持仓方向数据审计与研究契约，未发布新应用版本。研究主线仍为美股日频DL／GenAI alpha预测，另有独立日频／5分钟规则、Beta及S&R研究。公开HF只负责研究，不提供委托入口；本机VeighNa＋moomoo真实券商模拟认证与成交验收尚未完成，没有实盘路径。历史版本验收记录保留，当前增量以文末0.11.0节与专题SPEC为准，S&R真实数据验收保留于0.10.0记录。
+版本：0.11.1（已发布应用：期权结构与持仓方向方法）；更新日期：2026-11-27（America/New_York）。本机已增加免费MM分类样本核验；公开方法页已独立发布验收，真实库存估计仍未识别。研究主线仍为美股日频DL／GenAI alpha预测，另有独立日频／5分钟规则、Beta及S&R研究。公开HF只负责研究，不提供委托入口；本机VeighNa＋moomoo真实券商模拟认证与成交验收尚未完成，没有实盘路径。历史版本验收记录保留，当前增量以文末0.11.1节与专题SPEC为准，S&R真实数据验收保留于0.10.0记录。
 
 ## 系统实施路线与当前增量
 
@@ -292,11 +292,13 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 
 追加界面偏好版本已复验：发布提交a17603bfc459824c945fe2de002d75022468d1ec、HF工作流45956854531成功，当前HF仓库／runtime为c5f954328abb4af42e9bac36dfe3f69dd132d772，RUNNING／CPU Basic。26源码与新本机包逐字一致，MANIFEST仅created_at不同，纯LFS元数据单独核对。主程序SHA256为4d571abd4a3c8133786091297d459ffe3bea9dba7b2be1cfed19dc7be250dbb4。原9d208／2daea记录保留为核心研究功能验收基线；S&R／GEX／Max Pain计算及其独立UI源码未变，新增偏好另经6项导航和实际浏览器English→中文→document刷新保留中文→English→刷新保留English验收，无连续重跑或Run／取数动作。证据为state/options-research/qa/language-persistence-a176-browser-20261127T024037及当前hf-package-verification.json。
 
-## 0.11.1准备：免费MM样本核验与方法目录
+## 0.11.1：免费MM样本核验与方法目录
 
 按用户新授权实现本机`research/cboe_mm_sample.py`与`scripts/run_cboe_mm_validation.py`，只用已下载免费C1样本；不采购付费数据、不申请试用、不新增持续采集。严格解析真实MM侧买卖量，隔离507条非期权／未证腿、未知side与capacity，保留原始root和精确行权价，未知乘数／交付物不填100。执行与组合分组、重复拒绝、累计差分修订及来源哈希明确；不对抽样放大，不把数据量当独立证据。真实结果与反例在本机ignored state的英文默认／中文可切换HTML及JSON，具体见[复跑说明](docs/CBOE_MM_SAMPLE_VALIDATION.md)。
 
 样本可核MM买减卖和双MM相抵，但不识别q0或完整区间；真实q、净存量GEX、校准概率和预测准确率仍未知。与同日EOD的精确合约交集只作抽样范围诊断，调整root单列；EOD完整性未验，不称完整库存真值。2025样本没有同期Gamma，不能配2026 moomoo Greeks；同期逐笔标签匹配仍0。
 
-新增九种方法的`research/dealer_methods.py`能力目录与门槛，包含此前固定符号、先验、集中度、NBP、capacity流、需求框架、隐状态、组合及有限风险重定价。公开期权页增加Inventory methods／持仓方向方法Tab及独立TOY初仓敏感性；不上传真实Cboe样本／逐合约净流，原教学GEX／MP机制保留。完整状态契约更新至[库存识别0.3](specs/DEALER_INVENTORY_IDENTIFICATION.md)。HF白名单只增加无行情方法目录一个模块，预期28文件（27源码＋MANIFEST），不包含本机Cboe适配器或结果。此处是实现与发布准备，实际部署／新访客验收另记，不以本机测试当公网成功。
+新增九种方法的`research/dealer_methods.py`能力目录与门槛，包含此前固定符号、先验、集中度、NBP、capacity流、需求框架、隐状态、组合及有限风险重定价。公开期权页增加Inventory methods／持仓方向方法Tab及独立TOY初仓敏感性；不上传真实Cboe样本／逐合约净流，原教学GEX／MP机制保留。完整状态契约更新至[库存识别0.3](specs/DEALER_INVENTORY_IDENTIFICATION.md)。HF白名单只增加无行情方法目录一个模块，预期28文件（27源码＋MANIFEST），不包含本机Cboe适配器或结果。此处记录实现范围；实际部署与新访客验收见下文，不能仅以本机测试当公网成功。
 
+
+0.11.1实际验收：代码提交566e710d68dbeb00999baedcce9a9b4f89748816，经现有GitHub App按旧head校验发布；[HF工作流46051157414](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/46051157414)成功。HF仓库／runtime均为b4a23e18bec37c0095c6f1461d93f8e902f4070f，RUNNING／CPU Basic；27源码逐字匹配本机，MANIFEST存在，公开包未纳入Cboe本机适配器、样本或结果。相关165项核心／方法／UI／既有GEX、MP及导航加8项运行器测试，共173项通过；没有声称重跑历史全部研究测试。新访客English、九方法、显式TOY、中文切换后同一报告、390px及JS异常0均实测通过。本机HTML亦通过中英与390px，无JS异常；数据驱动明细仅本机。验收证据在state/cboe-mm-validation/，程序、真实数据、部署及页面验收分别记录。备用Cloud本轮未单独重验，Pages未改。

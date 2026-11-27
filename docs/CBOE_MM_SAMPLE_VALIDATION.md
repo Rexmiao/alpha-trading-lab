@@ -76,3 +76,9 @@
 输入为已有`state/mm-data-sources/cboe-samples/`免费ZIP；不请求网络、账户、令牌或付费接口。结果写入新的`state/cboe-mm-validation/`运行目录，记录实际输入及代码指纹。HTML默认英文，提供中文按钮；本机结果不自动上传、共享或发往HF。
 
 程序测试、真实运行和公开方法页部署分别验收，测试通过不等于真实GEX准确或交易有利。后续如果不能获得连续覆盖、q0及同期Greeks，应保留为“观测流／期权结构研究”，不能升级成确定性仓位或支撑阻力信号。
+
+## 7 本轮验收记录
+
+173项相关测试通过（核心／目录／UI／既有GEX、MP、导航165项，运行器8项）；没有宣称重跑全部历史研究测试。本机HTML已通过独立浏览器English／中文与390px检查，JS异常0。真实文件、报告、哈希与截图保存在ignored state/cboe-mm-validation，数据驱动明细未上传。
+
+公开方法页代码提交为566e710d68dbeb00999baedcce9a9b4f89748816；[发布工作流](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/46051157414)成功。HF仓库及runtime为b4a23e18bec37c0095c6f1461d93f8e902f4070f，CPU Basic、RUNNING，27份源码与本机一致。实际新访客已核English默认、九方法、TOY运行、中文切换保留报告和390px布局，JS异常0。入口：[Hugging Face](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab) → Options structure research → Inventory methods。公开页只包含无行情目录和TOY计算，当前真实库存／同期GEX增量价值仍未知。
