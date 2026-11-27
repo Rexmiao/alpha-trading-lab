@@ -1,8 +1,67 @@
 """Global navigation remains visible outside the collapsible parameter sidebar."""
 from pathlib import Path
+from types import SimpleNamespace
+import streamlit as st
 from streamlit.testing.v1 import AppTest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_manual_language_is_restored_on_a_new_session_without_retraining(monkeypatch):
+    browser = {"language": "zh"}
+    writes = []
+
+    def register_preference(name, **kwargs):
+        def mount(**arguments):
+            selected = arguments["data"]["save"]
+            if selected in ("en", "zh"):
+                browser["language"] = selected
+                writes.append(selected)
+            return SimpleNamespace(language=browser["language"])
+        return mount
+
+    monkeypatch.setattr(st.components.v2, "component", register_preference)
+    first = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
+    assert not first.exception
+    assert first.radio(key="hf_language").value == "中文"
+    assert writes == []
+    first.radio(key="hf_language").set_value("English").run()
+    assert not first.exception
+    assert first.title[0].value == "Alpha Trading Research Lab"
+    assert browser["language"] == "en"
+    second = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
+    assert not second.exception
+    assert second.radio(key="hf_language").value == "English"
+    second.radio(key="hf_language").set_value("中文").run()
+    assert browser["language"] == "zh"
+    third = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
+    assert not third.exception
+    assert third.radio(key="hf_language").value == "中文"
+    for app in (first, second, third):
+        assert "hf_result" not in app.session_state
+
+
+def test_invalid_or_delayed_browser_preference_cannot_override_a_manual_choice(monkeypatch):
+    stored = {"language": "invalid"}
+    seen = []
+
+    def register_preference(name, **kwargs):
+        def mount(**arguments):
+            seen.append(arguments["data"]["save"])
+            return SimpleNamespace(language=stored["language"])
+        return mount
+
+    monkeypatch.setattr(st.components.v2, "component", register_preference)
+    app = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
+    assert not app.exception
+    assert app.radio(key="hf_language").value == "English"
+    app.radio(key="hf_language").set_value("中文").run()
+    stored["language"] = "en"
+    app.run()
+    assert not app.exception
+    assert app.radio(key="hf_language").value == "中文"
+    assert seen[-1] == "zh"
+    assert "hf_result" not in app.session_state
 
 
 def test_language_and_study_navigation_are_in_main_and_preserve_page():

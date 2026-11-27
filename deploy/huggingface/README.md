@@ -12,6 +12,11 @@ short_description: Bilingual, bounded AI alpha learning simulations
 
 # Alpha Lab Simulator
 
+The interface starts in English. A manual English/中文 choice is saved only in
+this browser and restored on later visits. If browser storage is blocked, the
+choice still works for the current session. Changing language does not train
+models, fetch prices or submit trades.
+
 A Chinese/English Streamlit teaching app for the path from historical features
 and future-return labels to model training, held-out evaluation and constrained
 portfolio weights. Synthetic teaching observations are explicitly labeled.

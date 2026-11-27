@@ -28,6 +28,59 @@ MODEL_COLORS = {"ridge": "#718096", "mlp": "#087F8C", "mlp_resample": "#C58A28",
 REPORT_KEYS = ("source", "metrics", "ic", "equity", "predictions", "weights", "lineage", "warnings")
 DEFAULT_ONLINE_SYMBOLS = "NVDA, AMD, AVGO, MU, WDC, NBIS, CRWV"
 
+LANGUAGE_PREFERENCE_JS = """
+export default function(component) {
+    const { data, parentElement, setStateValue } = component;
+    const valid = value => value === 'en' || value === 'zh';
+    const selected = data && data.save;
+    let language = 'en';
+    if (valid(selected)) {
+        language = selected;
+        if (parentElement.__alphaLanguageSaved !== language) {
+            try { localStorage.setItem('alpha-lab.uiLanguage', language); } catch {}
+            parentElement.__alphaLanguageSaved = language;
+        }
+    } else {
+        try {
+            const saved = localStorage.getItem('alpha-lab.uiLanguage');
+            if (valid(saved)) language = saved;
+        } catch {}
+    }
+    if (parentElement.__alphaLanguageReported !== language) {
+        parentElement.__alphaLanguageReported = language;
+        setStateValue('language', language);
+    }
+}
+"""
+_language_preference = st.components.v2.component(
+    "alpha_lab_language_preference", js=LANGUAGE_PREFERENCE_JS,
+)
+
+
+def _remember_language_preference() -> None:
+    choice = st.session_state.get("hf_language")
+    if choice in ("English", "中文"):
+        st.session_state["_hf_language_user_chosen"] = True
+        st.session_state["_hf_language_save"] = "zh" if choice == "中文" else "en"
+
+
+def _restore_language_preference() -> None:
+    # Only an explicit radio change writes browser storage. A delayed initial
+    # browser response must never replace a choice already made in this session.
+    if "hf_language" not in st.session_state:
+        st.session_state["hf_language"] = "English"
+    result = _language_preference(
+        data={"save": st.session_state.get("_hf_language_save")},
+        default={"language": None}, on_language_change=lambda: None,
+        key="_hf_language_preference",
+    )
+    saved = result.language
+    if (not st.session_state.get("_hf_language_user_chosen")
+            and not st.session_state.get("_hf_language_restored")
+            and isinstance(saved, str) and saved in ("en", "zh")):
+        st.session_state["hf_language"] = "中文" if saved == "zh" else "English"
+        st.session_state["_hf_language_restored"] = True
+
 
 def tr(zh: str, en: str) -> str:
     return zh if st.session_state.get("hf_language") == "中文" else en
@@ -259,11 +312,13 @@ def render_data_source(result: dict) -> None:
 
 def main() -> None:
     st.set_page_config(page_title="Alpha Trading Lab", page_icon="📈", layout="wide")
+    _restore_language_preference()
     brand, language = st.columns([3, 2], vertical_alignment="center")
     with brand:
         st.markdown("**Alpha Trading Lab**")
     with language:
-        st.radio("Language / 语言", ("English", "中文"), key="hf_language", horizontal=True)
+        st.radio("Language / 语言", ("English", "中文"), key="hf_language", horizontal=True,
+                 on_change=_remember_language_preference)
     # Keep navigation in non-widget state: translated labels may recreate widgets.
     memory = "_hf_study_choice"
     if memory not in st.session_state:
