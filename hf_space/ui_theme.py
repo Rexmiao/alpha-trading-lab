@@ -13,7 +13,7 @@ from html import escape
 import streamlit as st
 
 
-APP_URL = "https://rexymiao-alpha-trading-lab.hf.space/"
+APP_URL = "https://alphalab.levyquant.ai/"
 PROJECT_URL = "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
 AI_ANCHOR = "ai-study"
 STUDY_ORDER = ("ai", "strategies", "intraday", "beta", "sr", "options", "premarket")

@@ -1,6 +1,6 @@
 # Hugging Face Docker 发布准备
 
-0.12.0盘前事件研究与双入口已发布并通过实际浏览器验收；0.12.1研究工作台界面已发布并通过公网验收（见下一节）。应用直达为[rexymiao-alpha-trading-lab.hf.space](https://rexymiao-alpha-trading-lab.hf.space/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。
+0.12.0盘前事件研究与双入口已发布并通过实际浏览器验收；0.12.1研究工作台界面已发布并通过公网验收（见下一节）。应用直达为[alphalab.levyquant.ai](https://alphalab.levyquant.ai/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。
 
 ## 0.12.1 研究工作台界面：实际发布与验收
 
@@ -43,7 +43,7 @@
 
 2026-11-26已完成实际发布与公网验收：
 
-- [Space页面](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)；[应用直达](https://rexymiao-alpha-trading-lab.hf.space)。
+- [Space页面](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)；[应用直达](https://alphalab.levyquant.ai/)。
 - GitHub应用源码commit：`b54637fb25eef7746a0ce2c93a97e18c672fcb62`；[成功的同步工作流](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/45774744781)。
 - Space commit与runtime.sha：`24cdfa5c21ec02cf0ed4e7971c9716691c1d59f0`；状态RUNNING，当前及请求硬件均为CPU Basic。
 - 真实浏览器主动执行四模型成功，表格、三张Plotly图、中英文切换、实际JSON下载及390px手机布局通过；JS异常0。下载报告确认PyArrow25.0.1 / NumPy1.26.4 / Streamlit1.67.0。

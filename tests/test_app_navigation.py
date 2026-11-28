@@ -163,10 +163,10 @@ def test_standalone_app_and_hugging_face_project_have_separate_entries():
     app = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
     assert not app.exception
     links = {item.proto.label: item.proto.url for item in app.get("link_button")}
-    assert links["Launch Research Lab"] == "https://rexymiao-alpha-trading-lab.hf.space/"
+    assert links["Launch Research Lab"] == "https://alphalab.levyquant.ai/"
     assert links["Hugging Face project"] == "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
     app.radio(key="hf_language").set_value("中文").run()
     assert not app.exception
     links = {item.proto.label: item.proto.url for item in app.get("link_button")}
-    assert links["进入研究平台"] == "https://rexymiao-alpha-trading-lab.hf.space/"
+    assert links["进入研究平台"] == "https://alphalab.levyquant.ai/"
     assert links["Hugging Face项目页"] == "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
