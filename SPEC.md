@@ -337,3 +337,6 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 
 
 入口文案（2026-11-27）：独立应用按钮现命名为“Launch Research Lab／进入研究平台”，替代原“Open app／打开应用”；旁侧仍为“Hugging Face project／Hugging Face项目页”。README、Space说明及个人网站Projects对应入口同步采用新的名称，网址、研究参数和已生成报告格式保持原契约。文案部署另做实际中英文入口与目标URL验收。
+
+
+入口文案已实际验收：应用源码提交73b51bf98ac45056c5933ca84e3d5e95fdde3748，HF工作流46091637479成功；仓库与runtime同为9853568652b19f2847929cf3aec9ffcd7f6a0a4b、RUNNING。新访客English显示Launch Research Lab，中文显示进入研究平台，两个目标URL正确，旧按钮名消失，390px正常且JS异常0；未提交研究表单。个人网站以50e31afd4c9f2fe7476caab45d97e56099edff7c同步入口，格式、源链接、部署、编译站链接四项检查均成功，Projects卡片及详情页均读到新标签。证据为本机量化准备/native-label-qa/public-20261128T011213Z-b00503/qa.json（UTC文件名对应纽约2026-11-27）及personal-website-native-entry-50e31afd/acceptance.json。
