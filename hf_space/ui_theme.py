@@ -429,7 +429,8 @@ _LOGO = (
 # button drives the built-in main-menu theme items (stMainMenuItem-theme-Light/Dark):
 # the change is applied in place without a rerun, so reports and session_state stay,
 # and Streamlit itself remembers the choice in the browser. If the menu is missing the
-# click does nothing; it never reloads the page. st.html strips inline SVG, so the
+# click does nothing; it never reloads the page. Default is day mode: a viewer with no
+# saved choice whose system made the page dark is switched to Light once. st.html strips inline SVG, so the
 # script inserts the icons.
 _THEME_ICONS = (
     "<svg class='alpha-ico-moon' viewBox='0 0 24 24' aria-hidden='true'><path d='M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z'/></svg>"
@@ -482,6 +483,21 @@ _THEME_JS = """
     doc.addEventListener('click', e => {
       if (e.target.closest && e.target.closest('[data-testid^="stMainMenuItem-theme-"]')) setTimeout(sync, 100);
     }, true);
+    // Default to day mode, once per browser: Streamlit itself stores "System" on first
+    // load, so a stored Light/Dark counts as a real choice and is kept; otherwise a page
+    // that came up dark from the system is switched to Light. A marker of our own makes
+    // this happen only once, so a later explicit "System" choice is respected.
+    try {
+      const MARK = 'alphaDefaultTheme-v1';
+      if (!localStorage.getItem(MARK)) {
+        const base = 'stActiveTheme-' + location.pathname;
+        const saved = Object.keys(localStorage).filter(k => k.startsWith(base))
+          .map(k => localStorage.getItem(k));
+        const explicit = saved.some(v => v === '"Light"' || v === '"Dark"');
+        localStorage.setItem(MARK, '1');
+        if (!explicit) setTimeout(() => { if (mode() === 'dark') toggle(); }, 50);
+      }
+    } catch (err) { /* storage blocked: keep Streamlit's default */ }
   }
   sync(); setTimeout(sync, 300);
 })();

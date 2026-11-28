@@ -179,7 +179,9 @@ def test_day_night_toggle_is_client_side_and_bilingual():
     toggle = next(body for body in bodies if "alpha-theme-toggle" in body)
     assert "Switch to night mode" in toggle and "Switch to day mode" in toggle
     assert "stMainMenuItem-theme-" in toggle
-    assert "location.reload" not in toggle and "localStorage" not in toggle
+    assert "location.reload" not in toggle
+    assert "alphaDefaultTheme-v1" in toggle  # one-time default to day; explicit choices kept
+    assert "setItem(base" not in toggle and "setItem(k" not in toggle  # never writes Streamlit's key
     app.radio(key="hf_language").set_value("中文").run()
     toggle = next(item.proto.body for item in app.get("html") if "alpha-theme-toggle" in item.proto.body)
     assert "切换到夜间模式" in toggle and "切换到日间模式" in toggle
