@@ -97,7 +97,7 @@ def study_label(tr, study: str) -> str:
 
 _CSS = """
 <style>
-[data-testid="stMainBlockContainer"]{max-width:1280px;padding-top:3.75rem;padding-bottom:4rem}
+[data-testid="stMainBlockContainer"]{max-width:1280px;padding-top:3.25rem;padding-bottom:4rem}
 @media (max-width:640px){[data-testid="stMainBlockContainer"]{padding-left:1rem;padding-right:1rem;padding-top:3.5rem}}
 h1{letter-spacing:-.02em}
 @media (max-width:640px){h1{font-size:1.6rem !important;line-height:1.25 !important}
@@ -105,13 +105,33 @@ h1{letter-spacing:-.02em}
 h2,h3{letter-spacing:-.01em}
 
 /* Header: brand, language and access links */
-.st-key-alpha_header{border-bottom:1px solid rgba(120,135,155,.28);padding-bottom:.9rem}
-.alpha-brand{display:flex;align-items:center;gap:.7rem;min-width:0}
-.alpha-mark{width:2.25rem;height:2.25rem;border-radius:.6rem;flex:none;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,#0B2545 0%,#0B6E75 100%);color:#fff;font-weight:700;font-size:.95rem;letter-spacing:.02em}
-.alpha-wordmark{font-weight:700;font-size:1.08rem;line-height:1.2;letter-spacing:-.01em}
-.alpha-tagline{font-size:.8rem;line-height:1.35;opacity:.72}
+.st-key-alpha_header{padding:.6rem .9rem .6rem .75rem;border-radius:.9rem;
+  border:1px solid rgba(120,135,155,.25);border-color:light-dark(#DDE4EC,rgba(120,135,155,.25));
+  background-color:light-dark(#FFFFFF,rgba(255,255,255,.03));
+  box-shadow:0 1px 2px light-dark(rgba(16,40,70,.06),transparent),0 8px 24px -16px light-dark(rgba(16,40,70,.22),transparent)}
+.alpha-brand{display:flex;align-items:center;gap:.75rem;min-width:0}
+.alpha-logo{width:2.5rem;height:2.5rem;flex:none;display:block;border-radius:.7rem;
+  box-shadow:0 6px 16px -8px rgba(11,60,80,.7)}
+.alpha-logo-line{stroke-dasharray:40;stroke-dashoffset:40;animation:alpha-draw 1.2s cubic-bezier(.4,.1,.2,1) forwards .2s}
+.alpha-logo-dot{transform-origin:31.5px 9.5px;animation:alpha-pop .4s ease-out both 1.2s}
+.alpha-wordmark{font-weight:750;font-size:1.1rem;line-height:1.2;letter-spacing:-.015em}
+.alpha-wordmark span{background:linear-gradient(92deg,#0E9F95,#2F6FB3);-webkit-background-clip:text;background-clip:text;color:transparent}
+.alpha-tagline{font-size:.78rem;line-height:1.35;opacity:.68}
 .st-key-alpha_header .stLinkButton a{font-size:.82rem;min-height:2.1rem;padding:.25rem .7rem}
+
+/* Sidebar: white rail, quiet panels, notes as indented captions */
+[data-testid="stSidebar"]{border-right:1px solid light-dark(#E3E8EF,rgba(120,135,155,.18))}
+[data-testid="stSidebarUserContent"]{padding-top:.25rem}
+[data-testid="stSidebar"] h3{font-size:1rem !important;display:flex;align-items:center;gap:.55rem;
+  padding-bottom:.55rem;margin-bottom:.35rem;border-bottom:1px solid light-dark(#E8EDF3,rgba(120,135,155,.2))}
+[data-testid="stSidebar"] h3::before{content:"";width:.6rem;height:.6rem;border-radius:.2rem;flex:none;
+  background:linear-gradient(135deg,#2DD4BF,#3B82F6)}
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p{font-weight:600;font-size:.84rem}
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{font-size:.78rem;line-height:1.5;
+  padding-left:.65rem;border-left:2px solid light-dark(#CFE3E4,rgba(60,193,184,.35))}
+[data-testid="stSidebar"] [data-testid="stForm"],[data-testid="stSidebar"] [data-testid="stExpander"] details,
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"]{
+  background-color:light-dark(#F7F9FC,transparent) !important;box-shadow:none}
 
 /* Study navigation as pills */
 .st-key-alpha_nav{padding:.15rem 0 .2rem}
@@ -133,9 +153,7 @@ h2,h3{letter-spacing:-.01em}
   background-color:light-dark(#FFFFFF,transparent);
   box-shadow:0 1px 2px light-dark(rgba(16,40,70,.06),transparent),0 6px 18px -12px light-dark(rgba(16,40,70,.18),transparent)}
 [data-testid="stTabs"] [data-baseweb="tab-panel"]{border:1px solid light-dark(#DDE4EC,rgba(120,135,155,.22));
-  border-radius:.6rem;padding:.9rem 1rem !important}
-.st-key-alpha_header{border-bottom-color:light-dark(rgba(120,135,155,.22),rgba(120,135,155,.28))}
-@media (max-width:640px){.st-key-hf_study [data-testid="stRadioOption"]{padding:.22rem .65rem .22rem .5rem}
+  border-radius:.6rem;padding:.9rem 1rem !important}@media (max-width:640px){.st-key-hf_study [data-testid="stRadioOption"]{padding:.22rem .65rem .22rem .5rem}
   .st-key-hf_study [data-testid="stRadioOption"] p{font-size:.85rem}}
 
 /* Landing hero and study catalog */
@@ -253,13 +271,14 @@ h2,h3{letter-spacing:-.01em}
 [data-testid="stBaseButton-primary"],[data-testid="stBaseButton-primaryFormSubmit"]{transition:transform .2s ease,box-shadow .2s ease}
 [data-testid="stBaseButton-primary"]:hover,[data-testid="stBaseButton-primaryFormSubmit"]:hover{transform:translateY(-1px);
   box-shadow:0 8px 22px -10px rgba(11,110,117,.75)}
-.alpha-mark{transition:transform .4s cubic-bezier(.2,.7,.2,1)}
-.alpha-brand:hover .alpha-mark{transform:rotate(-8deg) scale(1.06)}
+.alpha-logo{transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.alpha-brand:hover .alpha-logo{transform:rotate(-6deg) scale(1.06)}
 @keyframes alpha-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes alpha-fade{to{opacity:1}}
 @keyframes alpha-aurora{0%{transform:translate3d(0,0,0) rotate(0)}50%{transform:translate3d(4%,-3%,0) rotate(8deg)}100%{transform:translate3d(-4%,3%,0) rotate(-6deg)}}
 @keyframes alpha-ping{0%{box-shadow:0 0 0 0 rgba(45,212,191,.6)}80%,100%{box-shadow:0 0 0 .55rem rgba(45,212,191,0)}}
 @keyframes alpha-draw{to{stroke-dashoffset:0}}
+@keyframes alpha-pop{from{transform:scale(0)}to{transform:scale(1)}}
 @keyframes alpha-grow{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
 @keyframes alpha-scan{0%{transform:translateX(0);opacity:0}8%{opacity:1}92%{opacity:1}100%{transform:translateX(470px);opacity:0}}
 @keyframes alpha-ring{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.4);opacity:0}}
@@ -268,7 +287,7 @@ h2,h3{letter-spacing:-.01em}
 @media (prefers-reduced-motion:reduce){
   .st-key-alpha_hero::before,.alpha-live,.alpha-float,.alpha-art .scan,.alpha-art .ring{animation:none !important}
   [class*="st-key-alpha_"],[class*="st-key-alpha_"] *,[data-testid="stMainBlockContainer"] h1,.alpha-badges,.alpha-runbar,
-  [class*="st-key-premarket_card_"],.alpha-count,.alpha-art *{animation-duration:.001s !important;animation-delay:0s !important;
+  [class*="st-key-premarket_card_"],.alpha-count,.alpha-art *,.alpha-logo *{animation-duration:.001s !important;animation-delay:0s !important;
   animation-iteration-count:1 !important;transition:none !important}
   .alpha-art .line{stroke-dashoffset:0}}
 </style>
@@ -378,13 +397,31 @@ def run_bar(tr, items, *, changed: bool) -> None:
                 unsafe_allow_html=True)
 
 
+# Brand mark: rising volume bars under an equity line ending in a live point. Decorative only.
+_LOGO = (
+    "<svg class='alpha-logo' viewBox='0 0 40 40' aria-hidden='true' focusable='false'>"
+    "<defs><linearGradient id='alphaLogoBg' x1='0' y1='0' x2='1' y2='1'>"
+    "<stop offset='0' stop-color='#0B2545'/><stop offset='1' stop-color='#0B6E75'/></linearGradient>"
+    "<linearGradient id='alphaLogoLine' x1='0' x2='1'>"
+    "<stop offset='0' stop-color='#2DD4BF'/><stop offset='1' stop-color='#CCFBF1'/></linearGradient></defs>"
+    "<rect width='40' height='40' rx='11' fill='url(#alphaLogoBg)'/>"
+    "<rect x='8.5' y='25' width='4' height='7' rx='1.2' fill='#fff' opacity='.26'/>"
+    "<rect x='15.5' y='21' width='4' height='11' rx='1.2' fill='#fff' opacity='.34'/>"
+    "<rect x='22.5' y='23' width='4' height='9' rx='1.2' fill='#fff' opacity='.3'/>"
+    "<rect x='29.5' y='17' width='4' height='15' rx='1.2' fill='#fff' opacity='.42'/>"
+    "<polyline class='alpha-logo-line' points='8,22 16,15.5 23,18.5 31.5,9.5' fill='none' "
+    "stroke='url(#alphaLogoLine)' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/>"
+    "<circle class='alpha-logo-dot' cx='31.5' cy='9.5' r='2.8' fill='#F0FDFA'/>"
+    "</svg>")
+
+
 def header(tr, on_language_change) -> None:
     with st.container(key="alpha_header"):
         brand, controls = st.columns([5, 6], vertical_alignment="center")
         with brand:
             st.markdown(
-                "<div class='alpha-brand'><div class='alpha-mark'>α</div><div>"
-                "<div class='alpha-wordmark'>Alpha Trading Lab</div>"
+                "<div class='alpha-brand'>" + _LOGO + "<div>"
+                "<div class='alpha-wordmark'>Alpha Trading <span>Lab</span></div>"
                 f"<div class='alpha-tagline'>{escape(tr('量化研究工作台 · 七个研究专题 · 仅研究与模拟，不连接券商', 'Quant research workbench · seven studies · research and simulation only, no brokerage'))}</div>"
                 "</div></div>", unsafe_allow_html=True)
         with controls, st.container(horizontal=True, horizontal_alignment="right",
