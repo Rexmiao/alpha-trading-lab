@@ -174,6 +174,27 @@ def test_standalone_app_and_hugging_face_project_have_separate_entries():
     assert links["Lévy Quant 主站"] == "https://levyquant.ai/"
 
 
+def test_training_guide_is_a_view_of_the_lab():
+    from hf_space import guide_ui
+    for lang in ("en", "zh"):
+        page = guide_ui.build_guide_html(lang)
+        assert f"localStorage.setItem('alpha-guide-language','{lang}')" in page
+        assert 'href="style.css"' not in page and 'src="main.js' not in page
+        assert '"assets/' not in page and "`assets/" not in page
+        assert guide_ui.ASSET_BASE + "poster-en.png" in page
+        assert "illustrative" in page.lower()
+    app = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
+    assert not app.exception
+    app.button(key="alpha_guide_open").click().run()
+    assert not app.exception
+    assert app.query_params.get("view") in ("guide", ["guide"])
+    assert app.title[0].value == "Training Guide"
+    app.radio(key="hf_language").set_value("中文").run()
+    assert not app.exception and app.title[0].value == "训练指南"
+    app.button(key="alpha_guide_back").click().run()
+    assert not app.exception and "view" not in app.query_params
+
+
 def test_day_night_toggle_is_client_side_and_bilingual():
     app = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
     assert not app.exception
@@ -182,7 +203,7 @@ def test_day_night_toggle_is_client_side_and_bilingual():
     assert "Switch to night mode" in toggle and "Switch to day mode" in toggle
     assert "stMainMenuItem-theme-" in toggle
     assert "location.reload" not in toggle
-    assert "alphaDefaultTheme-v1" in toggle  # one-time default to day; explicit choices kept
+    assert "alphaDefaultTheme-v2" in toggle  # one-time default to night; explicit choices kept
     assert "setItem(base" not in toggle and "setItem(k" not in toggle  # never writes Streamlit's key
     app.radio(key="hf_language").set_value("中文").run()
     toggle = next(item.proto.body for item in app.get("html") if "alpha-theme-toggle" in item.proto.body)

@@ -59,6 +59,11 @@ SOURCES = (
     (PUBLIC_PREMARKET_REFERENCE, PUBLIC_PREMARKET_REFERENCE),
     ("hf_space/ui_theme.py", "hf_space/ui_theme.py"),
     ("hf_space/streamlit_app.py", "hf_space/streamlit_app.py"),
+    ("hf_space/guide_ui.py", "hf_space/guide_ui.py"),
+    # Public illustrative training guide (text only; images load from GitHub Pages).
+    ("web/index.html", "hf_space/guide/index.html"),
+    ("web/style.css", "hf_space/guide/style.css"),
+    ("web/main.js", "hf_space/guide/main.js"),
     ("research/__init__.py", "research/__init__.py"),
     ("research/data.py", "research/data.py"),
     ("research/models.py", "research/models.py"),

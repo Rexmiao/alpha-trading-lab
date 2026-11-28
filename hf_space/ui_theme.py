@@ -98,7 +98,8 @@ def study_label(tr, study: str) -> str:
 
 _CSS = """
 <style>
-[data-testid="stMainBlockContainer"]{max-width:1280px;padding-top:3.25rem;padding-bottom:4rem}
+[data-testid="stMainBlockContainer"]{max-width:1560px;padding-top:3.25rem;padding-bottom:4rem;
+  padding-left:clamp(1.25rem,3vw,3.25rem);padding-right:clamp(1.25rem,3vw,3.25rem)}
 @media (max-width:640px){[data-testid="stMainBlockContainer"]{padding-left:1rem;padding-right:1rem;padding-top:3.5rem}}
 h1{letter-spacing:-.02em}
 @media (max-width:640px){h1{font-size:1.6rem !important;line-height:1.25 !important}
@@ -118,7 +119,8 @@ h2,h3{letter-spacing:-.01em}
 .alpha-wordmark{font-weight:750;font-size:1.1rem;line-height:1.2;letter-spacing:-.015em}
 .alpha-wordmark span{background:linear-gradient(92deg,#0E9F95,#2F6FB3);-webkit-background-clip:text;background-clip:text;color:transparent}
 .alpha-tagline{font-size:.78rem;line-height:1.35;opacity:.68}
-.st-key-alpha_header .stLinkButton a{font-size:.82rem;min-height:2.1rem;padding:.25rem .7rem}
+.st-key-alpha_header .stLinkButton a,.st-key-alpha_guide_open button{font-size:.82rem;min-height:2.1rem;padding:.25rem .7rem}
+.st-key-alpha_guide_frame iframe{border-radius:.9rem;border:1px solid light-dark(#DDE4EC,rgba(120,135,155,.25));background:#fff}
 .alpha-theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;
   padding:0;border-radius:.5rem;cursor:pointer;color:inherit;background:transparent;
   border:1px solid light-dark(#D3DCE6,#2B3A4B);transition:background-color .15s,border-color .15s,transform .15s}
@@ -137,12 +139,24 @@ h2,h3{letter-spacing:-.01em}
   padding-bottom:.55rem;margin-bottom:.35rem;border-bottom:1px solid light-dark(#E8EDF3,rgba(120,135,155,.2))}
 [data-testid="stSidebar"] h3::before{content:"";width:.6rem;height:.6rem;border-radius:.2rem;flex:none;
   background:linear-gradient(135deg,#2DD4BF,#3B82F6)}
-[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p{font-weight:600;font-size:.84rem}
-[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{font-size:.78rem;line-height:1.5;
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p{font-weight:600;font-size:.88rem}
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{font-size:.84rem;line-height:1.6;
+  color:light-dark(#3E4F63,#B9C6D3);
   padding-left:.65rem;border-left:2px solid light-dark(#CFE3E4,rgba(60,193,184,.35))}
-[data-testid="stSidebar"] [data-testid="stForm"],[data-testid="stSidebar"] [data-testid="stExpander"] details,
+[data-testid="stSidebar"] [data-testid="stExpander"] details,
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"]{
   background-color:light-dark(#F7F9FC,transparent) !important;box-shadow:none}
+/* Width follows the viewport (collapsing still works: Streamlit sets max-width 0).
+   A fixed width replaces Streamlit's drag-to-resize. */
+@media (min-width:768px){[data-testid="stSidebar"]{width:clamp(20rem,25vw,28rem) !important}}
+/* Flatten: the settings form is not another box inside the rail. */
+[data-testid="stSidebar"] [data-testid="stForm"]{border:none !important;padding:0 !important;
+  background:transparent !important;box-shadow:none !important}
+/* Keep the primary Run button in view at the bottom of the rail while its settings scroll. */
+[data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stFormSubmitButton"]),
+[data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stBaseButton-primary"]){
+  position:sticky;bottom:0;z-index:3;padding:.55rem 0 .7rem;
+  background:linear-gradient(to bottom,transparent,light-dark(#FFFFFF,#111B27) 30%)}
 
 /* Study navigation as pills */
 .st-key-alpha_nav{padding:.15rem 0 .2rem}
@@ -430,8 +444,8 @@ _LOGO = (
 # button drives the built-in main-menu theme items (stMainMenuItem-theme-Light/Dark):
 # the change is applied in place without a rerun, so reports and session_state stay,
 # and Streamlit itself remembers the choice in the browser. If the menu is missing the
-# click does nothing; it never reloads the page. Default is day mode: a viewer with no
-# saved choice whose system made the page dark is switched to Light once. st.html strips inline SVG, so the
+# click does nothing; it never reloads the page. Default is night mode: a viewer with
+# no saved choice whose page came up light is switched to Dark once. st.html strips inline SVG, so the
 # script inserts the icons.
 _THEME_ICONS = (
     "<svg class='alpha-ico-moon' viewBox='0 0 24 24' aria-hidden='true'><path d='M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z'/></svg>"
@@ -484,19 +498,21 @@ _THEME_JS = """
     doc.addEventListener('click', e => {
       if (e.target.closest && e.target.closest('[data-testid^="stMainMenuItem-theme-"]')) setTimeout(sync, 100);
     }, true);
-    // Default to day mode, once per browser: Streamlit itself stores "System" on first
-    // load, so a stored Light/Dark counts as a real choice and is kept; otherwise a page
-    // that came up dark from the system is switched to Light. A marker of our own makes
-    // this happen only once, so a later explicit "System" choice is respected.
+    // Default to night mode, once per browser: Streamlit itself stores "System" on first
+    // load, so only a stored Dark, or a Light the viewer chose, is kept; otherwise a page
+    // that came up light is switched to Dark. 0.12.7 defaulted to day and may have stored
+    // "Light" itself (marker v1), so that Light is not treated as the viewer's choice.
+    // A marker of our own makes this happen only once; later choices are respected.
     try {
-      const MARK = 'alphaDefaultTheme-v1';
+      const MARK = 'alphaDefaultTheme-v2';
       if (!localStorage.getItem(MARK)) {
         const base = 'stActiveTheme-' + location.pathname;
         const saved = Object.keys(localStorage).filter(k => k.startsWith(base))
           .map(k => localStorage.getItem(k));
-        const explicit = saved.some(v => v === '"Light"' || v === '"Dark"');
+        const dayDefaulted = localStorage.getItem('alphaDefaultTheme-v1') === '1';
+        const keep = saved.some(v => v === '"Dark"' || (v === '"Light"' && !dayDefaulted));
         localStorage.setItem(MARK, '1');
-        if (!explicit) setTimeout(() => { if (mode() === 'dark') toggle(); }, 50);
+        if (!keep) setTimeout(() => { if (mode() === 'light') toggle(); }, 50);
       }
     } catch (err) { /* storage blocked: keep Streamlit's default */ }
   }
@@ -515,7 +531,7 @@ def theme_toggle(tr) -> None:
             unsafe_allow_javascript=True, width="content")
 
 
-def header(tr, on_language_change) -> None:
+def header(tr, on_language_change, on_open_guide=None) -> None:
     with st.container(key="alpha_header"):
         brand, controls = st.columns([5, 6], vertical_alignment="center")
         with brand:
@@ -529,6 +545,9 @@ def header(tr, on_language_change) -> None:
             st.radio("Language / 语言", ("English", "中文"), key="hf_language", horizontal=True,
                      on_change=on_language_change, label_visibility="collapsed", width="content")
             theme_toggle(tr)
+            if on_open_guide is not None:
+                st.button(tr("训练指南", "Training Guide"), key="alpha_guide_open", icon=":material/school:",
+                          on_click=on_open_guide, width="content")
             st.link_button(tr("进入研究平台", "Launch Research Lab"), APP_URL, icon=":material/open_in_new:",
                            width="content")
             st.link_button(tr("Hugging Face项目页", "Hugging Face project"), PROJECT_URL,

@@ -311,11 +311,25 @@ def render_data_source(result: dict) -> None:
         st.warning(tr("结果来源未识别，请查看运行信息。", "Result source is unrecognized; check Run details."))
 
 
+def _open_guide() -> None:
+    # The guide is a view of this app (shareable as ?view=guide), not an eighth study.
+    st.query_params["view"] = "guide"
+
+
+def _close_guide() -> None:
+    if "view" in st.query_params:
+        del st.query_params["view"]
+
+
 def main() -> None:
     st.set_page_config(page_title="Alpha Trading Lab", page_icon="📈", layout="wide")
     ui.inject_styles()
     _restore_language_preference()
-    ui.header(tr, _remember_language_preference)
+    ui.header(tr, _remember_language_preference, _open_guide)
+    if st.query_params.get("view") == "guide":
+        from hf_space.guide_ui import render_guide_page
+        render_guide_page(tr, _close_guide)
+        return
     # Keep navigation in non-widget state: translated labels may recreate widgets.
     memory = "_hf_study_choice"
     if memory not in st.session_state:

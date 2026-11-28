@@ -4,6 +4,11 @@
 !hf_space/
 !research/
 !hf_space/assets/
+!hf_space/guide/
+!hf_space/guide/index.html
+!hf_space/guide/main.js
+!hf_space/guide/style.css
+!hf_space/guide_ui.py
 !.dockerignore
 !.streamlit/config.toml
 !Dockerfile

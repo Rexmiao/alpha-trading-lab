@@ -7,6 +7,11 @@ from streamlit.testing.v1 import AppTest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _run_button(app):
+    # The header also has buttons (Training Guide), so find the form submit by label.
+    return next(b for b in app.button if b.label in ("运行四种策略", "Run four strategies"))
+
+
 def test_rule_page_runs_four_strategies_without_training_and_keeps_result(monkeypatch):
     def forbidden_training(*args, **kwargs):
         raise AssertionError("The rule page must not train AI models")
@@ -19,7 +24,7 @@ def test_rule_page_runs_four_strategies_without_training_and_keeps_result(monkey
     assert "strategy_result" not in app.session_state
     app.radio(key="strategy_source").set_value("synthetic").run()
     assert not app.exception
-    app.button[0].click().run(timeout=60)
+    _run_button(app).click().run(timeout=60)
     assert not app.exception, [item.value for item in app.exception]
     report = app.session_state["strategy_result"]
     assert report["source"] == "synthetic"
@@ -53,7 +58,7 @@ def test_rule_page_runs_four_strategies_without_training_and_keeps_result(monkey
 def test_missing_csv_shows_error_without_running_or_exposing_a_result():
     app = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
     app.radio(key="hf_study").set_value("strategies").run()
-    app.button[0].click().run()
+    _run_button(app).click().run()
     assert not app.exception
     assert app.session_state["strategy_result"] is None
     assert any("CSV" in item.value for item in app.error)
