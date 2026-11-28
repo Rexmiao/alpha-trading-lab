@@ -380,7 +380,7 @@ def main() -> None:
             ui.catalog(tr)
     st.divider()
     st.markdown("<div class='alpha-eyebrow'>01 · " + tr(*ui.STUDIES["ai"]["group"]) + "</div>", unsafe_allow_html=True)
-    st.header(tr("AI Alpha：四模型对照", "AI alpha: four-model comparison"))
+    st.header(tr("AI Alpha：四模型对照", "AI alpha: four-model comparison"), anchor=ui.AI_ANCHOR)
     st.write(tr("比较四种预测方法，并观察交易成本、仓位上限与风险预算如何改变模拟结果。",
                 "Compare four prediction methods and see how execution costs, position limits and risk budgets change simulated results."))
     st.caption(tr("Ridge · MLP · 重采样 MLP · 条件 DDPM 增强 MLP。这是有限研究对照，并非相关论文的完整复现。",

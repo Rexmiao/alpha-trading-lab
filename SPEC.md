@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.12.1（本机实现：研究界面统一视觉与导航；未部署）；此前0.12.0（已发布：盘前涨幅与开盘下探）；更新日期：2026-11-27（America/New_York）。此前公开应用0.11.1及免费MM样本验收记录保留；三ETF盘前统计的实现、程序测试和公网验收见文末。研究主线仍为美股日频DL／GenAI alpha预测，另有独立日频／5分钟规则、Beta、S&R和期权研究。公开HF只负责研究，不提供委托入口；本机VeighNa＋moomoo真实券商模拟认证与成交验收尚未完成，没有实盘路径。真实MM库存估计仍未识别。
+版本：0.12.1（已发布：研究界面统一视觉与导航）；此前0.12.0（已发布：盘前涨幅与开盘下探）；更新日期：2026-11-27（America/New_York）。此前公开应用0.11.1及免费MM样本验收记录保留；三ETF盘前统计的实现、程序测试和公网验收见文末。研究主线仍为美股日频DL／GenAI alpha预测，另有独立日频／5分钟规则、Beta、S&R和期权研究。公开HF只负责研究，不提供委托入口；本机VeighNa＋moomoo真实券商模拟认证与成交验收尚未完成，没有实盘路径。真实MM库存估计仍未识别。
 
 ## 系统实施路线与当前增量
 
@@ -341,7 +341,7 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 
 入口文案已实际验收：应用源码提交73b51bf98ac45056c5933ca84e3d5e95fdde3748，HF工作流46091637479成功；仓库与runtime同为9853568652b19f2847929cf3aec9ffcd7f6a0a4b、RUNNING。新访客English显示Launch Research Lab，中文显示进入研究平台，两个目标URL正确，旧按钮名消失，390px正常且JS异常0；未提交研究表单。个人网站以50e31afd4c9f2fe7476caab45d97e56099edff7c同步入口，格式、源链接、部署、编译站链接四项检查均成功，Projects卡片及详情页均读到新标签。证据为本机量化准备/native-label-qa/public-20261128T011213Z-b00503/qa.json（UTC文件名对应纽约2026-11-27）及personal-website-native-entry-50e31afd/acceptance.json。
 
-## 0.12.1（本机实现，未部署）：研究工作台界面
+## 0.12.1（已发布）：研究工作台界面
 
 只改呈现层；模型、策略、时间定义、样本筛选、成本、精度、统计方法、公开参考集及其SHA均不变。
 
@@ -355,4 +355,10 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 
 打包：`scripts/package_hf_space.py`白名单新增`.streamlit/config.toml`（仅允许server／browser／theme表并做TOML校验）与`hf_space/ui_theme.py`，预期总包33文件（32源码＋MANIFEST）；`.dockerignore`同步放行，Dockerfile新增`COPY .streamlit/config.toml ./.streamlit/config.toml`（Streamlit从工作目录读取），工作流路径触发加入该配置。本机在临时副本完成打包（33文件，包含两新文件）；Dropbox目录内直接打包会因同步改变文件元数据而被稳定性检查拒绝，属环境限制，未放宽检查。
 
-本机验证：导航、盘前UI与打包测试及Beta／5分钟／期权／日频／S&R界面测试共49项中48项通过；`test_intraday_ui.py::test_snapshot_not_configured_is_friendly_and_cannot_train_or_fall_back`在未改动的远端main上同样失败（测试仍假设首屏中文，与English默认冲突），未在本增量修改。为运行测试按`deploy/huggingface/requirements.txt`补装本机`state/space-venv`缺失的exchange-calendars等固定依赖。真实浏览器核验：首次English、中文切换与专题保持、七个入口与两个链接、1.25%＋09:25样例QQQ 18／SPY 4／DIA 5（DIA 236/250）、`ever_before_open`下DIA 0/250不可估计并另列部分窗口触发（1.25%阈值11次、2.5%阈值3次，与纯计算一致）、1366／820／390px无页面横向溢出。截图在`docs/ui_screenshots/`（本机，未决定是否提交）。尚未提交GitHub、未部署HF，公网仍为0.12.0界面。
+本机验证：导航、盘前UI与打包测试及Beta／5分钟／期权／日频／S&R界面测试共49项中48项通过；`test_intraday_ui.py::test_snapshot_not_configured_is_friendly_and_cannot_train_or_fall_back`在未改动的远端main上同样失败（测试仍假设首屏中文，与English默认冲突），未在本增量修改。为运行测试按`deploy/huggingface/requirements.txt`补装本机`state/space-venv`缺失的exchange-calendars等固定依赖。真实浏览器核验：首次English、中文切换与专题保持、七个入口与两个链接、1.25%＋09:25样例QQQ 18／SPY 4／DIA 5（DIA 236/250）、`ever_before_open`下DIA 0/250不可估计并另列部分窗口触发（1.25%阈值11次、2.5%阈值3次，与纯计算一致）、1366／820／390px无页面横向溢出。截图在`docs/ui_screenshots/`（本机，未提交）。
+
+0.12.1实际发布与公网验收：发布提交`6f945ca7b54b67bdf3e147a8958fad12515915d9`（父提交`5e56e716680064127cd46de9144df4610bd8b185`，正常快进，无强制覆盖；含16个UI、打包与说明文件，包括`docs/STREAMLIT_CLOUD_DEPLOYMENT.md`的配置说明更正）。[HF工作流46099673415](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/46099673415)成功；HF Space仓库revision `cd62184c9e8c21d39da1eec3ed884e89027547f4`，RUNNING／CPU Basic，未改变硬件、计费或凭据范围。2026-11-27公网实测：新访客English、新版页首与主题生效；两个入口文案与URL正确；七个专题齐全；盘前1.25%＋09:25为QQQ 18／SPY 4／DIA 5（DIA 236/250），上次运行条显示已执行设置；切换中文仍在盘前页且数字不变，切回English正常；390px无页面横向溢出，浏览器控制台无错误。未在公网重复验证DIA覆盖不足、错误状态与下载字节一致性（本机测试覆盖），备用Cloud／Pages未单独验收。
+
+发布包逐文件核对：Space revision `cd62184`的MANIFEST共32个源码条目，逐一与提交`6f945ca`对应源文件SHA256一致（0差异），加MANIFEST共33文件；盘前参考集SHA仍为`1b93af7a…6cee7b60`。语言偏好：公网三次“中文后重新打开”中两次正确恢复中文；首次重新打开却显示English，浏览器存储被写为`en`，之后同顺序未能复现，原因未定，因此语言偏好记忆暂不记为已完全验证，后续需在新浏览器档案中重测。
+
+0.12.1后续修正：首页AI专题卡原来只有“↓ Continue below on this page”说明文字，不可点击；现改为页内链接“Go to the AI study below ↓／前往本页下方的 AI 专题 ↓”，指向AI专题标题锚点`#ai-study`，仅滚动页面，不触发计算或切换数据。其余六张卡仍为“Open study →／打开专题”按钮。本机浏览器验证点击后滚动到AI标题且无图表或训练被触发；公网结果以下一次HF工作流与页面检查为准。

@@ -15,6 +15,7 @@ import streamlit as st
 
 APP_URL = "https://rexymiao-alpha-trading-lab.hf.space/"
 PROJECT_URL = "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
+AI_ANCHOR = "ai-study"
 STUDY_ORDER = ("ai", "strategies", "intraday", "beta", "sr", "options", "premarket")
 
 # Badge kinds: real (observed history), frozen (frozen derived reference),
@@ -134,6 +135,9 @@ h2,h3{letter-spacing:-.01em}
 [class*="st-key-alpha_card_"] .stButton{margin-top:auto}
 .alpha-card-title{font-weight:650;font-size:1rem;line-height:1.3;margin:.1rem 0 .1rem}
 .alpha-card-text{font-size:.86rem;line-height:1.5;opacity:.82}
+.alpha-card-action{margin-top:auto}
+.alpha-card-action a{display:inline-block;padding:.25rem 0;font-size:.95rem;color:inherit;text-decoration:none}
+.alpha-card-action a:hover{text-decoration:underline}
 @media (min-width:641px) and (max-width:1100px){
   .st-key-alpha_catalog [data-testid="stHorizontalBlock"]{flex-wrap:wrap}
   .st-key-alpha_catalog [data-testid="stColumn"]{min-width:calc(50% - 1rem)}}
@@ -248,7 +252,10 @@ def catalog(tr) -> None:
                                 unsafe_allow_html=True)
                     study_badges(tr, study)
                     if study == "ai":
-                        st.caption(tr("↓ 就在本页下方", "↓ Continue below on this page"))
+                        # Same-page anchor: scrolls to the AI study header; no computation.
+                        st.markdown(f"<div class='alpha-card-action'><a href='#{AI_ANCHOR}' target='_self'>"
+                                    + escape(tr("前往本页下方的 AI 专题", "Go to the AI study below")) + " ↓</a></div>",
+                                    unsafe_allow_html=True)
                     else:
                         st.button(tr("打开专题", "Open study") + " →", key=f"hf_open_{study}", type="tertiary",
                                   on_click=_open_study, args=(study,))
