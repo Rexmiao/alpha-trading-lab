@@ -301,8 +301,8 @@ def _render_tabs(result, context, tr):
             st.caption(tr("运行后显示冻结区域、事件路径和成交审计。", "Run to inspect frozen zones, event paths and proxy execution audit."))
         else:
             _event_chart(result, tr)
-            for key, zh, en in (("levels", "冻结区域", "Frozen zones"), ("events", "事件状态与确认", "Event states and confirmations"),
-                                 ("trades", "实际纸面成交", "Actual proxy trades"), ("weights", "参考目标与期末现金", "Reference targets and final cash")):
+            for key, zh, en in (("levels", "冻结区域", "Frozen Zones"), ("events", "事件状态与确认", "Event States and Confirmations"),
+                                 ("trades", "实际纸面成交", "Actual Proxy Trades"), ("weights", "参考目标与期末现金", "Reference Targets and Final Cash")):
                 with st.expander(tr(zh, en)):
                     _table(result.get(key), tr)
             st.caption(tr("预定日末清仓后，期末实际持仓应为现金；日内参考目标有自己的时点，不能冒充期末持仓或券商订单。touch_at仅为触碰K线开始，真实盘中触碰时刻未知，事件须等该bar完成才可见。状态码保留便于审计。",
@@ -317,7 +317,7 @@ def _render_tabs(result, context, tr):
             st.json(result.get("coverage") or {})
             st.caption(tr("缺K线的整日不补价，且评估日须有紧邻前一交易所日的完整价位来源；第一日仅预热。完整日筛选使用事后质量信息，不是实盘断线处理。至少需要两个可评估交易日；短历史只够工程验证，不能判断策略稳定性。",
                           "Do not fill missing bars. Each evaluation day requires a complete immediately preceding exchange session for levels; the first day is warmup only. Whole-session screening uses retrospective quality information, not a live outage policy. At least two evaluation days are required; short histories support engineering checks rather than strategy stability claims."))
-            with st.expander(tr("参数、来源与可复现信息", "Settings, provenance and reproducibility")):
+            with st.expander(tr("参数、来源与可复现信息", "Settings, Provenance and Reproducibility")):
                 st.json({"settings": context, "config": result.get("config") or {}, "lineage": result.get("lineage") or {},
                          "engine_warning_codes": result.get("warnings") or []})
             st.download_button(tr("下载支撑阻力研究JSON", "Download support/resistance research JSON"),
@@ -328,11 +328,11 @@ def _render_tabs(result, context, tr):
 
 def render_sr_page(tr, *, snapshot_loader=None):
     st.markdown("<div class='alpha-eyebrow'>" + tr(*ui.STUDIES["sr"]["group"]) + "</div>", unsafe_allow_html=True)
-    st.title(tr("5分钟支撑与阻力实验室", "5-minute Support & Resistance Lab"))
+    st.title(tr("5分钟支撑与阻力实验室", "5-Minute Support & Resistance Lab"))
     ui.study_meta(tr, "sr")
     st.write(tr("以前一完整交易日高低点形成冻结区域，比较支撑反弹、阻力突破和突破后回踩。", "Build frozen zones from the prior complete session's high and low; compare support bounce, resistance breakout and breakout-retest."))
     st.caption(tr("独立研究与纸面成交；不连接券商、训练模型或自动提交订单。", "Separate research and proxy fills; no brokerage connection, model training or automatic orders."))
-    st.sidebar.subheader(tr("支撑阻力数据与参数", "Support/resistance data and settings"))
+    st.sidebar.subheader(tr("支撑阻力数据与参数", "Support/Resistance Data and Settings"))
     sources = {"moomoo_snapshot": tr("已发布moomoo 5分钟快照", "Published moomoo 5-minute snapshot"),
                "uploaded_csv": tr("访客5分钟CSV", "Visitor 5-minute CSV"),
                "synthetic": tr("合成教学数据", "Synthetic teaching data")}
@@ -372,7 +372,7 @@ def render_sr_page(tr, *, snapshot_loader=None):
         st.sidebar.caption(tr("虚构资产，仅用于理解机制；不会替代真实数据失败。", "Fictional assets for understanding mechanisms; never substituted for failed observed data."))
     band = _input("number_input", "sr_band", 10, tr("区域半宽（bps）", "Zone half-width (bps)"), min_value=1, max_value=200, step=1)
     confirmation = _input("number_input", "sr_confirmation", 12, tr("确认等待上限（5分钟根数）", "Confirmation limit (5-minute bars)"), min_value=1, max_value=60, step=1)
-    with st.sidebar.expander(tr("高级设置", "Advanced settings")) as advanced:
+    with st.sidebar.expander(tr("高级设置", "Advanced Settings")) as advanced:
         buffer = _input("number_input", "sr_buffer", 0, tr("突破缓冲（bps）", "Breakout buffer (bps)"), min_value=0, max_value=100, step=1, host=advanced)
         delays = {0: tr("0：下一根开盘", "0: next-bar open"), 1: tr("1：额外等一根", "1: wait one extra bar")}
         delay = _input("selectbox", "sr_delay", 0, tr("额外执行延迟", "Extra execution delay"), options=[0, 1], index=None, format_func=delays.__getitem__, host=advanced)

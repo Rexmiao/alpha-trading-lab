@@ -72,7 +72,7 @@ def test_intraday_real_engine_run_keeps_bytes_settings_and_source_on_language_an
         assert app.selectbox(key="intraday_execution_delay").value == 1
         assert app.session_state["intraday_result_json"] == saved
         assert len(calls) == 1
-    assert app.title[0].value == "5-minute Momentum & Trend Lab"
+    assert app.title[0].value == "5-Minute Momentum & Trend Lab"
     assert any(tab.label == "Mathematical derivation" for tab in app.tabs)
 
     app.number_input(key="intraday_momentum_lookback").set_value(9).run()

@@ -216,7 +216,7 @@ def render_beta_results(result, context, tr):
         st.caption(tr("五组共享评估日期和所选单边费用。80% SPY对照资金暴露，100% SPY是完整市场基准，二者均不受单股20%上限。期末只估值，不虚构平仓；现金收益为0。", "All five share evaluation dates and selected per-side costs. The 80% SPY control matches target cash allocation; 100% SPY is a full-market reference. Neither has the stock 20% cap. The final close is valuation only, without a fabricated exit; cash earns zero."))
     with measurement:
         estimates = pd.DataFrame(result.get("estimates") or [])
-        st.subheader(tr("最新个股测量", "Latest stock measurements"))
+        st.subheader(tr("最新个股测量", "Latest Stock Measurements"))
         _table(estimates, tr)
         if not estimates.empty and {"beta", "annual_vol", "symbol"} <= set(estimates):
             plot = estimates.copy()
@@ -230,9 +230,9 @@ def render_beta_results(result, context, tr):
                 fig.update_layout(template="plotly_white", height=370)
                 st.plotly_chart(fig, use_container_width=True)
         st.caption(tr("标准误描述估计不确定性，不是未来收益置信区间。相对股票池排名低也不保证Beta小于1。", "Standard errors describe estimation uncertainty, not confidence intervals for future returns. A low rank within the universe need not imply Beta below one."))
-        st.subheader(tr("期末实际模拟持仓", "Final actual simulated holdings"))
+        st.subheader(tr("期末实际模拟持仓", "Final Actual Simulated Holdings"))
         _table(pd.DataFrame(result.get("weights") or []), tr)
-        st.subheader(tr("最后一次调仓的参考目标", "Reference targets at the latest rebalance"))
+        st.subheader(tr("最后一次调仓的参考目标", "Reference Targets at the Latest Rebalance"))
         _table(pd.DataFrame(result.get("latest_targets") or []), tr)
         st.caption(tr("参考目标与期末实际持仓的日期和含义不同；均不是券商账户仓位或下单指令。", "Reference targets and final holdings have different dates and meanings; neither is a brokerage position or order instruction."))
     with mathematics:
@@ -247,7 +247,7 @@ def render_beta_results(result, context, tr):
         else:
             st.json(coverage)
         st.caption(tr("主题池并非历史完整可投资股票池；交易成本为所选bps近似，未模拟真实盘口、市场冲击或券商部分成交。调参数属于探索，不能当作新样本外证据。", "The thematic universe is not a historical investable universe. Selected bps approximate costs without order books, market impact or brokerage partial fills. Parameter exploration is not fresh out-of-sample evidence."))
-        with st.expander(tr("来源、参数与可复现信息", "Provenance, settings and reproducibility")):
+        with st.expander(tr("来源、参数与可复现信息", "Provenance, Settings and Reproducibility")):
             st.json({"settings": context, "lineage": result.get("lineage") or {}, "config": result.get("config") or {}})
         st.download_button(tr("下载Beta研究JSON", "Download Beta research JSON"),
                            st.session_state["beta_result_json"], file_name="beta-research-report.json",
@@ -261,7 +261,7 @@ def render_beta_page(tr, *, snapshot_loader=None):
     ui.study_meta(tr, "beta")
     st.write(tr("用历史日K测量市场敏感度，比较高Beta、低Beta、全池等权及两种SPY基准。", "Measure market sensitivity using historical daily bars; compare high Beta, low Beta, equal weight and two SPY controls."))
     st.caption(tr("无杠杆日频研究，不训练DL／GenAI，不做Beta中性对冲或BAB，不连接券商或提交订单。", "Unlevered daily research: no DL/GenAI training, Beta-neutral hedge, BAB, brokerage connection or order submission."))
-    st.sidebar.subheader(tr("Beta数据与参数", "Beta data and settings"))
+    st.sidebar.subheader(tr("Beta数据与参数", "Beta Data and Settings"))
     names = {"moomoo_daily_snapshot": tr("已发布moomoo日K快照", "Published moomoo daily snapshot"),
              "uploaded_csv": tr("访客日K CSV", "Visitor daily CSV")}
     source = _input("radio", "beta_source", "moomoo_daily_snapshot", tr("Beta数据来源", "Beta data source"),

@@ -17,15 +17,15 @@ chartCategoricalColors = ["#0B6E75", "#2F6FB3", "#C98A1E", "#7A5CC2", "#5B6B7F",
 
 [theme.light]
 primaryColor = "#0B6E75"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F2F5F8"
+backgroundColor = "#F5F7FA"
+secondaryBackgroundColor = "#EBF0F5"
 textColor = "#13233A"
 linkColor = "#0B5F8A"
-borderColor = "#D6DEE6"
-dataframeHeaderBackgroundColor = "#EEF3F7"
+borderColor = "#D3DCE6"
+dataframeHeaderBackgroundColor = "#E9EFF5"
 
 [theme.light.sidebar]
-backgroundColor = "#F5F8FA"
+backgroundColor = "#EDF1F6"
 secondaryBackgroundColor = "#FFFFFF"
 
 [theme.dark]

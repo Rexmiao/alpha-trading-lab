@@ -119,7 +119,7 @@ def _render_results(result, context, tr, *, current=None):
                 xaxis_title="ETF", yaxis_title=tr("相对开盘的下探（%）", "Downside from opening-minute open (%)"),
                 margin=dict(t=65, b=30), height=340)
             st.plotly_chart(figure, use_container_width=True)
-        with st.expander(tr("下探频率与相同合格日基线", "Downside frequencies & same-eligible-day baseline")):
+        with st.expander(tr("下探频率与相同合格日基线", "Downside Frequencies & Same-Eligible-Day Baseline")):
             rows = []
             for symbol, entry in results.items():
                 for event, baseline in zip(entry["events"]["thresholds"], entry["baseline_same_eligible_days"]["thresholds"]):
@@ -171,7 +171,7 @@ def render_premarket_page(tr):
     st.caption(tr("冻结区间2025-11-27至2026-11-26，不含2026-11-27当天，共250个交易日。来源为已核验moomoo 1分钟历史行情的派生统计；不是实时行情。",
                   "Frozen period: 2025-11-27 through 2026-11-26, excluding 2026-11-27; 250 trading sessions. Derived statistics from verified moomoo 1-minute history, not a live feed."))
     with st.form("premarket_settings"):
-        st.markdown("**" + tr("研究参数", "Study settings") + "**")
+        st.markdown("**" + tr("研究参数", "Study Settings") + "**")
         etf_column, threshold_column, definition_column = st.columns([4, 3, 4])
         with etf_column:
             symbols = _input("multiselect", "premarket_symbols", ["QQQ", "SPY", "DIA"], tr("ETF选择", "ETFs"), options=["QQQ", "SPY", "DIA"])

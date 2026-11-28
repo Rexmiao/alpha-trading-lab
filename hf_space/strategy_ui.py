@@ -43,7 +43,7 @@ def _restore_choice(widget_key, default):
 
 
 def render_guide(tr):
-    st.subheader(tr("理解四种策略", "Understand the four strategies"))
+    st.subheader(tr("理解四种策略", "Understand the Four Strategies"))
     memory = _restore_choice("strategy_explanation", next(iter(LABELS)))
     names = {name: label(name, tr) for name in LABELS}
     selected = st.selectbox(tr("查看策略原理", "Explore a strategy"), list(LABELS), index=None,
@@ -72,9 +72,9 @@ def render_guide(tr):
     st.latex(formula)
     st.caption(tr("这些是可检查的研究基线，参数不是经验证的最优值。动量分数不是未来收益预测，不用于收益／成本门槛；实际换仓仍扣成本，并共用仓位与风险约束。",
                   "These are inspectable research baselines, not optimized parameters. Momentum scores are not return forecasts and do not pass a forecast-versus-cost gate; executed trades still incur costs and share position/risk constraints."))
-    with st.expander(tr("分钟级动量：研究与数据入口", "Minute-level momentum: research and data")):
+    with st.expander(tr("分钟级动量：研究与数据入口", "Minute-Level Momentum: Research and Data")):
         st.write(tr("本页运行日频策略；侧栏另有独立的5分钟动量与趋势入口，接受UTC开盘时间CSV或合成教学数据。分钟研究使用独立交易日历、费用和延迟口径；真实moomoo分钟采集尚待通过。",
-                    "This page runs daily rules. Choose the separate 5-minute momentum & trend page in the sidebar for UTC bar-start CSV or synthetic inputs. Intraday research has its own calendar, costs and delay assumptions; observed moomoo minute collection is not yet verified."))
+                    "This page runs daily rules. Choose the separate 5-Minute Momentum & Trend page in the study navigation for UTC bar-start CSV or synthetic inputs. Intraday research has its own calendar, costs and delay assumptions; observed moomoo minute collection is not yet verified."))
         st.markdown(tr(
             "- [Market Intraday Momentum（JFE 2018）](https://doi.org/10.1016/j.jfineco.2018.05.009)：前收盘至10:00的收益预测尾盘半小时，包含隔夜跳空。\n- [moomoo分钟历史接口](https://openapi.moomoo.com/moomoo-api-doc/en/quote/request-history-kline.html)：支持分钟周期，账户权限、历史额度与接入路线需核实。\n- [Alpaca历史数据规则](https://docs.alpaca.markets/us/docs/market-data-faq) / [Massive分钟历史](https://massive.com/docs/rest/stocks/aggregates/custom-bars)：免费历史与实时全市场权限不同。",
             "- [Market Intraday Momentum (JFE 2018)](https://doi.org/10.1016/j.jfineco.2018.05.009): the previous close to 10:00 return predicts the final half-hour, including the overnight gap.\n- [moomoo historical bars](https://openapi.moomoo.com/moomoo-api-doc/en/quote/request-history-kline.html): minute intervals are supported; account access, quotas and connection route need verification.\n- [Alpaca historical data rules](https://docs.alpaca.markets/us/docs/market-data-faq) / [Massive minute history](https://massive.com/docs/rest/stocks/aggregates/custom-bars): free history differs from real-time consolidated access."))
@@ -139,7 +139,7 @@ def render_results(result, context, tr):
         signals = pd.DataFrame(result.get("signals") or [])
         if not signals.empty:
             latest = signals.loc[signals.date.eq(signals.date.max())].copy()
-            st.subheader(tr("最新信号：", "Latest signals: ") + str(signals.date.max()))
+            st.subheader(tr("最新信号：", "Latest Signals: ") + str(signals.date.max()))
             latest["strategy"] = latest.strategy.map(lambda value: label(value, tr))
             units = {"historical_simple_return": tr("历史区间收益", "Historical return"),
                      "close_to_slow_average_fraction": tr("收盘/慢均线−1", "Close / slow MA − 1"),
@@ -157,7 +157,7 @@ def render_results(result, context, tr):
                 hide_index=True, use_container_width=True)
         weights = pd.DataFrame(result.get("weights") or [])
         if not weights.empty:
-            st.subheader(tr("最新参考目标权重", "Latest reference target weights"))
+            st.subheader(tr("最新参考目标权重", "Latest Reference Target Weights"))
             weights["strategy"] = weights.strategy.map(lambda value: label(value, tr))
             weights.loc[weights.symbol.eq("__CASH__"), "symbol"] = tr("现金", "Cash")
             weights["weight"] = pd.to_numeric(weights.weight) * 100
@@ -182,7 +182,7 @@ def render_strategy_page(tr, render_data_source, input_coverage, render_online_d
     st.write(tr("用同一份日 K 比较四类规则策略，查看信号、仓位、含成本权益与回撤。",
                 "Compare four rule strategies on the same daily bars: signals, weights, equity after costs and drawdowns."))
     render_guide(tr)
-    st.sidebar.subheader(tr("策略数据与参数", "Strategy data and settings"))
+    st.sidebar.subheader(tr("策略数据与参数", "Strategy Data and Settings"))
     sources = {"uploaded_csv": tr("moomoo / 访客 CSV", "moomoo / visitor CSV"),
                "online_history": tr("在线真实历史日 K", "Online real daily history"),
                "synthetic": tr("合成教学数据", "Synthetic teaching data")}

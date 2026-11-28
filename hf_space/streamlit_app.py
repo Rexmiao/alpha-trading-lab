@@ -133,7 +133,7 @@ def render_model_status(result: dict) -> None:
     if incomplete:
         st.warning(tr("部分模型没有完成。下面只展示实际返回的结果，缺失模型不以其他结果替代。",
                       "Some models did not complete. Only returned results are shown; missing models are not substituted."))
-    with st.expander(tr("查看四组模型状态", "View status of the four models"), expanded=incomplete):
+    with st.expander(tr("查看四组模型状态", "View Status of the Four Models"), expanded=incomplete):
         st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
 
 
@@ -212,7 +212,7 @@ def render_predictions_and_weights(result: dict) -> None:
         st.plotly_chart(fig, use_container_width=True)
     st.caption(tr("Rank IC 衡量同一天预测排序与后续超额收益排序的关系，不是收益率。",
                   "Rank IC measures the relation between same-day predicted ranks and subsequent excess-return ranks; it is not a return."))
-    st.subheader(tr("最新参考目标权重", "Latest reference target weights"))
+    st.subheader(tr("最新参考目标权重", "Latest Reference Target Weights"))
     weights = records_frame(result, "weights", ("model", "symbol", "weight"))
     if weights.empty:
         st.info(tr("没有股票目标权重；请查看运行警告，可能没有超过门槛的信号。",
@@ -228,7 +228,7 @@ def render_predictions_and_weights(result: dict) -> None:
                      column_config={labels["weight"]: st.column_config.NumberColumn(labels["weight"], format="%.2f")})
     st.caption(tr("权重受成本、仓位和风险参数约束，剩余部分为现金。这里只显示模拟参考，不连接账户或提交订单。",
                   "Weights reflect the cost, position and risk settings; the remainder is cash. These are simulation references with no account connection or order submission."))
-    with st.expander(tr("逐日预测记录", "Daily prediction records")):
+    with st.expander(tr("逐日预测记录", "Daily Prediction Records")):
         predictions = records_frame(result, "predictions", ("date", "symbol", "model", "score", "realized_excess"))
         if predictions.empty:
             st.info(tr("没有预测记录。", "No predictions were returned."))
@@ -261,7 +261,7 @@ def render_online_downloads(result: dict | None) -> None:
     provenance = cached["provenance"]
     result_provenance = ((result or {}).get("lineage") or {}).get("external_data")
     same_result_snapshot = (result or {}).get("source") == "online_history" and result_provenance == provenance
-    st.sidebar.subheader(tr("在线行情快照下载", "Online snapshot downloads"))
+    st.sidebar.subheader(tr("在线行情快照下载", "Online Snapshot Downloads"))
     st.sidebar.caption(tr("当前会话最近获取的快照：", "Latest snapshot fetched in this session: ")
                        + ", ".join(provenance.get("symbols") or [])
                        + f" · {provenance.get('benchmark', '—')}"
@@ -362,21 +362,21 @@ def main() -> None:
         return
     ui.hero(tr, tr("Alpha量化研究实验室", "Alpha Trading Research Lab"))
     if st.session_state.get("hf_result") is None:
-        st.subheader(tr("选择研究专题", "Choose a study"))
+        st.subheader(tr("选择研究专题", "Choose a Study"))
         ui.catalog(tr)
     else:
-        with st.expander(tr("全部七个研究专题", "All seven research studies")):
+        with st.expander(tr("全部七个研究专题", "All Seven Research Studies")):
             ui.catalog(tr)
     st.divider()
     st.markdown("<div class='alpha-eyebrow'>01 · " + tr(*ui.STUDIES["ai"]["group"]) + "</div>", unsafe_allow_html=True)
-    st.header(tr("AI Alpha：四模型对照", "AI alpha: four-model comparison"), anchor=ui.AI_ANCHOR)
+    st.header(tr("AI Alpha：四模型对照", "AI Alpha: Four-Model Comparison"), anchor=ui.AI_ANCHOR)
     st.write(tr("比较四种预测方法，并观察交易成本、仓位上限与风险预算如何改变模拟结果。",
                 "Compare four prediction methods and see how execution costs, position limits and risk budgets change simulated results."))
     st.caption(tr("Ridge · MLP · 重采样 MLP · 条件 DDPM 增强 MLP。这是有限研究对照，并非相关论文的完整复现。",
                   "Ridge · MLP · resampled MLP · conditional-DDPM-augmented MLP. This is a bounded research comparison, not a full replication of the papers."))
     ui.study_meta(tr, "ai")
 
-    st.sidebar.subheader(tr("数据与参数", "Data and settings"))
+    st.sidebar.subheader(tr("数据与参数", "Data and Settings"))
     source_labels = {"uploaded_csv": tr("moomoo / 访客 CSV（主要入口）", "moomoo / visitor CSV (primary)"),
                      "online_history": tr("在线真实历史日 K", "Online real daily history"),
                      "synthetic": tr("合成教学数据", "Synthetic teaching data")}
@@ -390,7 +390,7 @@ def main() -> None:
         st.sidebar.caption(tr("CSV 会发送到运行此模拟的云端环境临时处理。请勿上传账户、个人信息或密钥；请确认有权用于云端处理。",
                            "CSV files are sent to the server hosting this simulation for temporary processing. Exclude account details, personal information and secrets, and ensure you have the right to process the data in the cloud."))
         uploaded = st.sidebar.file_uploader(tr("选择日 K CSV", "Choose a daily OHLCV CSV"), type=["csv"], key="hf_uploaded_csv")
-        with st.sidebar.expander(tr("CSV 格式要求", "CSV requirements")):
+        with st.sidebar.expander(tr("CSV 格式要求", "CSV Requirements")):
             st.code("date,symbol,open,high,low,close,volume", language="text")
             st.write(tr("同一文件内需包含股票和基准，日期使用 YYYY-MM-DD。历史长度需足够切分训练、验证和测试；不足会明确报错。",
                         "Include both stocks and the benchmark in the same file, using YYYY-MM-DD dates. Enough history is needed for chronological train, validation and test splits; insufficient data raises an explicit error."))
@@ -424,7 +424,7 @@ def main() -> None:
                                           "Sets both the return-label holding period and the rebalance interval; longer horizons leave fewer usable labels and observed rebalances."))
         st.caption(tr("建议从 5 个交易日开始，初期在 10 个交易日以内研究；可输入 1–20 的整数。这是教学起点，并非经验证的最优周期。",
                       "Start with 5 trading days; use 10 or fewer for initial experiments. Enter an integer from 1–20. This is a teaching starting point, not a validated optimal horizon."))
-        with st.expander(tr("高级设置", "Advanced settings")):
+        with st.expander(tr("高级设置", "Advanced Settings")):
             seed = st.number_input(tr("随机种子", "Random seed"), min_value=0, max_value=2147483647,
                                    value=42, step=1, key="hf_seed")
             cost_bps = st.slider(tr("单边成交成本（bps）", "Execution cost per side (bps)"), 0, 50, 10, 1, key="hf_cost_bps")
@@ -522,14 +522,14 @@ def main() -> None:
     with prediction_tab:
         render_predictions_and_weights(result)
     with details:
-        st.subheader(tr("运行提示", "Run warnings"))
+        st.subheader(tr("运行提示", "Run Warnings"))
         warnings = result.get("warnings") or []
         if warnings:
             for warning in warnings:
                 st.warning(str(warning))
         else:
             st.caption(tr("引擎未返回额外提示；这不构成策略有效性的证明。", "The engine returned no additional warnings; this does not establish strategy validity."))
-        with st.expander(tr("参数与可复现信息", "Settings and reproducibility metadata")):
+        with st.expander(tr("参数与可复现信息", "Settings and Reproducibility Metadata")):
             st.json({"settings": context, "lineage": result.get("lineage") or {}})
         st.download_button(tr("下载本次 JSON 结果", "Download this JSON report"),
                            data=st.session_state["hf_result_json"], file_name="alpha-simulation-report.json",

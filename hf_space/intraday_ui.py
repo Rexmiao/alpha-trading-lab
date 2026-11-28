@@ -122,7 +122,7 @@ def _display_table(frame, tr):
 
 
 def render_intraday_guide(tr):
-    st.subheader(tr("先理解信号与成交", "Understand signals and execution"))
+    st.subheader(tr("先理解信号与成交", "Understand Signals and Execution"))
     principle, mathematics = st.tabs([tr("三种规则与时点", "Rules and timing"),
                                       tr("数学推导", "Mathematical derivation")])
     with principle:
@@ -259,16 +259,16 @@ def render_intraday_results(result, context, tr):
         else:
             targets, actual = pd.DataFrame(), weights
         if not targets.empty:
-            st.subheader(tr("最后一次日内参考目标", "Last intraday reference targets"))
+            st.subheader(tr("最后一次日内参考目标", "Last Intraday Reference Targets"))
             _display_table(targets, tr)
             st.caption(tr("这是最后一次实际调仓采用的等权参考目标；as_of为对应信号可见时间。整数股、成本和尾盘清仓后的实际持仓可能不同，不是可提交订单。", "These equal-weight reference targets were used at the last simulated rebalance; as_of identifies the associated signal's availability. Integer shares, costs and the scheduled exit can leave different actual holdings. These are not orders to submit."))
-        st.subheader(tr("实际期末持仓权重", "Actual simulated ending weights"))
+        st.subheader(tr("实际期末持仓权重", "Actual Simulated Ending Weights"))
         _display_table(actual, tr)
         st.caption(tr("本实验每日尾盘强制清仓，因此最终实际持仓为现金；日内目标分配原理见数学推导。信号与目标不是券商订单。", "Scheduled daily exits leave actual final holdings in cash; the mathematical tab explains intraday target allocation. Signals and targets are not brokerage orders."))
-        st.subheader(tr("逐笔模拟成交", "Individual proxy fills"))
+        st.subheader(tr("逐笔模拟成交", "Individual Proxy Fills"))
         _display_table(_frame(result, "trades"), tr)
         st.caption(tr("有效价格包含半点差及滑点，参考名义金额仍按原始open计算。费用、半点差、滑点单列组成总成本，只扣一次。", "The effective price includes half-spread and slippage; reference notional uses the original open. Fees, half-spread and slippage are itemized into total cost and charged once."))
-        with st.expander(tr("完整信号记录", "All signal records")):
+        with st.expander(tr("完整信号记录", "All Signal Records")):
             _display_table(_frame(result, "signals"), tr)
     with information:
         for warning in result.get("warnings") or []:
@@ -282,14 +282,14 @@ def render_intraday_results(result, context, tr):
 
 def render_intraday_page(tr):
     st.markdown("<div class='alpha-eyebrow'>" + tr(*ui.STUDIES["intraday"]["group"]) + "</div>", unsafe_allow_html=True)
-    st.title(tr("5分钟动量与趋势实验室", "5-minute Momentum & Trend Lab"))
+    st.title(tr("5分钟动量与趋势实验室", "5-Minute Momentum & Trend Lab"))
     ui.study_meta(tr, "intraday")
     st.write(tr("使用本机发布的moomoo快照、访客CSV，或明确选择合成教学数据，比较三种日内规则及其含成本纸面成交。",
                 "Use a published moomoo snapshot, visitor CSV, or explicitly selected synthetic prices to compare three intraday rules and proxy fills after costs."))
     st.caption(tr("独立5分钟研究：不训练DL／GenAI模型，不连接moomoo账户，不自动下载Yahoo分钟行情，不提交订单。",
                   "Separate 5-minute research: no DL/GenAI training, moomoo account connection, automatic Yahoo minute download or order submission."))
     render_intraday_guide(tr)
-    st.sidebar.subheader(tr("5分钟数据与参数", "5-minute data and settings"))
+    st.sidebar.subheader(tr("5分钟数据与参数", "5-Minute Data and Settings"))
     sources = {"uploaded_csv": tr("真实moomoo / 访客5分钟CSV", "Observed moomoo / visitor 5-minute CSV"),
                "moomoo_snapshot": tr("已发布moomoo 5分钟快照", "Published moomoo 5-minute snapshot"),
                "synthetic": tr("合成教学数据", "Synthetic teaching data")}

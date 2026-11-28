@@ -83,7 +83,7 @@ def test_language_and_study_navigation_are_in_main_and_preserve_page():
     app.radio(key="hf_study").set_value("ai").run()
     assert app.radio(key="hf_language").value == "English"
     assert "hf_result" not in app.session_state
-    assert any(item.label == "Advanced settings" for item in app.sidebar.expander)
+    assert any(item.label == "Advanced Settings" for item in app.sidebar.expander)
 
 
 def test_sr_real_navigation_is_lazy_and_keeps_language_outside_sidebar(monkeypatch):

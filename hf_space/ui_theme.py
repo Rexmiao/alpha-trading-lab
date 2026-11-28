@@ -22,7 +22,7 @@ STUDY_ORDER = ("ai", "strategies", "intraday", "beta", "sr", "options", "premark
 # visitor (visitor-supplied file), teaching (synthetic / TOY), info (neutral).
 STUDIES = {
     "ai": {
-        "label": ("AI 模型对照", "AI model comparison"),
+        "label": ("AI 模型对照", "AI Model Comparison"),
         "group": ("机器学习 · 日频", "Machine learning · daily"),
         "summary": ("比较 Ridge、MLP、重采样 MLP 与 DDPM 增强 MLP，观察成本、仓位上限与风险预算如何改变模拟结果。",
                     "Compare Ridge, MLP, resampled MLP and DDPM-augmented MLP, and see how costs, position caps and risk budgets change simulated results."),
@@ -32,7 +32,7 @@ STUDIES = {
         "sidebar": True,
     },
     "strategies": {
-        "label": ("日频动量与趋势", "Daily momentum & trend"),
+        "label": ("日频动量与趋势", "Daily Momentum & Trend"),
         "group": ("规则策略 · 日频", "Rule strategies · daily"),
         "summary": ("用同一份日 K 比较四类规则策略的信号、仓位、含成本权益与回撤。",
                     "Compare four rule strategies on the same daily bars: signals, weights, equity after costs and drawdowns."),
@@ -42,7 +42,7 @@ STUDIES = {
         "sidebar": True,
     },
     "intraday": {
-        "label": ("5 分钟动量与趋势", "5-minute momentum & trend"),
+        "label": ("5 分钟动量与趋势", "5-Minute Momentum & Trend"),
         "group": ("规则策略 · 日内", "Rule strategies · intraday"),
         "summary": ("比较三种 5 分钟日内规则，以及含成本的纸面代理成交与持仓。",
                     "Compare three 5-minute intraday rules with cost-inclusive proxy fills and holdings."),
@@ -52,7 +52,7 @@ STUDIES = {
         "sidebar": True,
     },
     "beta": {
-        "label": ("Beta 测量与策略对照", "Beta measurement & comparison"),
+        "label": ("Beta 测量与策略对照", "Beta Measurement & Comparison"),
         "group": ("风险与因子 · 日频", "Risk & factors · daily"),
         "summary": ("126／252 日 Beta 测量；比较高／低 Beta、全池等权与 80%、100% SPY 无杠杆对照。",
                     "126/252-day Beta measurement; compare high and low Beta, equal weight, and unlevered 80% / 100% SPY controls."),
@@ -61,7 +61,7 @@ STUDIES = {
         "sidebar": True,
     },
     "sr": {
-        "label": ("支撑与阻力策略", "Support & resistance"),
+        "label": ("支撑与阻力策略", "Support & Resistance"),
         "group": ("价格区域 · 日内", "Price levels · intraday"),
         "summary": ("以前一完整交易日高低点形成冻结区域，比较支撑反弹、阻力突破与突破回踩。",
                     "Freeze zones from the prior complete session's high and low; compare support bounce, resistance breakout and breakout-retest."),
@@ -71,7 +71,7 @@ STUDIES = {
         "sidebar": True,
     },
     "options": {
-        "label": ("期权结构研究", "Options structure research"),
+        "label": ("期权结构研究", "Options Structure Research"),
         "group": ("衍生品结构", "Derivatives structure"),
         "summary": ("先审计 SPY／QQQ 期权数据实际能观察到什么，再运行明确标记的 TOY GEX 与最大痛苦教学计算。",
                     "Audit what SPY / QQQ option data can actually observe, then run clearly labeled TOY GEX and Max Pain teaching calculators."),
@@ -80,7 +80,7 @@ STUDIES = {
         "sidebar": False,
     },
     "premarket": {
-        "label": ("盘前涨幅与开盘下探", "Premarket & opening downside"),
+        "label": ("盘前涨幅与开盘下探", "Premarket & Opening Downside"),
         "group": ("事件研究", "Event study"),
         "summary": ("QQQ、SPY、DIA 盘前涨幅超过阈值后，开盘半小时内最大下探有多深、样本有多少。",
                     "For QQQ, SPY and DIA: after a premarket gain above your threshold, how many events occurred and how far did prices fall in the first 30 minutes?"),
@@ -125,6 +125,16 @@ h2,h3{letter-spacing:-.01em}
 .st-key-hf_study [data-testid="stRadioOption"]{transition:background-color .2s,border-color .2s,box-shadow .2s,transform .2s}
 .st-key-hf_study [data-testid="stRadioOption"]:hover{transform:translateY(-1px)}
 .st-key-hf_study [data-testid="stRadioOption"][data-selected="true"] p{font-weight:600}
+/* Surfaces: light theme = white panels on a cool blue-gray canvas. light-dark() follows the
+   color-scheme Streamlit sets on .stApp; older browsers keep the transparent default. */
+.st-key-hf_study [data-testid="stRadioOption"]:not([data-selected="true"]){background-color:light-dark(#FFFFFF,transparent)}
+[class*="st-key-alpha_card_"],[class*="st-key-premarket_card_"],[data-testid="stForm"],
+[data-testid="stExpander"] details,[data-testid="stTabs"] [data-baseweb="tab-panel"]{
+  background-color:light-dark(#FFFFFF,transparent);
+  box-shadow:0 1px 2px light-dark(rgba(16,40,70,.06),transparent),0 6px 18px -12px light-dark(rgba(16,40,70,.18),transparent)}
+[data-testid="stTabs"] [data-baseweb="tab-panel"]{border:1px solid light-dark(#DDE4EC,rgba(120,135,155,.22));
+  border-radius:.6rem;padding:.9rem 1rem !important}
+.st-key-alpha_header{border-bottom-color:light-dark(rgba(120,135,155,.22),rgba(120,135,155,.28))}
 @media (max-width:640px){.st-key-hf_study [data-testid="stRadioOption"]{padding:.22rem .65rem .22rem .5rem}
   .st-key-hf_study [data-testid="stRadioOption"] p{font-size:.85rem}}
 
