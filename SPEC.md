@@ -363,7 +363,7 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 
 0.12.1后续修正：首页AI专题卡原来只有“↓ Continue below on this page”说明文字，不可点击；现改为页内链接“Go to the AI study below ↓／前往本页下方的 AI 专题 ↓”，指向AI专题标题锚点`#ai-study`，仅滚动页面，不触发计算或切换数据。其余六张卡仍为“Open study →／打开专题”按钮。本机浏览器验证点击后滚动到AI标题且无图表或训练被触发；公网结果以下一次HF工作流与页面检查为准。该修正随提交`865c0d2`发布，HF工作流46100570784成功、Space revision `c87cbcb`运行；公网点击后滚动到AI标题，无图表或计算被触发。
 
-## 0.12.2（本机实现，未发布）：首屏与交互动效
+## 0.12.2（已发布）：首屏与交互动效
 
 仍只改呈现层，计算、数据、默认值、widget key与会话状态不变；新增动效全部为CSS／内联SVG，不加载外部脚本、字体或图片。
 
@@ -371,4 +371,5 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 - 首屏数字：7个研究专题、250个冻结盘前交易日、0个券商连接，以CSS `@property`计数动画显示（另含屏幕阅读器文本）；`@property`的syntax写作CSS转义`\3C integer\3E`，因为字面尖括号会被`st.html`清洗器当成标签而整段丢弃样式。
 - 专题卡依次淡入上浮；悬停时上移、边框转青绿并亮起渐变顶线。导航胶囊选中态为渐变底与柔光；主按钮悬停轻微上浮发光；页面标题、徽章、上次运行条与盘前结果卡淡入。
 - `prefers-reduced-motion: reduce`下关闭循环动画、入场动画直接到终态。首屏在浅色与深色应用主题下都使用自身深色配色；≤640px隐藏示意图列，三项数字同行。
-- 本机验证：相关UI测试33项通过（导航、盘前UI与打包、期权、Beta）；1366px浅色／深色与390px中文浏览器检查无横向溢出，卡片悬停与示意图动画生效。减少动态效果偏好仅按CSS规则实现，未在浏览器中模拟验证。截图新增`docs/ui_screenshots/desktop-home-hero-en.jpg`、`desktop-home-hero-dark-en.jpg`、`desktop-cards-hover-en.jpg`、`mobile-home-hero-zh.jpg`（本机，未提交）。尚未提交GitHub、未部署HF。
+- 本机验证：相关UI测试33项通过（导航、盘前UI与打包、期权、Beta）；1366px浅色／深色与390px中文浏览器检查无横向溢出，卡片悬停与示意图动画生效。减少动态效果偏好仅按CSS规则实现，未在浏览器中模拟验证。截图新增`docs/ui_screenshots/desktop-home-hero-en.jpg`、`desktop-home-hero-dark-en.jpg`、`desktop-cards-hover-en.jpg`、`mobile-home-hero-zh.jpg`（本机，未提交）。
+- 发布记录：提交`d967678`快进推送main（父`865c0d2`），HF工作流46106735998成功，Space revision `7d363c7`运行，远端`hf_space/ui_theme.py` SHA256与本机一致（`7a18d788…0196b7a`）。公网检查：首屏极光动画、示意图与三项计数生效，7张专题卡，无横向溢出；切English后盘前09:25、阈值1.25仍为QQQ 18、SPY 4、DIA 5（DIA合格236/250）；390px隐藏示意图、标题26px、入场动画结束后文案与数字完整显示。减少动态效果仍未在浏览器模拟验证。
