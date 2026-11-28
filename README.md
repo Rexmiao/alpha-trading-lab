@@ -1,6 +1,6 @@
 # Alpha Lab
 
-[打开独立应用](https://rexymiao-alpha-trading-lab.hf.space/) · [Hugging Face项目页](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)
+[进入研究平台](https://rexymiao-alpha-trading-lab.hf.space/) · [Hugging Face项目页](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)
 
 研究应用首次访问固定使用English，不跟随浏览器语言。手动选择中文或English后，仅在本浏览器记住语言，刷新和重访会恢复；浏览器禁止本地存储时，选择仍在当前会话有效。语言切换不重新训练、获取行情或提交交易。
 

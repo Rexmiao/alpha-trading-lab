@@ -321,7 +321,7 @@ def main() -> None:
                  on_change=_remember_language_preference)
     app_entry, project_entry = st.columns(2)
     with app_entry:
-        st.link_button(tr("打开应用", "Open app"), "https://rexymiao-alpha-trading-lab.hf.space/", use_container_width=True)
+        st.link_button(tr("进入研究平台", "Launch Research Lab"), "https://rexymiao-alpha-trading-lab.hf.space/", use_container_width=True)
     with project_entry:
         st.link_button(tr("Hugging Face项目页", "Hugging Face project"), "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab", use_container_width=True)
     # Keep navigation in non-widget state: translated labels may recreate widgets.

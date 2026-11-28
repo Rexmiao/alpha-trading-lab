@@ -188,7 +188,7 @@ p(d) = 触发E_t且D_open >= d的有效交易日数 / 触发E_t的有效交易�
 
 ## 10 Hugging Face派生研究页（0.5／应用0.12.0）
 
-用户明确要求将三ETF统计加到HF，并提供独立应用与HF项目两个入口。两者是同一套应用：[应用直达](https://rexymiao-alpha-trading-lab.hf.space/)、[HF项目页](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。全局顶部以Open app／打开应用和Hugging Face project／Hugging Face项目页标记，与七个研究专题分开；部署一次即可在这两个入口显示。备用Community Cloud或GitHub Pages的实际状态仍单独验收。
+用户明确要求将三ETF统计加到HF，并提供独立应用与HF项目两个入口。两者是同一套应用：[应用直达](https://rexymiao-alpha-trading-lab.hf.space/)、[HF项目页](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。全局顶部以Launch Research Lab／进入研究平台和Hugging Face project／Hugging Face项目页标记，与七个研究专题分开；部署一次即可在这两个入口显示。备用Community Cloud或GitHub Pages的实际状态仍单独验收。
 
 ### 唯一公开派生参考集
 

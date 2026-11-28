@@ -12,7 +12,7 @@ short_description: Bilingual, bounded AI alpha learning simulations
 
 # Alpha Lab Simulator
 
-[Open app](https://rexymiao-alpha-trading-lab.hf.space/) ·
+[Launch Research Lab](https://rexymiao-alpha-trading-lab.hf.space/) ·
 [Hugging Face project](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)
 
 These are two entrypoints to the same application. The standalone app URL opens

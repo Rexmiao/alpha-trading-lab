@@ -334,3 +334,6 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 0.12.0实际验收：应用代码提交`9e6cbbb080a73b9de1580c12af07c887ec203c95`，Docker上下文清单补齐提交`48f6ba03f508780520cbe7dfc99207a4997d21d2`；[最终HF工作流46065758842](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/46065758842)成功。HF仓库／runtime同为`25ebe7014fcc5f331aff99872183314812367394`，RUNNING／CPU Basic。30份允许源码与派生资源逐字一致，MANIFEST逐项hash一致，总包31文件；原始分钟OHLCV和本机报告未进入包。
 
 115项相关测试通过；后续新增Docker允许清单一致性用例，打包组3项通过（覆盖116个不同用例，未重跑全项目历史测试）。独立数据审计72网格组及1.25%的12组无差异。公开应用实际验证English默认、两个访问入口、1.25%样本18／4／5、原生下载与纯计算一致、改参数未提交不重算、中英JSON同字节（SHA `735b5a2b8a96a8403cbd3e8da53cbacef4dc3052b74aea5a286855b5f1cdff38`）、DIA无合格窗／partial3、390px和JS异常0。证据位于`state/hf-premarket-review/`，包括最终包核验及public-custom／public-dia。应用直达与HF项目页显示同一版本；备用Cloud／Pages本轮未单独验收。
+
+
+入口文案（2026-11-27）：独立应用按钮现命名为“Launch Research Lab／进入研究平台”，替代原“Open app／打开应用”；旁侧仍为“Hugging Face project／Hugging Face项目页”。README、Space说明及个人网站Projects对应入口同步采用新的名称，网址、研究参数和已生成报告格式保持原契约。文案部署另做实际中英文入口与目标URL验收。

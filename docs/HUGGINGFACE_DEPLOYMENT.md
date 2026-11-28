@@ -6,7 +6,7 @@
 
 2026-11-27，经现有GitHub App发布应用代码`9e6cbbb080a73b9de1580c12af07c887ec203c95`，并以`48f6ba03f508780520cbe7dfc99207a4997d21d2`补齐Docker构建上下文的显式允许文件。[最终同步工作流46065758842](https://github.com/Rexmiao/alpha-trading-lab/actions/runs/46065758842)成功；HF仓库与runtime均为`25ebe7014fcc5f331aff99872183314812367394`，RUNNING，当前／请求硬件均CPU Basic。没有改变Space、付费配置或凭据范围。
 
-入口为“Premarket & opening downside／盘前涨幅与开盘下探”。全局另有Open app／打开应用及Hugging Face project／项目页两个链接，默认English，中文可切换。选择QQQ／SPY／DIA、自定义盘前涨幅（如1.25%）和观察口径，显式点击Compare historical events后查看n、最大下探分布、全部事件日、同覆盖基线与派生JSON。冻结范围2025-11-27至2026-11-26，不含今天，不是实时数据。
+入口为“Premarket & opening downside／盘前涨幅与开盘下探”。全局另有Launch Research Lab／进入研究平台及Hugging Face project／项目页两个链接，默认English，中文可切换。选择QQQ／SPY／DIA、自定义盘前涨幅（如1.25%）和观察口径，显式点击Compare historical events后查看n、最大下探分布、全部事件日、同覆盖基线与派生JSON。冻结范围2025-11-27至2026-11-26，不含今天，不是实时数据。
 
 发布包为30份源码／派生资产加MANIFEST，共31文件；全部远端文件逐字与本机一致，MANIFEST逐项hash通过。唯一新增公开派生参考集SHA256为`1b93af7a00e7c241ca9e2c76a9ae6234475c77c12170ba2d2ca086ed6cee7b60`，750标的日，仅无量纲充分统计和净化指纹，不含分钟OHLCV、绝对价格、成交量、路径、游标或凭据。它作为公开文件可读取；原始行情和本机报告没有发布。
 
