@@ -170,3 +170,16 @@ def test_standalone_app_and_hugging_face_project_have_separate_entries():
     links = {item.proto.label: item.proto.url for item in app.get("link_button")}
     assert links["进入研究平台"] == "https://alphalab.levyquant.ai/"
     assert links["Hugging Face项目页"] == "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
+
+
+def test_day_night_toggle_is_client_side_and_bilingual():
+    app = AppTest.from_file(str(ROOT / "hf_space/streamlit_app.py"), default_timeout=30).run()
+    assert not app.exception
+    bodies = [item.proto.body for item in app.get("html")]
+    toggle = next(body for body in bodies if "alpha-theme-toggle" in body)
+    assert "Switch to night mode" in toggle and "Switch to day mode" in toggle
+    assert "stMainMenuItem-theme-" in toggle
+    assert "location.reload" not in toggle and "localStorage" not in toggle
+    app.radio(key="hf_language").set_value("中文").run()
+    toggle = next(item.proto.body for item in app.get("html") if "alpha-theme-toggle" in item.proto.body)
+    assert "切换到夜间模式" in toggle and "切换到日间模式" in toggle

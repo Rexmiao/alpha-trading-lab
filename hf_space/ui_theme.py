@@ -118,6 +118,16 @@ h2,h3{letter-spacing:-.01em}
 .alpha-wordmark span{background:linear-gradient(92deg,#0E9F95,#2F6FB3);-webkit-background-clip:text;background-clip:text;color:transparent}
 .alpha-tagline{font-size:.78rem;line-height:1.35;opacity:.68}
 .st-key-alpha_header .stLinkButton a{font-size:.82rem;min-height:2.1rem;padding:.25rem .7rem}
+.alpha-theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;
+  padding:0;border-radius:.5rem;cursor:pointer;color:inherit;background:transparent;
+  border:1px solid light-dark(#D3DCE6,#2B3A4B);transition:background-color .15s,border-color .15s,transform .15s}
+.alpha-theme-toggle:hover{border-color:#0B6E75;background-color:light-dark(rgba(11,110,117,.06),rgba(60,193,184,.1))}
+.alpha-theme-toggle:active{transform:scale(.94)}
+.alpha-theme-toggle:focus-visible{outline:2px solid #0B6E75;outline-offset:2px}
+.alpha-theme-toggle svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.alpha-theme-toggle .alpha-ico-sun,.alpha-theme-toggle[data-mode="dark"] .alpha-ico-moon{display:none}
+.alpha-theme-toggle[data-mode="dark"] .alpha-ico-sun{display:block}
+.alpha-theme-switching [data-baseweb="popover"]{opacity:0 !important}
 
 /* Sidebar: white rail, quiet panels, notes as indented captions */
 [data-testid="stSidebar"]{border-right:1px solid light-dark(#E3E8EF,rgba(120,135,155,.18))}
@@ -415,6 +425,79 @@ _LOGO = (
     "</svg>")
 
 
+# Day / night switch. Streamlit has no Python API to change the viewer's theme, so the
+# button drives the built-in main-menu theme items (stMainMenuItem-theme-Light/Dark):
+# the change is applied in place without a rerun, so reports and session_state stay,
+# and Streamlit itself remembers the choice in the browser. If the menu is missing the
+# click does nothing; it never reloads the page. st.html strips inline SVG, so the
+# script inserts the icons.
+_THEME_ICONS = (
+    "<svg class='alpha-ico-moon' viewBox='0 0 24 24' aria-hidden='true'><path d='M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z'/></svg>"
+    "<svg class='alpha-ico-sun' viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='12' r='4.2'/>"
+    "<path d='M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6'/></svg>")
+_THEME_JS = """
+<script>
+(() => {
+  const doc = document;
+  const mode = () => {
+    const app = doc.querySelector('.stApp');
+    return app && getComputedStyle(app).colorScheme.includes('dark') ? 'dark' : 'light';
+  };
+  const sync = () => doc.querySelectorAll('.alpha-theme-toggle').forEach(b => {
+    if (!b.querySelector('svg')) b.innerHTML = `__ICONS__`;
+    const m = mode();
+    b.dataset.mode = m;
+    const label = m === 'dark' ? b.dataset.toLight : b.dataset.toDark;
+    b.setAttribute('aria-label', label); b.title = label;
+  });
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const find = async (sel, tries = 20) => {
+    for (let i = 0; i < tries; i++) { const el = doc.querySelector(sel); if (el) return el; await wait(25); }
+    return null;
+  };
+  const toggle = async () => {
+    const target = mode() === 'dark' ? 'Light' : 'Dark';
+    const menu = doc.querySelector('[data-testid="stMainMenu"] button');
+    if (!menu) { console.warn('alpha theme: main menu unavailable'); return; }
+    doc.documentElement.classList.add('alpha-theme-switching');
+    try {
+      menu.click();
+      const item = await find(`[data-testid="stMainMenuItem-theme-${target}"]`);
+      if (item) item.click(); else console.warn('alpha theme: theme item unavailable');
+      await wait(60);
+      if (doc.querySelector('[data-testid="stMainMenuList"]')) menu.click();
+    } finally {
+      await wait(60);
+      doc.documentElement.classList.remove('alpha-theme-switching');
+      sync();
+    }
+  };
+  if (!window.__alphaThemeInit) {
+    window.__alphaThemeInit = true;
+    doc.addEventListener('click', e => {
+      const b = e.target.closest && e.target.closest('.alpha-theme-toggle');
+      if (b) { e.preventDefault(); toggle(); }
+    });
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => setTimeout(sync, 100));
+    doc.addEventListener('click', e => {
+      if (e.target.closest && e.target.closest('[data-testid^="stMainMenuItem-theme-"]')) setTimeout(sync, 100);
+    }, true);
+  }
+  sync(); setTimeout(sync, 300);
+})();
+</script>
+"""
+
+
+def theme_toggle(tr) -> None:
+    to_dark = escape(tr("切换到夜间模式", "Switch to night mode"), quote=True)
+    to_light = escape(tr("切换到日间模式", "Switch to day mode"), quote=True)
+    st.html(f"<button type='button' class='alpha-theme-toggle' data-to-dark='{to_dark}' "
+            f"data-to-light='{to_light}' aria-label='{to_dark}' title='{to_dark}'></button>"
+            + _THEME_JS.replace("__ICONS__", _THEME_ICONS.replace("<", "\\x3C")),
+            unsafe_allow_javascript=True, width="content")
+
+
 def header(tr, on_language_change) -> None:
     with st.container(key="alpha_header"):
         brand, controls = st.columns([5, 6], vertical_alignment="center")
@@ -428,6 +511,7 @@ def header(tr, on_language_change) -> None:
                                     vertical_alignment="center", gap="small", key="alpha_header_controls"):
             st.radio("Language / 语言", ("English", "中文"), key="hf_language", horizontal=True,
                      on_change=on_language_change, label_visibility="collapsed", width="content")
+            theme_toggle(tr)
             st.link_button(tr("进入研究平台", "Launch Research Lab"), APP_URL, icon=":material/open_in_new:",
                            width="content")
             st.link_button(tr("Hugging Face项目页", "Hugging Face project"), PROJECT_URL,
