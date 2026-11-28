@@ -8,7 +8,7 @@
 
 - [共同入口](../hf_space/streamlit_app.py)与 `hf_space/engine.py`、所需 `research/` 模块。
 - [云端依赖](../hf_space/requirements.txt)：固定 `streamlit==1.67.0`，与 Docker 发布依赖一致。
-- [根目录配置](../.streamlit/config.toml)：上传上限设为 3 MiB，关闭 Streamlit 使用统计。
+- [根目录配置](../.streamlit/config.toml)：上传上限 12 MB（应用层另有逐专题文件大小校验），关闭 Streamlit 使用统计；0.12.1 起同时承载共享浅／深主题，HF 打包与 Cloud 读取同一文件。
 
 然后在浏览器完成：
 
@@ -41,17 +41,21 @@ Streamlit 的首次 GitHub 连接支持公开仓库；访问私有仓库属于�
 
 Community Cloud 会先查找入口所在目录的依赖文件，再查找仓库根目录。因此本入口采用 `hf_space/requirements.txt` 的 Streamlit 1.67 依赖，保留根目录原有本机研究环境。不要把主文件选成根目录 `app.py`。若构建日志显示安装了根目录的旧 Streamlit，先核对入口路径和 `hf_space/requirements.txt` 是否已进入 `main`。[官方依赖查找顺序](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies)
 
-Cloud 从仓库根目录启动；项目配置放在根目录 `.streamlit/config.toml`，当前内容为：
+Cloud 从仓库根目录启动；项目配置放在根目录 `.streamlit/config.toml`，当前主要内容为：
 
 ```toml
 [server]
-maxUploadSize = 3
+maxUploadSize = 12
 
 [browser]
 gatherUsageStats = false
+
+[theme]        # 圆角、字号层级、图表分类色
+[theme.light]  # 深蓝文字、青绿强调
+[theme.dark]   # 对应深色配色
 ```
 
-该文件限制 CSV 上传大小并关闭 Streamlit 使用统计，不等于关闭托管平台所有运行日志。配置位置与参数分别见[官方文件组织说明](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/file-organization)和[配置参考](https://docs.streamlit.io/develop/api-reference/configuration/config.toml)。Community Cloud 直接运行 Python 入口，不需要使用 HF 的 Dockerfile，也不需要 moomoo 桌面端。
+主题只影响呈现；完整取值以该文件为准（SPEC 0.12.1）。该文件限制 CSV 上传大小并关闭 Streamlit 使用统计，不等于关闭托管平台所有运行日志。配置位置与参数分别见[官方文件组织说明](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/file-organization)和[配置参考](https://docs.streamlit.io/develop/api-reference/configuration/config.toml)。Community Cloud 直接运行 Python 入口，不需要使用 HF 的 Dockerfile，也不需要 moomoo 桌面端。
 
 ## 发布后的实际验收
 

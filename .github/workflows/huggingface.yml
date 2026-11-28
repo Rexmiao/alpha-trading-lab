@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "hf_space/**"
+      - ".streamlit/config.toml"
       - "research/__init__.py"
       - "research/data.py"
       - "research/models.py"

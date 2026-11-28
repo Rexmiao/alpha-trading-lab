@@ -1,6 +1,6 @@
 # Alpha Lab 可复现规格
 
-版本：0.12.0（已发布：盘前涨幅与开盘下探）；更新日期：2026-11-27（America/New_York）。此前公开应用0.11.1及免费MM样本验收记录保留；三ETF盘前统计的实现、程序测试和公网验收见文末。研究主线仍为美股日频DL／GenAI alpha预测，另有独立日频／5分钟规则、Beta、S&R和期权研究。公开HF只负责研究，不提供委托入口；本机VeighNa＋moomoo真实券商模拟认证与成交验收尚未完成，没有实盘路径。真实MM库存估计仍未识别。
+版本：0.12.1（本机实现：研究界面统一视觉与导航；未部署）；此前0.12.0（已发布：盘前涨幅与开盘下探）；更新日期：2026-11-27（America/New_York）。此前公开应用0.11.1及免费MM样本验收记录保留；三ETF盘前统计的实现、程序测试和公网验收见文末。研究主线仍为美股日频DL／GenAI alpha预测，另有独立日频／5分钟规则、Beta、S&R和期权研究。公开HF只负责研究，不提供委托入口；本机VeighNa＋moomoo真实券商模拟认证与成交验收尚未完成，没有实盘路径。真实MM库存估计仍未识别。
 
 ## 系统实施路线与当前增量
 
@@ -340,3 +340,19 @@ HF新增数据审计、GEX情景、Max Pain计算器、实验设计四Tab；只�
 
 
 入口文案已实际验收：应用源码提交73b51bf98ac45056c5933ca84e3d5e95fdde3748，HF工作流46091637479成功；仓库与runtime同为9853568652b19f2847929cf3aec9ffcd7f6a0a4b、RUNNING。新访客English显示Launch Research Lab，中文显示进入研究平台，两个目标URL正确，旧按钮名消失，390px正常且JS异常0；未提交研究表单。个人网站以50e31afd4c9f2fe7476caab45d97e56099edff7c同步入口，格式、源链接、部署、编译站链接四项检查均成功，Projects卡片及详情页均读到新标签。证据为本机量化准备/native-label-qa/public-20261128T011213Z-b00503/qa.json（UTC文件名对应纽约2026-11-27）及personal-website-native-entry-50e31afd/acceptance.json。
+
+## 0.12.1（本机实现，未部署）：研究工作台界面
+
+只改呈现层；模型、策略、时间定义、样本筛选、成本、精度、统计方法、公开参考集及其SHA均不变。
+
+- 共享主题：`.streamlit/config.toml`新增`[theme]`、`[theme.light]`、`[theme.dark]`（深蓝文字、青绿小面积强调、0.5rem圆角、统一边框与图表分类色），原`server.maxUploadSize=12`与`browser.gatherUsageStats=false`保留。新增纯呈现模块`hf_space/ui_theme.py`：一次注入的样式只使用`st-key-*`、`data-testid`和自有`alpha-*`类，不依赖随机emotion类或nth-child；颜色用半透明色，浅／深主题均可读。
+- 页首：品牌与说明、语言切换、两个访问入口（Launch Research Lab／进入研究平台、Hugging Face project／Hugging Face项目页，名称和网址不变）改为同一行次级按钮；七个专题以`hf_study`单选的胶囊样式置于主内容区。
+- 首页：英雄说明七个专题及数据边界（真实／冻结派生、访客CSV云端临时处理、合成／TOY教学、不连接券商），下设七张专题卡（分类、简介、来源徽章、“打开专题”按钮仅切换页面）。AI四模型改为首页下方的01专题；已有AI结果时目录收入折叠区。
+- 各专题标题下统一显示来源徽章；参数在侧栏的专题提示侧栏位置（手机左上角箭头展开）且修改参数不自动运行。AI与盘前页的“上次运行”条显示已执行设置；表单内未提交的编辑不会进入会话，只有提交后输入与展示结果不一致（例如提交失败、旧结果保留）时才标记“输入已修改，尚未应用”。
+- 盘前页：参数放入三列表单（手机自动单列），主按钮；每只ETF一张结果卡，先列事件n与合格交易日，再列平均／中位／P90／最差最大下探，并以状态徽章区分“有事件样本”“小样本（n<10）”“当前阈值无事件”“不可估计·覆盖不足”；后两种仍保留原说明，不显示为0%概率；覆盖不足时卡内注明部分窗口触发数。原汇总表（新增状态列）、图表、频率／同覆盖基线、全部事件日、定义／公式／来源与下载均保留。
+- 修复既有问题：真实浏览器中切换语言会重建译名导航单选并回报空值，原逻辑把专题重置为AI页；现仅接受有效专题写入路由记忆，空值回退到已记住专题。
+- 响应式：主体最大宽1280px；641–1100px专题卡两列，≤640px单列；KaTeX公式与代码在自身容器内横向滚动。
+
+打包：`scripts/package_hf_space.py`白名单新增`.streamlit/config.toml`（仅允许server／browser／theme表并做TOML校验）与`hf_space/ui_theme.py`，预期总包33文件（32源码＋MANIFEST）；`.dockerignore`同步放行，Dockerfile新增`COPY .streamlit/config.toml ./.streamlit/config.toml`（Streamlit从工作目录读取），工作流路径触发加入该配置。本机在临时副本完成打包（33文件，包含两新文件）；Dropbox目录内直接打包会因同步改变文件元数据而被稳定性检查拒绝，属环境限制，未放宽检查。
+
+本机验证：导航、盘前UI与打包测试及Beta／5分钟／期权／日频／S&R界面测试共49项中48项通过；`test_intraday_ui.py::test_snapshot_not_configured_is_friendly_and_cannot_train_or_fall_back`在未改动的远端main上同样失败（测试仍假设首屏中文，与English默认冲突），未在本增量修改。为运行测试按`deploy/huggingface/requirements.txt`补装本机`state/space-venv`缺失的exchange-calendars等固定依赖。真实浏览器核验：首次English、中文切换与专题保持、七个入口与两个链接、1.25%＋09:25样例QQQ 18／SPY 4／DIA 5（DIA 236/250）、`ever_before_open`下DIA 0/250不可估计并另列部分窗口触发（1.25%阈值11次、2.5%阈值3次，与纯计算一致）、1366／820／390px无页面横向溢出。截图在`docs/ui_screenshots/`（本机，未决定是否提交）。尚未提交GitHub、未部署HF，公网仍为0.12.0界面。

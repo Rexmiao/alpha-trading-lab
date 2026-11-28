@@ -20,6 +20,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from hf_space import ui_theme as ui  # noqa: E402  presentation only, no data access
 
 
 MODEL_NAMES = ("ridge", "mlp", "mlp_resample", "mlp_diffusion")
@@ -312,36 +313,29 @@ def render_data_source(result: dict) -> None:
 
 def main() -> None:
     st.set_page_config(page_title="Alpha Trading Lab", page_icon="📈", layout="wide")
+    ui.inject_styles()
     _restore_language_preference()
-    brand, language = st.columns([3, 2], vertical_alignment="center")
-    with brand:
-        st.markdown("**Alpha Trading Lab**")
-    with language:
-        st.radio("Language / 语言", ("English", "中文"), key="hf_language", horizontal=True,
-                 on_change=_remember_language_preference)
-    app_entry, project_entry = st.columns(2)
-    with app_entry:
-        st.link_button(tr("进入研究平台", "Launch Research Lab"), "https://rexymiao-alpha-trading-lab.hf.space/", use_container_width=True)
-    with project_entry:
-        st.link_button(tr("Hugging Face项目页", "Hugging Face project"), "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab", use_container_width=True)
+    ui.header(tr, _remember_language_preference)
     # Keep navigation in non-widget state: translated labels may recreate widgets.
     memory = "_hf_study_choice"
     if memory not in st.session_state:
         st.session_state[memory] = st.session_state.get("hf_study", "ai")
+    if st.session_state[memory] not in ui.STUDY_ORDER:
+        st.session_state[memory] = "ai"
     st.session_state["hf_study"] = st.session_state[memory]
     def remember_study():
-        st.session_state[memory] = st.session_state["hf_study"]
-    study_labels = {"ai": tr("AI 模型对照", "AI model comparison"),
-                    "strategies": tr("日频动量与趋势", "Daily momentum & trend"),
-                    "intraday": tr("5 分钟动量与趋势", "5-minute momentum & trend"),
-                    "beta": tr("Beta 测量与策略对照", "Beta measurement & comparison"),
-                    "sr": tr("支撑与阻力策略", "Support & resistance"),
-                    "options": tr("期权结构研究", "Options structure research"),
-                    "premarket": tr("盘前涨幅与开盘下探", "Premarket & opening downside")}
-    study = st.radio(tr("研究页面", "Study page"), ("ai", "strategies", "intraday", "beta", "sr", "options", "premarket"), index=None,
-                     format_func=study_labels.__getitem__, key="hf_study", on_change=remember_study,
-                     horizontal=True)
-    st.divider()
+        # Translated labels recreate the widget; a browser may then report an
+        # empty selection. Only a real study choice may replace the route.
+        if st.session_state.get("hf_study") in ui.STUDY_ORDER:
+            st.session_state[memory] = st.session_state["hf_study"]
+    # Labels are resolved now; a lazy formatter would read language state later.
+    study_labels = {value: ui.study_label(tr, value) for value in ui.STUDY_ORDER}
+    with st.container(key="alpha_nav"):
+        study = st.radio(tr("研究专题", "Research studies"), ui.STUDY_ORDER, index=None,
+                         format_func=study_labels.__getitem__, key="hf_study",
+                         on_change=remember_study, horizontal=True)
+    if study not in ui.STUDY_ORDER:
+        study = st.session_state[memory]
     if study == "premarket":
         from hf_space.premarket_ui import render_premarket_page
         render_premarket_page(tr)
@@ -366,14 +360,32 @@ def main() -> None:
         from hf_space.strategy_ui import render_strategy_page
         render_strategy_page(tr, render_data_source, input_coverage, render_online_downloads)
         return
-    st.title(tr("Alpha量化研究实验室", "Alpha Trading Research Lab"))
-    st.write(tr("研究日频AI Alpha、动量／趋势、Beta、支撑／阻力、期权结构与盘前涨幅后的开盘下探；在上方切换专题。",
-                "Explore daily AI alpha, momentum and trend, Beta, support and resistance, options structure, and opening downside after premarket gains. Choose a study above."))
-    st.subheader(tr("AI Alpha：四模型对照", "AI alpha: four-model comparison"))
+    with st.container(key="alpha_hero"):
+        st.markdown("<div class='alpha-eyebrow'>" + tr("量化研究工作台", "Quantitative research workbench") + "</div>",
+                    unsafe_allow_html=True)
+        st.title(tr("Alpha量化研究实验室", "Alpha Trading Research Lab"))
+        st.markdown("<div class='alpha-lede'>" + tr(
+            "七个独立研究专题：日频 AI Alpha、日频与 5 分钟动量／趋势、Beta、支撑／阻力、期权结构，以及盘前涨幅后的开盘下探。每个专题都标明数据来源、样本与限制；只有点击运行才会计算。",
+            "Seven independent studies: daily AI alpha, daily and 5-minute momentum and trend, Beta, support and resistance, options structure, and opening downside after premarket gains. Every study labels its data source, sample and limits, and computes only when you click Run.")
+            + "</div>", unsafe_allow_html=True)
+        ui.badges([("real", tr("真实历史与冻结派生数据", "Real history & frozen derived data")),
+                   ("visitor", tr("访客 CSV 云端临时处理", "Visitor CSV, processed temporarily in the cloud")),
+                   ("teaching", tr("合成／TOY 教学明确标记", "Synthetic / TOY teaching clearly labeled")),
+                   ("info", tr("不连接券商 · 不下单 · 非实盘业绩", "No brokerage · no orders · not live performance"))])
+    if st.session_state.get("hf_result") is None:
+        st.subheader(tr("选择研究专题", "Choose a study"))
+        ui.catalog(tr)
+    else:
+        with st.expander(tr("全部七个研究专题", "All seven research studies")):
+            ui.catalog(tr)
+    st.divider()
+    st.markdown("<div class='alpha-eyebrow'>01 · " + tr(*ui.STUDIES["ai"]["group"]) + "</div>", unsafe_allow_html=True)
+    st.header(tr("AI Alpha：四模型对照", "AI alpha: four-model comparison"))
     st.write(tr("比较四种预测方法，并观察交易成本、仓位上限与风险预算如何改变模拟结果。",
                 "Compare four prediction methods and see how execution costs, position limits and risk budgets change simulated results."))
     st.caption(tr("Ridge · MLP · 重采样 MLP · 条件 DDPM 增强 MLP。这是有限研究对照，并非相关论文的完整复现。",
                   "Ridge · MLP · resampled MLP · conditional-DDPM-augmented MLP. This is a bounded research comparison, not a full replication of the papers."))
+    ui.study_meta(tr, "ai")
 
     st.sidebar.subheader(tr("数据与参数", "Data and settings"))
     source_labels = {"uploaded_csv": tr("moomoo / 访客 CSV（主要入口）", "moomoo / visitor CSV (primary)"),
@@ -503,12 +515,13 @@ def main() -> None:
 
     context = st.session_state.get("hf_result_context") or {}
     render_data_source(result)
-    st.caption(tr("当前展示的是上次已运行的参数：", "Displayed results use the last executed settings: ")
-               + f"{context.get('benchmark', '—')} · h={context.get('horizon', '—')} · seed={context.get('seed', '—')}"
-               + f" · {context.get('cost_bps', '—')} bps"
-               + tr(" · 单股上限 ", " · position cap ") + f"{context.get('max_weight', 0):.0%}"
-               + tr(" · 风险预算 ", " · risk budget ") + f"{context.get('target_vol', 0):.0%}"
-               + tr("；修改左侧参数后需重新点击运行。", ". Click Run again to apply changes on the left."))
+    current = {"source": mode, "benchmark": benchmark, "seed": int(seed), "horizon": int(horizon),
+               "cost_bps": int(cost_bps), "max_weight": max_weight_pct / 100, "target_vol": target_vol_pct / 100}
+    ui.run_bar(tr, [str(context.get("benchmark", "—")), f"h={context.get('horizon', '—')}",
+                    f"seed={context.get('seed', '—')}", f"{context.get('cost_bps', '—')} bps",
+                    tr("单股上限 ", "position cap ") + f"{context.get('max_weight', 0):.0%}",
+                    tr("风险预算 ", "risk budget ") + f"{context.get('target_vol', 0):.0%}"],
+               changed=bool(context) and any(context.get(key) != value for key, value in current.items()))
     render_model_status(result)
 
     overview, prediction_tab, details = st.tabs([tr("收益与风险", "Returns and risk"),

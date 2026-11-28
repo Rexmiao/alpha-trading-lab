@@ -14,6 +14,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from hf_space import ui_theme as ui
+
 from hf_space.intraday import (
     make_synthetic_intraday_prices,
     parse_intraday_csv,
@@ -279,7 +281,9 @@ def render_intraday_results(result, context, tr):
 
 
 def render_intraday_page(tr):
+    st.markdown("<div class='alpha-eyebrow'>" + tr(*ui.STUDIES["intraday"]["group"]) + "</div>", unsafe_allow_html=True)
     st.title(tr("5分钟动量与趋势实验室", "5-minute Momentum & Trend Lab"))
+    ui.study_meta(tr, "intraday")
     st.write(tr("使用本机发布的moomoo快照、访客CSV，或明确选择合成教学数据，比较三种日内规则及其含成本纸面成交。",
                 "Use a published moomoo snapshot, visitor CSV, or explicitly selected synthetic prices to compare three intraday rules and proxy fills after costs."))
     st.caption(tr("独立5分钟研究：不训练DL／GenAI模型，不连接moomoo账户，不自动下载Yahoo分钟行情，不提交订单。",

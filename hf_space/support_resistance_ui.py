@@ -14,6 +14,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from hf_space import ui_theme as ui
+
 from hf_space.intraday import make_synthetic_intraday_prices, parse_intraday_csv
 
 
@@ -325,7 +327,9 @@ def _render_tabs(result, context, tr):
 
 
 def render_sr_page(tr, *, snapshot_loader=None):
+    st.markdown("<div class='alpha-eyebrow'>" + tr(*ui.STUDIES["sr"]["group"]) + "</div>", unsafe_allow_html=True)
     st.title(tr("5分钟支撑与阻力实验室", "5-minute Support & Resistance Lab"))
+    ui.study_meta(tr, "sr")
     st.write(tr("以前一完整交易日高低点形成冻结区域，比较支撑反弹、阻力突破和突破后回踩。", "Build frozen zones from the prior complete session's high and low; compare support bounce, resistance breakout and breakout-retest."))
     st.caption(tr("独立研究与纸面成交；不连接券商、训练模型或自动提交订单。", "Separate research and proxy fills; no brokerage connection, model training or automatic orders."))
     st.sidebar.subheader(tr("支撑阻力数据与参数", "Support/resistance data and settings"))

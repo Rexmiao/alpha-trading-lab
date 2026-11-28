@@ -7,6 +7,8 @@ import json
 import pandas as pd
 import streamlit as st
 
+from hf_space import ui_theme as ui
+
 from hf_space.premarket import PremarketReferenceError, analyze_reference, load_reference
 
 
@@ -44,14 +46,54 @@ def _frame(rows):
     st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
 
 
-def _render_results(result, context, tr):
-    st.caption(tr("当前显示已运行参数：", "Displayed executed settings: ")
-               + ", ".join(context["symbols"]) + f" · >{context['threshold_pct']}% · "
-               + tr(*DEFINITIONS[context["definition"]])
-               + tr("。修改参数后需再次点击统计。", ". Click Compare again to apply edits."))
+def _status(entry, tr):
+    if not entry["eligible_days"]:
+        return "warn", tr("不可估计 · 覆盖不足", "Not estimable · insufficient coverage")
+    if not entry["events"]["n"]:
+        return "info", tr("当前阈值无事件", "No events at this threshold")
+    if entry["events"]["n"] < 10:
+        return "warn", tr("小样本", "Small sample")
+    return "ok", tr("有事件样本", "Events observed")
+
+
+def _summary_cards(results, tr):
+    """One card per ETF: sample counts first, then the downside distribution."""
+    columns = st.columns(len(results)) if results else []
+    for column, (symbol, entry) in zip(columns, results.items()):
+        event = entry["events"]
+        with column, st.container(border=True, key=f"premarket_card_{symbol}"):
+            st.markdown(f"**{symbol}**")
+            ui.badges([_status(entry, tr)])
+            st.markdown("<div class='alpha-kpis'>"
+                        f"<div><span>{tr('事件样本数', 'Event n')}</span><b>{event['n']}</b></div>"
+                        f"<div><span>{tr('合格交易日', 'Eligible sessions')}</span><b>{entry['eligible_days']}/{entry['total_days']}</b></div>"
+                        "</div>", unsafe_allow_html=True)
+            stats = ((tr("平均最大下探", "Mean max downside"), event["mean"]),
+                     (tr("中位最大下探", "Median max downside"), event["median"]),
+                     (tr("P90最大下探", "P90 max downside"), event["p90"]),
+                     (tr("最大观察下探", "Worst observed"), event["max"]))
+            st.markdown("<div class='alpha-stats'>" + "".join(
+                f"<div><span>{label}</span><b>{_pct(value)}</b></div>" for label, value in stats) + "</div>",
+                unsafe_allow_html=True)
+            if not entry["eligible_days"]:
+                st.info(tr(f"{symbol}：按当前规则没有合格观察日，条件概率无法估计。整段盘前要求每一分钟都有有效正成交量；这不表示从未盘前大涨。",
+                           f"{symbol}: no eligible observations under this definition, so conditional probabilities are unavailable. Full premarket windows require every minute to have valid positive volume; this does not mean large premarket gains never occurred."))
+                hits = entry["partial_observed_hit_dates"]
+                if hits:
+                    st.caption(tr(f"不完整窗口中已观察到 {len(hits)} 次触发（不计入主概率），见“全部事件明细”。",
+                                  f"{len(hits)} hit(s) observed in incomplete windows (excluded from primary probabilities); see All event days."))
+            elif not event["n"]:
+                st.info(tr(f"{symbol}：当前阈值下没有触发事件，条件概率无法估计，不是0%。",
+                           f"{symbol}: no qualifying events at this threshold. Conditional probabilities are unavailable, not 0%."))
+
+
+def _render_results(result, context, tr, *, current=None):
+    ui.run_bar(tr, [", ".join(context["symbols"]), f">{context['threshold_pct']}%", tr(*DEFINITIONS[context["definition"]])],
+               changed=current is not None and current != context)
     st.warning(tr("样本可能很少；这些是历史频率，不是下一次事件的可靠概率。更换阈值属于探索比较，不能据此选出已验证的最优交易条件。",
                   "Samples can be small. These are historical frequencies, not reliable probabilities for the next event. Changing thresholds is exploratory and does not establish an optimal trading rule."))
     results = result["results"]
+    _summary_cards(results, tr)
     tabs = st.tabs([tr("样本与下探", "Samples & downside"), tr("全部事件明细", "All event days"),
                     tr("定义与来源", "Definitions & source")])
     with tabs[0]:
@@ -63,13 +105,8 @@ def _render_results(result, context, tr):
                          tr("平均最大下探", "Mean maximum downside"): _pct(event["mean"]),
                          tr("中位最大下探", "Median maximum downside"): _pct(event["median"]),
                          tr("P90最大下探", "P90 maximum downside"): _pct(event["p90"]),
-                         tr("最大观察下探", "Worst observed downside"): _pct(event["max"])})
-            if not entry["eligible_days"]:
-                st.info(tr(f"{symbol}：按当前规则没有合格观察日，条件概率无法估计。整段盘前要求每一分钟都有有效正成交量；这不表示从未盘前大涨。",
-                           f"{symbol}: no eligible observations under this definition, so conditional probabilities are unavailable. Full premarket windows require every minute to have valid positive volume; this does not mean large premarket gains never occurred."))
-            elif not event["n"]:
-                st.info(tr(f"{symbol}：当前阈值下没有触发事件，条件概率无法估计，不是0%。",
-                           f"{symbol}: no qualifying events at this threshold. Conditional probabilities are unavailable, not 0%."))
+                         tr("最大观察下探", "Worst observed downside"): _pct(event["max"]),
+                         tr("状态", "Status"): _status(entry, tr)[1]})
         _frame(rows)
         chart_rows = [(symbol, entry["events"]) for symbol, entry in results.items() if entry["events"]["n"]]
         if chart_rows:
@@ -122,25 +159,34 @@ def _render_results(result, context, tr):
         st.json(result["provenance"])
     st.download_button(tr("下载研究结果JSON", "Download research results JSON"),
         data=st.session_state["premarket_result_json"], file_name="premarket-opening-downside-results.json",
-        mime="application/json", key="premarket_download")
+        mime="application/json", key="premarket_download", icon=":material/download:")
 
 
 def render_premarket_page(tr):
+    st.markdown("<div class='alpha-eyebrow'>" + tr(*ui.STUDIES["premarket"]["group"]) + "</div>", unsafe_allow_html=True)
     st.title(tr("盘前涨幅与开盘半小时下探", "Premarket Gains & Opening Downside"))
+    ui.study_meta(tr, "premarket")
     st.write(tr("比较QQQ、SPY与道指ETF DIA：盘前上涨超过指定阈值后，开盘半小时内有多少样本、最大下探多少。",
                 "Compare QQQ, SPY and Dow ETF DIA: after a chosen premarket gain, how many historical events occurred and how far did prices fall in the first 30 minutes?"))
     st.caption(tr("冻结区间2025-11-27至2026-11-26，不含2026-11-27当天，共250个交易日。来源为已核验moomoo 1分钟历史行情的派生统计；不是实时行情。",
                   "Frozen period: 2025-11-27 through 2026-11-26, excluding 2026-11-27; 250 trading sessions. Derived statistics from verified moomoo 1-minute history, not a live feed."))
     with st.form("premarket_settings"):
-        symbols = _input("multiselect", "premarket_symbols", ["QQQ", "SPY", "DIA"], tr("ETF选择", "ETFs"), options=["QQQ", "SPY", "DIA"])
-        threshold = _input("number_input", "premarket_threshold", 2.5, tr("盘前涨幅阈值（%）", "Premarket gain threshold (%)"),
-                           min_value=0.000001, max_value=10., step=.25, format="%.6f")
+        st.markdown("**" + tr("研究参数", "Study settings") + "**")
+        etf_column, threshold_column, definition_column = st.columns([4, 3, 4])
+        with etf_column:
+            symbols = _input("multiselect", "premarket_symbols", ["QQQ", "SPY", "DIA"], tr("ETF选择", "ETFs"), options=["QQQ", "SPY", "DIA"])
+        with threshold_column:
+            threshold = _input("number_input", "premarket_threshold", 2.5, tr("盘前涨幅阈值（%）", "Premarket gain threshold (%)"),
+                               min_value=0.000001, max_value=10., step=.25, format="%.6f",
+                               help=tr("严格大于该值；1.25 表示 1.25%。", "Strictly greater than this value; 1.25 means 1.25%."))
         definition_labels = {value: tr(*titles) for value, titles in DEFINITIONS.items()}
-        definition = _input("selectbox", "premarket_definition", "fixed_0925", tr("盘前观察口径", "Premarket observation"),
-                            options=list(DEFINITIONS), format_func=definition_labels.__getitem__)
+        with definition_column:
+            definition = _input("selectbox", "premarket_definition", "fixed_0925", tr("盘前观察口径", "Premarket observation"),
+                                options=list(DEFINITIONS), format_func=definition_labels.__getitem__)
         st.caption(tr("输入1.25表示盘前涨幅严格大于1.25%；开盘后下探0.5%／1%／2%是另外三个统计档位。修改参数后点击统计；不会自动取数、训练或下单。",
                       "Entering 1.25 means a premarket gain strictly greater than 1.25%. Opening downside levels of 0.5% / 1% / 2% are separate outcome thresholds. Click Compare to apply changes; there is no automatic data fetch, training or order submission."))
-        submitted = st.form_submit_button(tr("统计历史事件", "Compare historical events"), key="premarket_run", use_container_width=True)
+        submitted = st.form_submit_button(tr("统计历史事件", "Compare historical events"), key="premarket_run", type="primary",
+                                          icon=":material/query_stats:")
     if submitted:
         try:
             if not symbols:
@@ -161,4 +207,5 @@ def render_premarket_page(tr):
     if result is None:
         st.info(tr("选择ETF和盘前涨幅阈值，然后点击「统计历史事件」。", "Choose ETFs and a premarket gain threshold, then click Compare historical events."))
         return
-    _render_results(result, st.session_state["premarket_result_context"], tr)
+    current = {"symbols": list(symbols), "threshold_pct": str(threshold), "definition": definition}
+    _render_results(result, st.session_state["premarket_result_context"], tr, current=current)

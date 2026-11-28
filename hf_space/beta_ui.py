@@ -14,6 +14,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from hf_space import ui_theme as ui
+
 
 LABELS = {
     "high_beta": ("高Beta组合", "High-Beta basket"),
@@ -254,7 +256,9 @@ def render_beta_results(result, context, tr):
 
 
 def render_beta_page(tr, *, snapshot_loader=None):
+    st.markdown("<div class='alpha-eyebrow'>" + tr(*ui.STUDIES["beta"]["group"]) + "</div>", unsafe_allow_html=True)
     st.title(tr("Beta测量与策略对照", "Beta Measurements & Strategy Comparison"))
+    ui.study_meta(tr, "beta")
     st.write(tr("用历史日K测量市场敏感度，比较高Beta、低Beta、全池等权及两种SPY基准。", "Measure market sensitivity using historical daily bars; compare high Beta, low Beta, equal weight and two SPY controls."))
     st.caption(tr("无杠杆日频研究，不训练DL／GenAI，不做Beta中性对冲或BAB，不连接券商或提交订单。", "Unlevered daily research: no DL/GenAI training, Beta-neutral hedge, BAB, brokerage connection or order submission."))
     st.sidebar.subheader(tr("Beta数据与参数", "Beta data and settings"))

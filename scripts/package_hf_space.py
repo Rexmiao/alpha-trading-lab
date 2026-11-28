@@ -17,6 +17,7 @@ import re
 import stat
 import sys
 import tempfile
+import tomllib
 import zipfile
 
 
@@ -27,6 +28,9 @@ PUBLIC_PREMARKET_REFERENCE = "hf_space/assets/premarket_reference_365.json"
 # This single audited derived result is explicitly authorized for publication.
 # A newly collected reference requires a new audit and an intentional pin update.
 PUBLIC_PREMARKET_SHA256 = "1b93af7a00e7c241ca9e2c76a9ae6234475c77c12170ba2d2ca086ed6cee7b60"
+# Shared UI theme and server limits; Streamlit reads it from the working directory.
+STREAMLIT_CONFIG = ".streamlit/config.toml"
+STREAMLIT_CONFIG_TABLES = frozenset({"server", "browser", "theme"})
 # Source -> path at the root of the uploaded Space. No recursive source copy.
 SOURCES = (
     ("deploy/huggingface/Dockerfile", "Dockerfile"),
@@ -34,6 +38,7 @@ SOURCES = (
     ("deploy/huggingface/requirements.txt", "requirements.txt"),
     ("deploy/huggingface/.dockerignore", ".dockerignore"),
     ("LICENSE", "LICENSE"),
+    (STREAMLIT_CONFIG, STREAMLIT_CONFIG),
     ("hf_space/__init__.py", "hf_space/__init__.py"),
     ("hf_space/engine.py", "hf_space/engine.py"),
     ("hf_space/history.py", "hf_space/history.py"),
@@ -52,6 +57,7 @@ SOURCES = (
     ("hf_space/premarket.py", "hf_space/premarket.py"),
     ("hf_space/premarket_ui.py", "hf_space/premarket_ui.py"),
     (PUBLIC_PREMARKET_REFERENCE, PUBLIC_PREMARKET_REFERENCE),
+    ("hf_space/ui_theme.py", "hf_space/ui_theme.py"),
     ("hf_space/streamlit_app.py", "hf_space/streamlit_app.py"),
     ("research/__init__.py", "research/__init__.py"),
     ("research/data.py", "research/data.py"),
@@ -140,6 +146,13 @@ def _validate_text(relative: str, contents: bytes) -> None:
             raise PackagingError("The public derived premarket reference must be valid JSON.") from None
         if not isinstance(reference, dict) or reference.get("schema_version") != "premarket-public-derived/1":
             raise PackagingError("Unexpected public derived premarket schema.")
+    if relative == STREAMLIT_CONFIG:
+        try:
+            config = tomllib.loads(text)
+        except tomllib.TOMLDecodeError:
+            raise PackagingError("The Streamlit config must be valid TOML.") from None
+        if not set(config) <= STREAMLIT_CONFIG_TABLES:
+            raise PackagingError("The Streamlit config may only contain server, browser and theme settings.")
     if relative.endswith(".py"):
         try:
             ast.parse(text, filename=relative)

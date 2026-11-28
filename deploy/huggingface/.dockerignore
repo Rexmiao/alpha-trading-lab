@@ -1,9 +1,11 @@
 # Default-deny context. Only the inspected package files are admitted.
 **
+!.streamlit/
 !hf_space/
 !research/
 !hf_space/assets/
 !.dockerignore
+!.streamlit/config.toml
 !Dockerfile
 !LICENSE
 !MANIFEST.json
@@ -27,6 +29,7 @@
 !hf_space/streamlit_app.py
 !hf_space/support_resistance.py
 !hf_space/support_resistance_ui.py
+!hf_space/ui_theme.py
 !requirements.txt
 !research/__init__.py
 !research/data.py

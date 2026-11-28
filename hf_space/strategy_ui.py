@@ -9,6 +9,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from hf_space import ui_theme as ui
+
 from hf_space.engine import make_synthetic_prices, parse_csv
 from hf_space.history import fetch_history
 from hf_space.strategies import run_strategy_comparison
@@ -174,7 +176,9 @@ def render_results(result, context, tr):
 
 
 def render_strategy_page(tr, render_data_source, input_coverage, render_online_downloads):
+    st.markdown("<div class='alpha-eyebrow'>" + tr(*ui.STUDIES["strategies"]["group"]) + "</div>", unsafe_allow_html=True)
     st.title(tr("动量与趋势实验室", "Momentum & Trend Lab"))
+    ui.study_meta(tr, "strategies")
     st.write(tr("用同一份日 K 比较四类规则策略，查看信号、仓位、含成本权益与回撤。",
                 "Compare four rule strategies on the same daily bars: signals, weights, equity after costs and drawdowns."))
     render_guide(tr)

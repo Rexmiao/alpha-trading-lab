@@ -1,6 +1,15 @@
 # Hugging Face Docker 发布准备
 
-0.12.0盘前事件研究与双入口已发布并通过实际浏览器验收；最新证据见下一节。应用直达为[rexymiao-alpha-trading-lab.hf.space](https://rexymiao-alpha-trading-lab.hf.space/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。
+0.12.0盘前事件研究与双入口已发布并通过实际浏览器验收；0.12.1界面美化仅在本机实现、尚未发布（见下一节）。应用直达为[rexymiao-alpha-trading-lab.hf.space](https://rexymiao-alpha-trading-lab.hf.space/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。
+
+## 0.12.1 研究工作台界面：本机就绪，尚未发布
+
+只改呈现层，详见SPEC 0.12.1。发布包由31文件变为33文件，新增：
+
+- `.streamlit/config.toml`：共享主题（浅／深）及原上传上限、统计关闭设置。Streamlit只从工作目录（容器内`/home/user/app`）读取`.streamlit/config.toml`，因此Dockerfile新增`COPY --chown=user:user .streamlit/config.toml ./.streamlit/config.toml`，`.dockerignore`放行`.streamlit/`及该文件；打包器只接受server／browser／theme三个TOML表。环境变量`STREAMLIT_SERVER_MAX_UPLOAD_SIZE=12`仍保留，与配置一致。
+- `hf_space/ui_theme.py`：纯呈现模块（页首、专题目录、来源徽章、上次运行条及样式），不读数据、不联网。
+
+工作流路径触发已加入`.streamlit/config.toml`。本机在非同步临时副本打包成功（33文件，含上述两个文件）。发布时仍按现有GitHub App提交、核对分支旧SHA、等待HF工作流，再以公网结果JSON核对运行时依赖与界面；发布后检查：首屏English与主题加载、中文切换保持专题、两个入口URL、盘前1.25%样例18／4／5、DIA覆盖不足显示、390px无横向溢出。完成前公网仍是0.12.0界面。
 
 ## 0.12.0 盘前统计：实际发布与验收
 

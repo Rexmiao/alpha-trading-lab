@@ -13,6 +13,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from hf_space import ui_theme as ui
+
 
 AUDIT = {
     "audited_at_utc": "2026-11-27T05:54:31Z",
@@ -371,7 +373,9 @@ def _inventory_methods_tab(tr):
 
 
 def render_options_research_page(tr):
+    st.markdown("<div class='alpha-eyebrow'>" + tr(*ui.STUDIES["options"]["group"]) + "</div>", unsafe_allow_html=True)
     st.title(tr("期权结构研究：GEX与最大痛苦", "Options Structure: GEX & Max Pain"))
+    ui.study_meta(tr, "options")
     st.write(tr("区分实际观测、库存假设和可检验预测；先看数据边界，再运行明确标记的TOY教学计算。", "Separate observations, inventory assumptions and testable prediction. Check the data limits, then explicitly run labeled TOY calculations."))
     st.caption(tr("离线研究页；不联网取数、不读取私人文件、不连接券商或提交订单。", "Offline research page: no data fetching, private-file access, brokerage connection or orders."))
     tabs = st.tabs([tr("数据审计", "Data audit"), tr("持仓方向方法", "Inventory methods"), tr("GEX情景", "GEX scenarios"),

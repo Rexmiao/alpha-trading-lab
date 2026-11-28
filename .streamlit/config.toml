@@ -3,3 +3,40 @@ maxUploadSize = 12
 
 [browser]
 gatherUsageStats = false
+
+# Shared research-workbench theme. Packaged to the Space as .streamlit/config.toml
+# (see scripts/package_hf_space.py and deploy/huggingface/Dockerfile).
+[theme]
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+showWidgetBorder = true
+baseFontSize = 15
+headingFontWeights = [700, 650, 620, 600, 600, 600]
+headingFontSizes = ["2.05rem", "1.5rem", "1.22rem", "1.05rem", "1rem", "0.95rem"]
+chartCategoricalColors = ["#0B6E75", "#2F6FB3", "#C98A1E", "#7A5CC2", "#5B6B7F", "#C2554D", "#3E9C5A"]
+
+[theme.light]
+primaryColor = "#0B6E75"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F2F5F8"
+textColor = "#13233A"
+linkColor = "#0B5F8A"
+borderColor = "#D6DEE6"
+dataframeHeaderBackgroundColor = "#EEF3F7"
+
+[theme.light.sidebar]
+backgroundColor = "#F5F8FA"
+secondaryBackgroundColor = "#FFFFFF"
+
+[theme.dark]
+primaryColor = "#3CC1B8"
+backgroundColor = "#0E1621"
+secondaryBackgroundColor = "#172230"
+textColor = "#E6EDF3"
+linkColor = "#7CC4F0"
+borderColor = "#2B3A4B"
+dataframeHeaderBackgroundColor = "#1A2736"
+
+[theme.dark.sidebar]
+backgroundColor = "#111B27"
+secondaryBackgroundColor = "#1A2736"
