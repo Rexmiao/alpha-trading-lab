@@ -1,6 +1,6 @@
 # Hugging Face Docker 发布准备
 
-0.12.0盘前事件研究与双入口已发布并通过实际浏览器验收；0.12.1研究工作台界面已发布并通过公网验收（见下一节）。应用直达为[alphalab.levyquant.ai](https://alphalab.levyquant.ai/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。
+0.12.0盘前事件研究与双入口已发布并通过实际浏览器验收；0.12.1研究工作台界面已发布并通过公网验收（见下一节）。应用直达为[alphalab.levyquant.ai](https://alphalab.levyquant.ai/)，HF项目页为[Rexymiao/alpha-trading-lab](https://huggingface.co/spaces/Rexymiao/alpha-trading-lab)。它们显示同一套应用，不是两个独立部署。顶栏另有“Lévy Quant／Lévy Quant 主站”链接回总站[levyquant.ai](https://levyquant.ai/)。
 
 ## 0.12.1 研究工作台界面：实际发布与验收
 

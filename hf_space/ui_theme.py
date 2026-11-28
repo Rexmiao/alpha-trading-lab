@@ -15,6 +15,7 @@ import streamlit as st
 
 APP_URL = "https://alphalab.levyquant.ai/"
 PROJECT_URL = "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
+HUB_URL = "https://levyquant.ai/"
 AI_ANCHOR = "ai-study"
 STUDY_ORDER = ("ai", "strategies", "intraday", "beta", "sr", "options", "premarket")
 
@@ -532,6 +533,8 @@ def header(tr, on_language_change) -> None:
                            width="content")
             st.link_button(tr("Hugging Face项目页", "Hugging Face project"), PROJECT_URL,
                            icon=":material/deployed_code:", width="content")
+            st.link_button(tr("Lévy Quant 主站", "Lévy Quant"), HUB_URL, icon=":material/home:",
+                           width="content")
 
 
 def _open_study(study: str) -> None:

@@ -165,11 +165,13 @@ def test_standalone_app_and_hugging_face_project_have_separate_entries():
     links = {item.proto.label: item.proto.url for item in app.get("link_button")}
     assert links["Launch Research Lab"] == "https://alphalab.levyquant.ai/"
     assert links["Hugging Face project"] == "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
+    assert links["Lévy Quant"] == "https://levyquant.ai/"
     app.radio(key="hf_language").set_value("中文").run()
     assert not app.exception
     links = {item.proto.label: item.proto.url for item in app.get("link_button")}
     assert links["进入研究平台"] == "https://alphalab.levyquant.ai/"
     assert links["Hugging Face项目页"] == "https://huggingface.co/spaces/Rexymiao/alpha-trading-lab"
+    assert links["Lévy Quant 主站"] == "https://levyquant.ai/"
 
 
 def test_day_night_toggle_is_client_side_and_bilingual():
