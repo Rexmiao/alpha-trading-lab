@@ -360,18 +360,7 @@ def main() -> None:
         from hf_space.strategy_ui import render_strategy_page
         render_strategy_page(tr, render_data_source, input_coverage, render_online_downloads)
         return
-    with st.container(key="alpha_hero"):
-        st.markdown("<div class='alpha-eyebrow'>" + tr("量化研究工作台", "Quantitative research workbench") + "</div>",
-                    unsafe_allow_html=True)
-        st.title(tr("Alpha量化研究实验室", "Alpha Trading Research Lab"))
-        st.markdown("<div class='alpha-lede'>" + tr(
-            "七个独立研究专题：日频 AI Alpha、日频与 5 分钟动量／趋势、Beta、支撑／阻力、期权结构，以及盘前涨幅后的开盘下探。每个专题都标明数据来源、样本与限制；只有点击运行才会计算。",
-            "Seven independent studies: daily AI alpha, daily and 5-minute momentum and trend, Beta, support and resistance, options structure, and opening downside after premarket gains. Every study labels its data source, sample and limits, and computes only when you click Run.")
-            + "</div>", unsafe_allow_html=True)
-        ui.badges([("real", tr("真实历史与冻结派生数据", "Real history & frozen derived data")),
-                   ("visitor", tr("访客 CSV 云端临时处理", "Visitor CSV, processed temporarily in the cloud")),
-                   ("teaching", tr("合成／TOY 教学明确标记", "Synthetic / TOY teaching clearly labeled")),
-                   ("info", tr("不连接券商 · 不下单 · 非实盘业绩", "No brokerage · no orders · not live performance"))])
+    ui.hero(tr, tr("Alpha量化研究实验室", "Alpha Trading Research Lab"))
     if st.session_state.get("hf_result") is None:
         st.subheader(tr("选择研究专题", "Choose a study"))
         ui.catalog(tr)
